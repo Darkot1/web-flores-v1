@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#05080a" />
+    <title>Para ti</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/styles/base.css" />
+  </head>
+  <body>
+    <main>
+      <button class="music-toggle" id="music-toggle" type="button" aria-label="Reproducir música">Música</button>
+
+      <div class="petal-field" aria-hidden="true">
+        <span class="petal" style="left: 8%; --drift: 18px; animation-delay: 0s; animation-duration: 10s;"></span>
+        <span class="petal" style="left: 18%; --drift: -20px; animation-delay: 2.5s; animation-duration: 12s;"></span>
+        <span class="petal" style="left: 30%; --drift: 24px; animation-delay: 1.2s; animation-duration: 11s;"></span>
+        <span class="petal" style="left: 52%; --drift: -22px; animation-delay: 4.8s; animation-duration: 13s;"></span>
+        <span class="petal" style="left: 68%; --drift: 16px; animation-delay: 2s; animation-duration: 12s;"></span>
+        <span class="petal" style="left: 82%; --drift: -18px; animation-delay: 5.4s; animation-duration: 10s;"></span>
+      </div>
+
+      <section class="scene scene--hero" id="inicio">
+        <div class="night" aria-hidden="true"></div>
+        <div class="stars" aria-hidden="true"></div>
+
+        <div class="hero-copy">
+          <p class="eyebrow">Una pequeña sorpresa</p>
+          <h1>Para <span>Shara Melizza</span></h1>
+          <p class="hero-subtitle">Mira cómo florece.</p>
+        </div>
+
+        <div class="flowers flowers--hero" aria-hidden="true">
+          <div class="flower flower--1">
+            <div class="flower__leafs">
+              <i class="flower__leaf flower__leaf--1"></i>
+              <i class="flower__leaf flower__leaf--2"></i>
+              <i class="flower__leaf flower__leaf--3"></i>
+              <i class="flower__leaf flower__leaf--4"></i>
+              <i class="flower__white-circle"></i>
+              <i class="flower__light flower__light--1"></i>
+              <i class="flower__light flower__light--2"></i>
+              <i class="flower__light flower__light--3"></i>
+              <i class="flower__light flower__light--4"></i>
+              <i class="flower__light flower__light--5"></i>
+              <i class="flower__light flower__light--6"></i>
+            </div>
+            <div class="flower__line">
+              <i class="flower__line__leaf flower__line__leaf--1"></i>
+              <i class="flower__line__leaf flower__line__leaf--2"></i>
+              <i class="flower__line__leaf flower__line__leaf--3"></i>
+              <i class="flower__line__leaf flower__line__leaf--4"></i>
+            </div>
+          </div>
+
+          <div class="flower flower--2">
+            <div class="flower__leafs">
+              <i class="flower__leaf flower__leaf--1"></i>
+              <i class="flower__leaf flower__leaf--2"></i>
+              <i class="flower__leaf flower__leaf--3"></i>
+              <i class="flower__leaf flower__leaf--4"></i>
+              <i class="flower__white-circle"></i>
+              <i class="flower__light flower__light--1"></i>
+              <i class="flower__light flower__light--2"></i>
+              <i class="flower__light flower__light--3"></i>
+            </div>
+            <div class="flower__line">
+              <i class="flower__line__leaf flower__line__leaf--1"></i>
+              <i class="flower__line__leaf flower__line__leaf--2"></i>
+              <i class="flower__line__leaf flower__line__leaf--3"></i>
+            </div>
+          </div>
+
+          <div class="flower flower--3">
+            <div class="flower__leafs">
+              <i class="flower__leaf flower__leaf--1"></i>
+              <i class="flower__leaf flower__leaf--2"></i>
+              <i class="flower__leaf flower__leaf--3"></i>
+              <i class="flower__leaf flower__leaf--4"></i>
+              <i class="flower__white-circle"></i>
+              <i class="flower__light flower__light--1"></i>
+              <i class="flower__light flower__light--2"></i>
+              <i class="flower__light flower__light--3"></i>
+            </div>
+            <div class="flower__line">
+              <i class="flower__line__leaf flower__line__leaf--1"></i>
+              <i class="flower__line__leaf flower__line__leaf--2"></i>
+              <i class="flower__line__leaf flower__line__leaf--3"></i>
+            </div>
+          </div>
+
+          <div class="grass grass--left"></div>
+          <div class="grass grass--right"></div>
+        </div>
+
+        <button class="scroll-hint" data-scroll="#jardin" type="button">
+          <span>Desliza</span>
+          <b>↓</b>
+        </button>
+      </section>
+
+      <section class="scene scene--garden" id="jardin">
+        <div class="garden-sky" aria-hidden="true"></div>
+        <div class="moon" aria-hidden="true"></div>
+        <div class="garden-stars" aria-hidden="true"></div>
+        <div class="fireflies" aria-hidden="true"></div>
+
+        <div class="garden-title reveal">
+          <p class="eyebrow">Y mientras avanzas...</p>
+          <h2>El jardín crece.</h2>
+          <p>Porque algunas cosas bonitas merecen tiempo.</p>
+        </div>
+
+        <div class="garden" aria-hidden="true">
+          <div class="garden-flower" style="left: 5%; --scale: 0.78; --delay: -0.7s;"></div>
+          <div class="garden-flower" style="left: 10%; --scale: 0.52; --delay: -2.1s;"></div>
+          <div class="garden-flower" style="left: 15%; --scale: 0.42; --delay: -1.4s;"></div>
+          <div class="garden-flower" style="left: 20%; --scale: 0.7; --delay: -3.2s;"></div>
+          <div class="garden-flower" style="left: 27%; --scale: 0.48; --delay: -2.9s;"></div>
+          <div class="garden-flower" style="left: 33%; --scale: 0.76; --delay: -0.9s;"></div>
+          <div class="garden-flower" style="left: 38%; --scale: 0.5; --delay: -1.9s;"></div>
+          <div class="garden-flower" style="left: 45%; --scale: 0.64; --delay: -2.7s;"></div>
+          <div class="garden-flower" style="left: 51%; --scale: 0.44; --delay: -1.2s;"></div>
+          <div class="garden-flower" style="left: 56%; --scale: 0.38; --delay: -3.4s;"></div>
+          <div class="garden-flower" style="left: 61%; --scale: 0.6; --delay: -1.8s;"></div>
+          <div class="garden-flower" style="left: 67%; --scale: 0.58; --delay: -0.5s;"></div>
+          <div class="garden-flower" style="left: 72%; --scale: 0.46; --delay: -2.5s;"></div>
+          <div class="garden-flower" style="left: 78%; --scale: 0.68; --delay: -1.1s;"></div>
+          <div class="garden-flower" style="left: 84%; --scale: 0.5; --delay: -3.1s;"></div>
+          <div class="garden-flower" style="left: 90%; --scale: 0.4; --delay: -2.3s;"></div>
+          <div class="garden-flower" style="left: 12%; --scale: 0.28; --delay: -4.2s;"></div>
+          <div class="garden-flower" style="left: 18%; --scale: 0.26; --delay: -3.8s;"></div>
+          <div class="garden-flower" style="left: 24%; --scale: 0.3; --delay: -5s;"></div>
+          <div class="garden-flower" style="left: 30%; --scale: 0.24; --delay: -4.8s;"></div>
+          <div class="garden-flower" style="left: 42%; --scale: 0.23; --delay: -5.1s;"></div>
+          <div class="garden-flower" style="left: 48%; --scale: 0.2; --delay: -4.7s;"></div>
+          <div class="garden-flower" style="left: 54%; --scale: 0.26; --delay: -3.9s;"></div>
+          <div class="garden-flower" style="left: 59%; --scale: 0.22; --delay: -4.5s;"></div>
+          <div class="garden-flower" style="left: 64%; --scale: 0.19; --delay: -5.6s;"></div>
+          <div class="garden-flower" style="left: 70%; --scale: 0.25; --delay: -4.1s;"></div>
+          <div class="garden-flower" style="left: 76%; --scale: 0.23; --delay: -5.8s;"></div>
+          <div class="garden-flower" style="left: 82%; --scale: 0.2; --delay: -4.4s;"></div>
+          <div class="garden-flower" style="left: 94%; --scale: 0.18; --delay: -5.4s;"></div>
+          <div class="garden-flower" style="left: 3%; --scale: 0.2; --delay: -5.9s;"></div>
+          <div class="garden-flower" style="left: 88%; --scale: 0.24; --delay: -4.9s;"></div>
+          <div class="garden-flower" style="left: 7%; --scale: 0.16; --delay: -6.1s;"></div>
+          <div class="garden-flower" style="left: 13%; --scale: 0.15; --delay: -6.7s;"></div>
+          <div class="garden-flower" style="left: 22%; --scale: 0.14; --delay: -6.9s;"></div>
+          <div class="garden-flower" style="left: 36%; --scale: 0.16; --delay: -7.3s;"></div>
+          <div class="garden-flower" style="left: 46%; --scale: 0.15; --delay: -7.7s;"></div>
+          <div class="garden-flower" style="left: 63%; --scale: 0.15; --delay: -6.5s;"></div>
+          <div class="garden-flower" style="left: 74%; --scale: 0.14; --delay: -7.1s;"></div>
+          <div class="garden-flower" style="left: 86%; --scale: 0.17; --delay: -6.8s;"></div>
+          <div class="garden-flower" style="left: 96%; --scale: 0.14; --delay: -7.6s;"></div>
+          <div class="garden-grass"></div>
+        </div>
+
+        <button class="scroll-hint scroll-hint--dark" data-scroll="#mensaje" type="button">
+          <span>Sigue</span>
+          <b>↓</b>
+        </button>
+      </section>
+
+      <section class="scene scene--message" id="mensaje">
+        <div class="message-glow" aria-hidden="true"></div>
+
+        <article class="message-card reveal">
+          <span class="message-flower" aria-hidden="true">✿</span>
+          <p class="eyebrow" data-message-intro>Y esto era para decirte...</p>
+          <h2 data-message-title>Que eres alguien<br><em>muy especial.</em></h2>
+
+          <p class="message" data-message-body>
+            No hace falta una fecha especial para regalar flores.
+            A veces simplemente aparecen porque alguien merece
+            un detalle bonito.
+          </p>
+
+          <p class="signature" data-message-signature>— Con cariño</p>
+        </article>
+
+        <button class="back-top" data-scroll="#inicio" type="button">
+          Volver al principio ↑
+        </button>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
