@@ -394,6 +394,18 @@ document.addEventListener("DOMContentLoaded", () => {
     0,
     isCompactViewport ? 12 : gardenFlowers.length,
   );
+  let gardenIsVisible = !sectionGarden;
+
+  if (sectionGarden) {
+    const gardenObserver = new IntersectionObserver(
+      ([entry]) => {
+        gardenIsVisible = entry.isIntersecting;
+      },
+      { threshold: 0.08, rootMargin: "180px 0px" },
+    );
+
+    gardenObserver.observe(sectionGarden);
+  }
 
   const applySceneFade = () => {
     if (isReducedMotion) return;
@@ -417,9 +429,12 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       hero.style.opacity = String(Math.max(0.15, fade));
       hero.style.transform = `scale(${1 + heroProgress * 0.04})`;
+    } else if (hero) {
+      hero.style.opacity = "";
+      hero.style.transform = "";
     }
 
-    if (garden && gardenRect) {
+    if (garden && gardenRect && gardenIsVisible) {
       const viewportTop = 0;
       const viewportBottom = window.innerHeight;
       const visibleHeight = Math.max(
@@ -441,6 +456,12 @@ document.addEventListener("DOMContentLoaded", () => {
           (index % 2 === 0 ? -1 : 1) * (Math.abs(gardenRect.top) * 0.08);
         flower.style.transform = `translate3d(${shift}px, ${depth}px, 0) scale(${0.45 + (index + 1) * 0.12})`;
       });
+    } else if (garden) {
+      garden.style.opacity = "";
+      garden.style.transform = "";
+      visibleGardenFlowers.forEach((flower) => {
+        flower.style.transform = "";
+      });
     }
   };
 
@@ -455,21 +476,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const section = sectionGarden;
 
     if (parallaxMount && section) {
-      const rect = section.getBoundingClientRect();
-      const progress = Math.max(
-        -1,
-        Math.min(1, -rect.top / window.innerHeight),
-      );
-      parallaxMount.style.transform = `translateX(-50%) translateY(${progress * 18}px)`;
+      if (gardenIsVisible) {
+        const rect = section.getBoundingClientRect();
+        const progress = Math.max(
+          -1,
+          Math.min(1, -rect.top / window.innerHeight),
+        );
+        parallaxMount.style.transform = `translateX(-50%) translateY(${progress * 18}px)`;
+      } else {
+        parallaxMount.style.transform = "";
+      }
     }
 
     if (moon && section) {
-      const rect = section.getBoundingClientRect();
-      const progress = Math.max(
-        -1,
-        Math.min(1, -rect.top / window.innerHeight),
-      );
-      moon.style.transform = `translate(${progress * -18}px, ${progress * 12}px)`;
+      if (gardenIsVisible) {
+        const rect = section.getBoundingClientRect();
+        const progress = Math.max(
+          -1,
+          Math.min(1, -rect.top / window.innerHeight),
+        );
+        moon.style.transform = `translate(${progress * -18}px, ${progress * 12}px)`;
+      } else {
+        moon.style.transform = "";
+      }
     }
 
     if (scrollY > 20) {

@@ -5,6 +5,9 @@
   background:
     radial-gradient(circle at 20% 20%, rgba(252, 231, 0, 0.06), transparent 20%),
     linear-gradient(to bottom, #16233d 0%, #172c35 45%, #071b10 75%, #020804 100%);
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+  contain: layout paint style;
 }
 
 .garden-sky {
@@ -676,6 +679,11 @@
   .garden-petals span,
   .garden-flower {
     animation: none !important;
+  }
+
+  .scene--garden {
+    content-visibility: visible;
+    contain: none;
   }
 
   .garden-title {
