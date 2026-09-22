@@ -23,11 +23,242 @@ const buildMessage = () => {
 document.addEventListener("DOMContentLoaded", () => {
   buildMessage();
 
+  const reducedMotionQuery = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
+  const compactViewportQuery = window.matchMedia("(max-width: 900px)");
+  const isReducedMotion = reducedMotionQuery.matches;
+  const isCompactViewport = compactViewportQuery.matches;
+
   const musicButton = document.getElementById("music-toggle");
+  const calendarGrid = document.querySelector("[data-calendar-grid]");
+  const calendarLabel = document.querySelector("[data-calendar-label]");
+  const calendarPrev = document.querySelector("[data-calendar-prev]");
+  const calendarNext = document.querySelector("[data-calendar-next]");
+  const calendarToday = document.querySelector("[data-calendar-today]");
+  const memoryModal = document.querySelector("[data-memory-modal]");
+  const memoryModalDate = document.querySelector("[data-memory-modal-date]");
+  const memoryForm = document.querySelector("[data-memory-form]");
+  const memoryTitleInput = document.querySelector("[data-memory-title]");
+  const memoryNotesInput = document.querySelector("[data-memory-notes]");
+  const memoryDeleteButton = document.querySelector("[data-memory-delete]");
+  const memoryCloseButtons = document.querySelectorAll("[data-memory-close]");
+
   let audioContext = null;
   let masterGain = null;
   let musicTimer = null;
   let musicStep = 0;
+  const memoryStorageKey = "garden-memories-v1";
+  const today = new Date();
+  let visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  let activeMemoryDate = "";
+  let memoryStore = {};
+  let memoryModalHideTimer = null;
+
+  const loadMemoryStore = () => {
+    try {
+      const raw = window.localStorage.getItem(memoryStorageKey);
+      memoryStore = raw ? JSON.parse(raw) : {};
+    } catch {
+      memoryStore = {};
+    }
+  };
+
+  const saveMemoryStore = () => {
+    window.localStorage.setItem(memoryStorageKey, JSON.stringify(memoryStore));
+  };
+
+  const toDateKey = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateKey = (dateKey) => {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const formatMonthLabel = (date) =>
+    new Intl.DateTimeFormat("es-ES", {
+      month: "long",
+      year: "numeric",
+    })
+      .format(date)
+      .replace(/^./, (character) => character.toUpperCase());
+
+  const formatLongDate = (date) =>
+    new Intl.DateTimeFormat("es-ES", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+      .format(date)
+      .replace(/^./, (character) => character.toUpperCase());
+
+  const closeMemoryModal = () => {
+    if (!memoryModal) return;
+
+    memoryModal.classList.remove("is-open");
+    if (memoryModalHideTimer) {
+      window.clearTimeout(memoryModalHideTimer);
+    }
+    memoryModalHideTimer = window.setTimeout(() => {
+      if (memoryModal) memoryModal.hidden = true;
+    }, 260);
+    document.body.classList.remove("modal-open");
+  };
+
+  const renderCalendar = () => {
+    if (!calendarGrid || !calendarLabel) return;
+
+    const year = visibleMonth.getFullYear();
+    const month = visibleMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const leadingEmptyDays = (firstDay.getDay() + 6) % 7;
+    const todayKey = toDateKey(today);
+
+    const cells = [];
+
+    for (let index = 0; index < leadingEmptyDays; index += 1) {
+      cells.push(
+        '<div class="memory-calendar__cell memory-calendar__cell--empty" aria-hidden="true"></div>',
+      );
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const currentDate = new Date(year, month, day);
+      const dateKey = toDateKey(currentDate);
+      const memoryEntry = memoryStore[dateKey];
+      const hasMemory = Boolean(memoryEntry);
+      const isToday = dateKey === todayKey;
+      const isActive = dateKey === activeMemoryDate;
+
+      cells.push(`
+        <button type="button" class="memory-calendar__day${hasMemory ? " has-memory" : ""}${isToday ? " is-today" : ""}${isActive ? " is-active" : ""}" data-calendar-date="${dateKey}">
+          <span class="memory-calendar__number">${day}</span>
+          ${hasMemory ? '<span class="memory-calendar__flower" aria-hidden="true">✿</span>' : ""}
+        </button>
+      `);
+    }
+
+    calendarGrid.innerHTML = cells.join("");
+    calendarLabel.textContent = formatMonthLabel(visibleMonth);
+
+    calendarGrid
+      .querySelectorAll("[data-calendar-date]")
+      .forEach((dayButton) => {
+        dayButton.addEventListener("click", () => {
+          const dateKey = dayButton.getAttribute("data-calendar-date");
+          if (dateKey) {
+            activeMemoryDate = dateKey;
+            openMemoryModal(dateKey);
+          }
+        });
+      });
+  };
+
+  const openMemoryModal = (dateKey) => {
+    if (
+      !memoryModal ||
+      !memoryModalDate ||
+      !memoryForm ||
+      !memoryTitleInput ||
+      !memoryNotesInput
+    ) {
+      return;
+    }
+
+    activeMemoryDate = dateKey;
+    const memoryEntry = memoryStore[dateKey] ?? { title: "", notes: "" };
+
+    if (memoryModalHideTimer) {
+      window.clearTimeout(memoryModalHideTimer);
+      memoryModalHideTimer = null;
+    }
+
+    memoryModal.hidden = false;
+    document.body.classList.add("modal-open");
+    window.requestAnimationFrame(() => {
+      memoryModal.classList.add("is-open");
+    });
+    memoryModalDate.textContent = formatLongDate(parseDateKey(dateKey));
+    memoryTitleInput.value = memoryEntry.title;
+    memoryNotesInput.value = memoryEntry.notes;
+
+    if (memoryDeleteButton) {
+      memoryDeleteButton.hidden = !memoryStore[dateKey];
+    }
+
+    window.setTimeout(() => {
+      memoryTitleInput.focus();
+    }, 0);
+  };
+
+  loadMemoryStore();
+  renderCalendar();
+
+  calendarPrev?.addEventListener("click", () => {
+    visibleMonth = new Date(
+      visibleMonth.getFullYear(),
+      visibleMonth.getMonth() - 1,
+      1,
+    );
+    renderCalendar();
+  });
+
+  calendarNext?.addEventListener("click", () => {
+    visibleMonth = new Date(
+      visibleMonth.getFullYear(),
+      visibleMonth.getMonth() + 1,
+      1,
+    );
+    renderCalendar();
+  });
+
+  calendarToday?.addEventListener("click", () => {
+    visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    activeMemoryDate = toDateKey(today);
+    renderCalendar();
+  });
+
+  memoryCloseButtons.forEach((button) => {
+    button.addEventListener("click", closeMemoryModal);
+  });
+
+  memoryModal?.addEventListener("click", (event) => {
+    if (event.target === memoryModal) {
+      closeMemoryModal();
+    }
+  });
+
+  memoryForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (!activeMemoryDate || !memoryTitleInput || !memoryNotesInput) return;
+
+    memoryStore[activeMemoryDate] = {
+      title: memoryTitleInput.value.trim(),
+      notes: memoryNotesInput.value.trim(),
+    };
+
+    saveMemoryStore();
+    renderCalendar();
+    closeMemoryModal();
+  });
+
+  memoryDeleteButton?.addEventListener("click", () => {
+    if (!activeMemoryDate || !memoryStore[activeMemoryDate]) return;
+
+    delete memoryStore[activeMemoryDate];
+    saveMemoryStore();
+    renderCalendar();
+    closeMemoryModal();
+  });
 
   const chords = [
     [261.63, 329.63, 392.0, 523.25],
@@ -158,8 +389,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const hero = document.querySelector(".scene--hero");
   const garden = document.querySelector(".scene--garden");
   const gardenFlowers = document.querySelectorAll(".garden-flower");
+  const sectionGarden = document.querySelector("#jardin");
+  const visibleGardenFlowers = Array.from(gardenFlowers).slice(
+    0,
+    isCompactViewport ? 12 : gardenFlowers.length,
+  );
 
   const applySceneFade = () => {
+    if (isReducedMotion) return;
+
     const heroRect = hero?.getBoundingClientRect();
     const gardenRect = garden?.getBoundingClientRect();
 
@@ -197,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
       garden.style.opacity = String(opacity);
       garden.style.transform = `translateY(${Math.max(-30, gardenRect.top * 0.18)}px)`;
 
-      gardenFlowers.forEach((flower, index) => {
+      visibleGardenFlowers.forEach((flower, index) => {
         const shift = (index - 1) * 18;
         const depth =
           (index % 2 === 0 ? -1 : 1) * (Math.abs(gardenRect.top) * 0.08);
@@ -211,8 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let ticking = false;
 
   const updateParallax = () => {
+    if (isReducedMotion) return;
+
     const scrollY = window.scrollY;
-    const section = document.querySelector("#jardin");
+    const section = sectionGarden;
 
     if (parallaxMount && section) {
       const rect = section.getBoundingClientRect();
@@ -243,9 +483,11 @@ document.addEventListener("DOMContentLoaded", () => {
   cursorGlow.className = "cursor-glow";
   document.body.appendChild(cursorGlow);
 
-  window.addEventListener("pointermove", (event) => {
-    cursorGlow.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
-  });
+  if (!isReducedMotion && !isCompactViewport) {
+    window.addEventListener("pointermove", (event) => {
+      cursorGlow.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+    });
+  }
 
   window.addEventListener(
     "scroll",

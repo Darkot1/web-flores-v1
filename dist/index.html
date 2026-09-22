@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/assets/index-ai3Ijg8D.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CKhu3h3m.css">
+    <script type="module" crossorigin src="/assets/index-jHN-ztAa.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BpTBPyuE.css">
   </head>
   <body>
     <main>
@@ -349,6 +349,37 @@
           <p>Porque algunas cosas bonitas merecen tiempo.</p>
         </div>
 
+        <section class="memory-journal reveal" aria-label="Calendario de recuerdos">
+          <div class="memory-journal__header">
+            <div>
+              <p class="eyebrow">Guardar momento</p>
+              <h3>Calendario de recuerdos</h3>
+            </div>
+            <p class="memory-journal__hint">Toca una fecha y guarda lo que pasó.</p>
+          </div>
+
+          <div class="memory-journal__toolbar">
+            <button class="memory-journal__nav" type="button" data-calendar-prev aria-label="Mes anterior">←</button>
+            <button class="memory-journal__today" type="button" data-calendar-today>Hoy</button>
+            <button class="memory-journal__nav" type="button" data-calendar-next aria-label="Mes siguiente">→</button>
+          </div>
+
+          <p class="memory-journal__month" data-calendar-label></p>
+
+          <div class="memory-calendar" aria-live="polite">
+            <div class="memory-calendar__weekdays">
+              <span>Lu</span>
+              <span>Ma</span>
+              <span>Mi</span>
+              <span>Ju</span>
+              <span>Vi</span>
+              <span>Sa</span>
+              <span>Do</span>
+            </div>
+            <div class="memory-calendar__grid" data-calendar-grid></div>
+          </div>
+        </section>
+
         <div class="garden" aria-hidden="true">
           <div class="garden-flower" style="left: 5%; --scale: 0.78; --delay: -0.7s;"></div>
           <div class="garden-flower" style="left: 10%; --scale: 0.52; --delay: -2.1s;"></div>
@@ -420,6 +451,35 @@
           Volver al principio ↑
         </button>
       </section>
+
+      <div class="memory-modal" data-memory-modal hidden>
+        <div class="memory-modal__backdrop" data-memory-close></div>
+        <div class="memory-modal__panel" role="dialog" aria-modal="true" aria-labelledby="memory-modal-title">
+          <button class="memory-modal__close" type="button" data-memory-close aria-label="Cerrar">×</button>
+          <p class="eyebrow">Nuevo recuerdo</p>
+          <h3 id="memory-modal-title" data-memory-modal-date>Fecha</h3>
+
+          <form class="memory-form" data-memory-form>
+            <label>
+              <span>Título</span>
+              <input type="text" name="title" maxlength="80" placeholder="Ej. Nuestra caminata" data-memory-title required />
+            </label>
+
+            <label>
+              <span>Lo que pasó</span>
+              <textarea name="notes" rows="4" maxlength="500" placeholder="Escribe aquí el recuerdo..." data-memory-notes required></textarea>
+            </label>
+
+            <div class="memory-form__actions">
+              <button class="memory-form__ghost" type="button" data-memory-delete>Eliminar</button>
+              <div class="memory-form__actions-right">
+                <button class="memory-form__ghost" type="button" data-memory-close>Cancelar</button>
+                <button class="memory-form__primary" type="submit">Guardar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
 
   </body>

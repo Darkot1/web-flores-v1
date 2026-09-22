@@ -364,6 +364,18 @@
 }
 
 @media (max-width: 700px) {
+  .stars,
+  .stars::before,
+  .stars::after,
+  .petal,
+  .flower__light,
+  .flower__leafs,
+  .flower__line,
+  .grass::before,
+  .grass::after {
+    animation: none !important;
+  }
+
   .hero-copy {
     top: 17vh;
   }

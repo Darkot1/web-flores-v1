@@ -26,6 +26,21 @@ html {
   background: var(--bg);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   min-width: 320px;
   overflow-x: hidden;
@@ -36,6 +51,10 @@ body {
     linear-gradient(180deg, #020304 0%, #050a08 48%, #030705 100%);
   color: var(--text);
   font-family: 'Montserrat', sans-serif;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 body::before {
