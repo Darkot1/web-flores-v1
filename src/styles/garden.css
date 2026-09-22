@@ -323,13 +323,14 @@
 }
 
 .memory-journal__nav {
-  width: 2rem;
-  height: 2rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  font-size: 0.72rem;
 }
 
 .memory-journal__today {
-  padding: 0.48rem 0.8rem;
-  font-size: 0.62rem;
+  padding: 0.34rem 0.58rem;
+  font-size: 0.54rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -341,9 +342,42 @@
   color: var(--yellow);
 }
 
+.memory-journal__nav:disabled,
+.memory-journal__today:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
 .memory-calendar {
+  position: relative;
   display: grid;
   gap: 0.42rem;
+}
+
+.memory-calendar--disabled::after {
+  position: absolute;
+  inset: -0.5rem;
+  z-index: 2;
+  content: "";
+  cursor: not-allowed;
+}
+
+.memory-calendar__notice {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(252, 231, 0, 0.45);
+  background: rgba(10, 15, 18, 0.9);
+  color: var(--yellow);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  white-space: nowrap;
 }
 
 .memory-calendar__weekdays,

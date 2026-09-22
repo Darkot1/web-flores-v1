@@ -351,21 +351,20 @@
         <section class="memory-journal reveal" aria-label="Calendario de recuerdos">
           <div class="memory-journal__header">
             <div>
-              <p class="eyebrow">Guardar momento</p>
               <h3>Calendario de recuerdos</h3>
             </div>
-            <p class="memory-journal__hint">Toca una fecha y guarda lo que pasó.</p>
           </div>
 
           <div class="memory-journal__toolbar">
-            <button class="memory-journal__nav" type="button" data-calendar-prev aria-label="Mes anterior">←</button>
-            <button class="memory-journal__today" type="button" data-calendar-today>Hoy</button>
-            <button class="memory-journal__nav" type="button" data-calendar-next aria-label="Mes siguiente">→</button>
+            <button class="memory-journal__nav" type="button" data-calendar-prev aria-label="Mes anterior" disabled>←</button>
+            <button class="memory-journal__today" type="button" data-calendar-today disabled>Hoy</button>
+            <button class="memory-journal__nav" type="button" data-calendar-next aria-label="Mes siguiente" disabled>→</button>
           </div>
 
           <p class="memory-journal__month" data-calendar-label></p>
 
-          <div class="memory-calendar" aria-live="polite">
+          <div class="memory-calendar memory-calendar--disabled" aria-live="polite" aria-disabled="true">
+            <div class="memory-calendar__notice">En desarrollo</div>
             <div class="memory-calendar__weekdays">
               <span>Lu</span>
               <span>Ma</span>
