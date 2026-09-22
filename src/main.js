@@ -23,69 +23,6 @@ const buildMessage = () => {
 document.addEventListener("DOMContentLoaded", () => {
   buildMessage();
 
-  const musicButton = document.getElementById("music-toggle");
-  let audioContext = null;
-  let oscillators = [];
-
-  const stopMusic = () => {
-    if (!audioContext) return;
-
-    oscillators.forEach((osc) => {
-      try {
-        osc.stop();
-      } catch {
-        // no-op
-      }
-    });
-
-    oscillators = [];
-    audioContext.close();
-    audioContext = null;
-    musicButton?.classList.remove("is-on");
-    if (musicButton) musicButton.textContent = "Música";
-  };
-
-  const startMusic = () => {
-    if (audioContext) return;
-
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-
-    audioContext = new AudioCtx();
-    const notes = [261.63, 329.63, 392.0, 523.25];
-
-    notes.forEach((freq, index) => {
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-
-      osc.type = index % 2 === 0 ? "sine" : "triangle";
-      osc.frequency.value = freq;
-      gain.gain.value = 0.018;
-
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-
-      osc.start();
-      oscillators.push(osc);
-    });
-
-    musicButton?.classList.add("is-on");
-    if (musicButton) musicButton.textContent = "Pausa";
-  };
-
-  musicButton?.addEventListener("click", async () => {
-    if (audioContext) {
-      stopMusic();
-      return;
-    }
-
-    try {
-      await startMusic();
-    } catch {
-      stopMusic();
-    }
-  });
-
   document.querySelectorAll("[data-scroll]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = document.querySelector(button.dataset.scroll);

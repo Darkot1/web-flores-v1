@@ -70,6 +70,121 @@
   animation: firefly-flicker 3s ease-in-out infinite alternate;
 }
 
+.garden-depth {
+  position: absolute;
+  inset: auto 0 0;
+  height: 58%;
+  background:
+    radial-gradient(circle at 16% 100%, rgba(24, 98, 49, 0.8) 0 18%, transparent 19%),
+    radial-gradient(circle at 38% 100%, rgba(14, 76, 38, 0.92) 0 22%, transparent 23%),
+    radial-gradient(circle at 62% 100%, rgba(22, 110, 53, 0.82) 0 20%, transparent 21%),
+    radial-gradient(circle at 83% 100%, rgba(10, 63, 31, 0.9) 0 18%, transparent 19%);
+  opacity: .45;
+  filter: blur(8px);
+}
+
+.garden-path {
+  position: absolute;
+  left: 50%;
+  bottom: -2%;
+  width: min(24vw, 240px);
+  height: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(to top, rgba(173, 141, 68, 0.2), rgba(173, 141, 68, 0.03) 66%, transparent 100%);
+  clip-path: polygon(42% 100%, 58% 100%, 80% 0, 20% 0);
+  opacity: .45;
+  filter: blur(2px);
+}
+
+.garden-bush {
+  position: absolute;
+  bottom: 10%;
+  width: min(30vw, 260px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(117, 223, 114, 0.92) 0 20%, transparent 21%),
+    radial-gradient(circle at 55% 24%, rgba(79, 191, 90, 0.92) 0 23%, transparent 24%),
+    radial-gradient(circle at 74% 40%, rgba(27, 140, 64, 0.9) 0 26%, transparent 27%),
+    radial-gradient(circle at 48% 62%, rgba(11, 75, 35, 0.98) 0 34%, rgba(4, 36, 18, 0.98) 62%, transparent 63%);
+  filter: blur(.2px);
+  opacity: .92;
+}
+
+.garden-bush::before,
+.garden-bush::after {
+  content: "";
+  position: absolute;
+  inset: auto;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.garden-bush::before {
+  width: 65%;
+  height: 65%;
+  left: -10%;
+  bottom: 8%;
+}
+
+.garden-bush::after {
+  width: 54%;
+  height: 54%;
+  right: -6%;
+  bottom: 14%;
+}
+
+.garden-bush--left {
+  left: -8%;
+}
+
+.garden-bush--right {
+  right: -10%;
+}
+
+.garden-butterflies {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.garden-butterflies span {
+  position: absolute;
+  width: 1.2rem;
+  height: 1rem;
+  border-radius: 60% 40% 55% 45%;
+  background:
+    radial-gradient(circle at 35% 50%, rgba(255, 242, 194, 0.95) 0 18%, transparent 19%),
+    radial-gradient(circle at 65% 50%, rgba(255, 234, 143, 0.92) 0 18%, transparent 19%),
+    linear-gradient(135deg, rgba(252, 231, 0, 0.95), rgba(255, 174, 64, 0.75));
+  opacity: .8;
+  filter: blur(.15px) drop-shadow(0 0 10px rgba(252, 231, 0, 0.14));
+  animation: butterfly-float 5.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  transform: translateY(0);
+}
+
+.garden-butterflies span::before,
+.garden-butterflies span::after {
+  content: "";
+  position: absolute;
+  top: 34%;
+  width: 58%;
+  height: 58%;
+  border-radius: 50% 50% 42% 58%;
+  background: inherit;
+}
+
+.garden-butterflies span::before {
+  left: -40%;
+  transform: rotate(28deg);
+}
+
+.garden-butterflies span::after {
+  right: -40%;
+  transform: rotate(-28deg);
+}
+
 .garden-title {
   position: absolute;
   z-index: 30;
@@ -172,6 +287,11 @@
   50% { rotate: 3deg; }
 }
 
+@keyframes butterfly-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(var(--float, 12px), -16px, 0) rotate(6deg); }
+}
+
 @keyframes twinkle-stars {
   0% { opacity: .35; }
   50% { opacity: .8; }
@@ -193,5 +313,9 @@
   .garden {
     width: 170%;
     height: 58%;
+  }
+
+  .garden-bush {
+    width: 42vw;
   }
 }

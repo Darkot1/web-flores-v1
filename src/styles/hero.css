@@ -106,6 +106,7 @@
 
 .flower--1 {
   left: 50%;
+  bottom: -3.5vmin;
   transform: translateX(-50%);
   animation: moving-flower-1 4s linear infinite;
 }
@@ -327,12 +328,17 @@
 
 @media (max-width: 700px) {
   .hero-copy {
-    top: 8vh;
+    top: 18vh;
   }
 
   .flowers {
-    width: 125%;
-    transform: translateX(-50%) scale(.9);
+    width: 132%;
+    height: 96vmin;
+    transform: translateX(-50%) scale(1);
+  }
+
+  .flower--1 {
+    bottom: -1vmin;
   }
 
   .flower--2 { left: 20%; }
