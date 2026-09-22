@@ -2,7 +2,7 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 50% 45%, rgba(252,231,0,0.08), transparent 26%),
+    radial-gradient(circle at 50% 45%, rgba(252,231,0,0.11), transparent 24%),
     linear-gradient(135deg, #080b0a 0%, #10150f 44%, #090d0d 100%);
 }
 
@@ -21,9 +21,11 @@
   width: min(720px, 88vw);
   padding: clamp(2.2rem, 5vw, 4rem);
   text-align: center;
-  border: 1px solid var(--card-border);
-  background: rgba(11, 16, 18, 0.24);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.26);
+  border: 1px solid rgba(252, 231, 0, 0.2);
+  background:
+    radial-gradient(circle at 50% 10%, rgba(252, 231, 0, 0.08), transparent 26%),
+    rgba(11, 16, 18, 0.26);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.34);
   backdrop-filter: blur(10px);
   border-radius: 24px;
   overflow: hidden;
@@ -55,6 +57,11 @@
   color: var(--yellow);
   font-size: 2.6rem;
   animation: soft-pulse 3s ease-in-out infinite;
+}
+
+@keyframes soft-pulse {
+  0%, 100% { transform: scale(1); opacity: .85; }
+  50% { transform: scale(1.08); opacity: 1; }
 }
 
 .message-card h2 em {

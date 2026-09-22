@@ -3,6 +3,7 @@
   align-items: flex-end;
   justify-content: center;
   background:
+    radial-gradient(circle at 20% 20%, rgba(252, 231, 0, 0.06), transparent 20%),
     linear-gradient(to bottom, #16233d 0%, #172c35 45%, #071b10 75%, #020804 100%);
 }
 
@@ -142,6 +143,51 @@
   right: -10%;
 }
 
+.garden-petals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.garden-petals span {
+  position: absolute;
+  width: 2.1vmin;
+  height: 2.1vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(237, 214, 255, 0.96) 0 24%, rgba(186, 115, 255, 0.98) 25% 55%, rgba(79, 23, 138, 0.9) 56% 68%, transparent 69%),
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), transparent 28%);
+  box-shadow:
+    0 0 0 0.08vmin rgba(234, 210, 255, 0.36),
+    0 0 18px rgba(186, 115, 255, 0.12);
+  transform: scale(var(--scale, 1));
+  opacity: .92;
+  animation: purple-bloom 4.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.garden-petals--purple span {
+  width: 1.6vmin;
+  height: 1.6vmin;
+}
+
+.garden-petals span::before,
+.garden-petals span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+}
+
+.garden-petals span::before {
+  transform: translateX(-42%) rotate(22deg);
+}
+
+.garden-petals span::after {
+  transform: translateX(42%) rotate(-22deg);
+}
+
 .garden-butterflies {
   position: absolute;
   inset: 0;
@@ -191,6 +237,7 @@
   top: 13%;
   left: 8%;
   max-width: 480px;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .garden-title h2,
@@ -217,7 +264,8 @@
   height: 68%;
   transform: translateX(-50%);
   background:
-    radial-gradient(ellipse at 50% 100%, #063b1b 0 30%, transparent 65%);
+    radial-gradient(ellipse at 50% 100%, rgba(6, 59, 27, 0.95) 0 30%, transparent 65%),
+    radial-gradient(circle at 50% 72%, rgba(252, 231, 0, 0.04), transparent 22%);
 }
 
 .garden::before {
@@ -290,6 +338,11 @@
 @keyframes butterfly-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
   50% { transform: translate3d(var(--float, 12px), -16px, 0) rotate(6deg); }
+}
+
+@keyframes purple-bloom {
+  0%, 100% { transform: scale(var(--scale, 1)) translateY(0); }
+  50% { transform: scale(calc(var(--scale, 1) * 1.08)) translateY(-4px); }
 }
 
 @keyframes twinkle-stars {

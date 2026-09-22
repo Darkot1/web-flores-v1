@@ -23,6 +23,115 @@ const buildMessage = () => {
 document.addEventListener("DOMContentLoaded", () => {
   buildMessage();
 
+  const musicButton = document.getElementById("music-toggle");
+  let audioContext = null;
+  let masterGain = null;
+  let musicTimer = null;
+  let musicStep = 0;
+
+  const chords = [
+    [261.63, 329.63, 392.0, 523.25],
+    [246.94, 311.13, 370.0, 493.88],
+    [220.0, 293.66, 349.23, 440.0],
+    [233.08, 293.66, 392.0, 466.16],
+  ];
+
+  const updateMusicButton = (isPlaying) => {
+    if (!musicButton) return;
+
+    musicButton.textContent = isPlaying ? "Pausar música" : "Música";
+    musicButton.setAttribute("aria-pressed", String(isPlaying));
+    musicButton.classList.toggle("is-on", isPlaying);
+  };
+
+  const playChord = () => {
+    if (!audioContext || !masterGain) return;
+
+    const chord = chords[musicStep % chords.length];
+    const start = audioContext.currentTime + 0.02;
+    const duration = 1.65;
+
+    chord.forEach((frequency, index) => {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+
+      osc.type = index === 0 ? "sine" : index === 3 ? "triangle" : "sawtooth";
+      osc.frequency.setValueAtTime(frequency, start);
+      osc.detune.setValueAtTime(index * 3 - 4, start);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(1100 + index * 180, start);
+      filter.Q.setValueAtTime(0.8, start);
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(
+        0.03 - index * 0.003,
+        start + 0.12,
+      );
+      gain.gain.exponentialRampToValueAtTime(0.012, start + duration * 0.78);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+
+      osc.start(start);
+      osc.stop(start + duration + 0.1);
+    });
+
+    musicStep += 1;
+  };
+
+  const startMusic = async () => {
+    if (!audioContext) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+
+      audioContext = new AudioCtx();
+      masterGain = audioContext.createGain();
+      masterGain.gain.value = 0.7;
+      masterGain.connect(audioContext.destination);
+    }
+
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+
+    playChord();
+    musicTimer = window.setInterval(playChord, 1650);
+    updateMusicButton(true);
+  };
+
+  const stopMusic = async () => {
+    if (musicTimer) {
+      window.clearInterval(musicTimer);
+      musicTimer = null;
+    }
+
+    if (audioContext) {
+      await audioContext.close();
+    }
+
+    audioContext = null;
+    masterGain = null;
+    musicStep = 0;
+    updateMusicButton(false);
+  };
+
+  musicButton?.addEventListener("click", async () => {
+    if (audioContext) {
+      await stopMusic();
+      return;
+    }
+
+    try {
+      await startMusic();
+    } catch {
+      await stopMusic();
+    }
+  });
+
   document.querySelectorAll("[data-scroll]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = document.querySelector(button.dataset.scroll);

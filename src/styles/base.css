@@ -29,7 +29,11 @@ html {
 body {
   min-width: 320px;
   overflow-x: hidden;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 15% 12%, rgba(252, 231, 0, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 18%, rgba(23, 161, 82, 0.12), transparent 26%),
+    radial-gradient(circle at 52% 72%, rgba(255, 249, 223, 0.03), transparent 30%),
+    linear-gradient(180deg, #020304 0%, #050a08 48%, #030705 100%);
   color: var(--text);
   font-family: 'Montserrat', sans-serif;
 }
@@ -39,8 +43,24 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.08), rgba(0,0,0,0.2));
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.06), rgba(0,0,0,0.22)),
+    radial-gradient(circle at 50% 0%, rgba(252, 231, 0, 0.04), transparent 18%);
+  mix-blend-mode: screen;
   z-index: 98;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 24%, rgba(255, 255, 255, 0.06), transparent 12%),
+    radial-gradient(circle at 78% 10%, rgba(255, 255, 255, 0.08), transparent 10%),
+    radial-gradient(circle at 74% 68%, rgba(252, 231, 0, 0.06), transparent 16%),
+    radial-gradient(circle at 50% 50%, transparent 0 55%, rgba(0, 0, 0, 0.26) 100%);
+  z-index: 97;
 }
 
 button {
@@ -86,7 +106,8 @@ main {
 }
 
 .scroll-hint,
-.back-top {
+.back-top,
+.music-toggle {
   position: absolute;
   z-index: 50;
   border: 0;
@@ -119,6 +140,34 @@ main {
 
 .scroll-hint--dark {
   color: rgba(255,255,255,0.85);
+}
+
+.music-toggle {
+  right: clamp(1rem, 4vw, 2rem);
+  top: 1rem;
+  position: fixed;
+  z-index: 100;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(252, 231, 0, 0.22);
+  border-radius: 999px;
+  color: var(--cream);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: rgba(8, 13, 12, 0.42);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.24);
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.music-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(252, 231, 0, 0.48);
+}
+
+.music-toggle.is-on {
+  color: var(--yellow);
+  box-shadow: 0 0 22px rgba(252, 231, 0, 0.22);
 }
 
 .cursor-glow {
@@ -180,5 +229,12 @@ main {
 @media (max-width: 700px) {
   .cursor-glow {
     display: none;
+  }
+
+  .music-toggle {
+    top: 0.9rem;
+    right: 0.9rem;
+    padding: 0.62rem 0.85rem;
+    font-size: 0.56rem;
   }
 }

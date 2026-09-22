@@ -2,14 +2,18 @@
   display: grid;
   place-items: center;
   perspective: 1000px;
-  background: #000;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(252, 231, 0, 0.05), transparent 24%),
+    linear-gradient(180deg, #020304 0%, #050a09 60%, #020403 100%);
 }
 
 .night {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 25%, rgba(245, 223, 91, .08), transparent 30%),
+    radial-gradient(circle at 50% 22%, rgba(245, 223, 91, .1), transparent 28%),
+    radial-gradient(circle at 18% 28%, rgba(23, 161, 82, .1), transparent 18%),
+    radial-gradient(circle at 82% 30%, rgba(23, 161, 82, .08), transparent 20%),
     radial-gradient(ellipse at 50% 100%, rgba(4, 95, 38, .35), transparent 55%),
     linear-gradient(180deg, #020304 0%, #07100d 70%, #020403 100%);
 }
@@ -54,6 +58,7 @@
   z-index: 30;
   top: 10vh;
   text-align: center;
+  max-width: min(90vw, 760px);
   opacity: 0;
   animation: hero-copy-in 1.4s 4.2s ease forwards;
 }
@@ -84,6 +89,16 @@
   color: var(--muted);
   font-family: "Cormorant Garamond", serif;
   font-size: clamp(1rem, 2vw, 1.35rem);
+}
+
+.hero-copy::after {
+  content: "";
+  position: absolute;
+  inset: -8vh -10vw auto -10vw;
+  height: 18rem;
+  background: radial-gradient(circle, rgba(252, 231, 0, 0.08), transparent 62%);
+  filter: blur(10px);
+  z-index: -1;
 }
 
 .flowers {
@@ -121,6 +136,28 @@
   left: 66%;
   transform: rotate(-15deg);
   animation: moving-flower-3 4s linear infinite;
+}
+
+.flower--purple .flower__leaf {
+  background: linear-gradient(to top, #5d1fb2, #c58cff);
+}
+
+.flower--purple .flower__white-circle::after {
+  background: #6c2bb7;
+}
+
+.flower--purple .flower__line {
+  background:
+    linear-gradient(to left, rgba(0,0,0,.25), transparent, rgba(255,255,255,.12)),
+    linear-gradient(to top, transparent 10%, #084518, #20a64d);
+}
+
+.flower--purple .flower__line__leaf {
+  background: linear-gradient(to top, rgba(12, 79, 34, .45), #4fd17a);
+}
+
+.flower--purple .flower__light {
+  background: #dcc4ff;
 }
 
 .flower__leafs {
@@ -328,12 +365,12 @@
 
 @media (max-width: 700px) {
   .hero-copy {
-    top: 18vh;
+    top: 17vh;
   }
 
   .flowers {
     width: 132%;
-    height: 96vmin;
+    height: 102vmin;
     transform: translateX(-50%) scale(1);
   }
 
@@ -343,4 +380,8 @@
 
   .flower--2 { left: 20%; }
   .flower--3 { left: 80%; }
+
+  .flower--purple:nth-of-type(4) { left: 8%; }
+
+  .flower--purple:nth-of-type(5) { left: 86%; }
 }
