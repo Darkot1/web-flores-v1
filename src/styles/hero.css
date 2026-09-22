@@ -368,16 +368,13 @@
   .stars::before,
   .stars::after,
   .petal,
-  .flower__light,
-  .flower__leafs,
-  .flower__line,
-  .grass::before,
-  .grass::after {
+  .flower__light {
     animation: none !important;
   }
 
   .hero-copy {
     top: 17vh;
+    animation-delay: 1.2s;
   }
 
   .flowers {
