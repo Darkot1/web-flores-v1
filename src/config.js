@@ -8,6 +8,8 @@
  * - climate: "tropical" (Colombia: temporadas secas y de lluvias), "north" o "south".
  */
 export const config = {
+  /** Nombre de la página (pestaña del navegador y marca de la barra). */
+  title: "Nuestro jardín",
   name: "Shara Melizza",
   relationshipStart: null,
   authors: {
@@ -15,6 +17,9 @@ export const config = {
     ella: "Ella",
   },
   climate: "tropical",
+
+  /** Horas (locales) en que el jardín pasa a día y a noche. Colombia: ~6:00 y ~18:00. */
+  gardenClock: { sunrise: 6, sunset: 18 },
 
   intro: {
     eyebrow: "Un jardín para",

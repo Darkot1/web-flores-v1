@@ -7,6 +7,12 @@ import { createRng, weightedPick } from "../lib/seed.js";
 
 export const STAGES = ["seed", "sprout", "bud", "open", "full"];
 
+/** Día o noche en el jardín según la hora local (no según el tema de la página). */
+export const phaseAt = (date = new Date(), { sunrise = 6, sunset = 18 } = {}) => {
+  const hour = date.getHours() + date.getMinutes() / 60;
+  return hour >= sunrise && hour < sunset ? "day" : "night";
+};
+
 export const STAGE_LABELS = {
   seed: "semilla",
   sprout: "brote",
