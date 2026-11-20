@@ -45,7 +45,7 @@ export const pathOutline = (dims, steps = 40) => {
   return [...left, [last.x - last.halfWidth * 1.3, dims.height], [last.x + last.halfWidth * 1.3, dims.height], ...right.reverse()];
 };
 
-const KIND_SCALE = { memory: 1, letter: 1.35, wild: 0.42, cluster: 1.25, bench: 1, lamp: 1, arch: 1, tree: 1 };
+const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, lamp: 0.85, arch: 1, tree: 1.2 };
 
 /**
  * Coloca cada elemento del modelo. `items` debe venir ordenado (lo hace
