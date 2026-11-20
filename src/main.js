@@ -104,7 +104,9 @@ const setupNav = () => {
 };
 
 const fillCopy = () => {
-  document.title = `Un jardín para ${config.name}`;
+  document.title = config.title;
+  document.querySelector(".brand__text").textContent = config.title;
+  document.querySelector(".brand").setAttribute("aria-label", `${config.title}, ir al inicio`);
   $("[data-soil-title]").textContent = config.memories.title;
   $("[data-soil-body]").textContent = config.memories.body;
   $("[data-letters-title]").textContent = config.letters.title;
