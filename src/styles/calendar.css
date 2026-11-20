@@ -1,10 +1,7 @@
 /* ───────── Acto II · Pleno día ───────── */
 .act--soil {
   padding-bottom: var(--space-8);
-  background:
-    radial-gradient(50% 30% at 86% 6%, rgb(242 193 78 / 0.18), transparent 70%),
-    radial-gradient(60% 40% at 10% 60%, rgb(157 181 154 / 0.22), transparent 70%),
-    linear-gradient(180deg, #f8f3e6 0%, #f2f2e4 22%, #eef1e3 50%, #f4eedc 80%, #ecdfcd 100%);
+  background: var(--bg-soil);
 }
 
 .act__header {
@@ -65,7 +62,7 @@
   font-family: var(--font-display);
   font-size: var(--step-2);
   font-weight: 500;
-  color: var(--plum);
+  color: var(--ink);
 }
 
 .soul-counters__next {
@@ -117,7 +114,7 @@
   padding: var(--space-5);
   border: 1px solid var(--line);
   border-radius: var(--radius-l);
-  background: color-mix(in srgb, #fffdf8 82%, transparent);
+  background: color-mix(in srgb, var(--card) 86%, transparent);
   box-shadow: var(--shadow-soft);
 }
 
@@ -144,7 +141,7 @@
   font-family: var(--font-display);
   font-size: var(--step-1);
   text-align: center;
-  color: var(--plum);
+  color: var(--ink);
 }
 
 .calendar__today {
@@ -200,13 +197,13 @@
   padding: 0;
   border: 1px solid transparent;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--sage-soft) 55%, #fffdf8);
-  color: var(--plum);
+  background: var(--day-cell);
+  color: var(--ink);
   transition: background-color var(--dur-quick), transform var(--dur-quick) var(--ease-organic), border-color var(--dur-quick);
 }
 
 .cal__day:hover {
-  background: color-mix(in srgb, var(--lavender) 30%, #fffdf8);
+  background: color-mix(in srgb, var(--lavender) 30%, var(--card));
 }
 
 .cal__day:active {
@@ -214,16 +211,16 @@
 }
 
 .cal__day.is-future {
-  background: color-mix(in srgb, var(--paper-warm) 80%, transparent);
+  background: var(--day-cell-future);
 }
 
 .cal__day.has-memory {
-  background: linear-gradient(180deg, #fffdf8 0%, color-mix(in srgb, var(--sage-soft) 80%, #fffdf8) 58%, color-mix(in srgb, #c9a985 45%, #fffdf8) 100%);
+  background: var(--day-cell-memory);
   border-color: color-mix(in srgb, var(--sage-deep) 26%, transparent);
 }
 
 .cal__day.is-today {
-  border: 2px solid var(--daisy-ink);
+  border: 2px solid var(--accent-ink);
 }
 
 .cal__day.is-special {
@@ -240,7 +237,7 @@
 }
 
 .is-today .cal__num {
-  color: var(--daisy-ink);
+  color: var(--accent-ink);
 }
 
 .cal__flower {
@@ -258,6 +255,7 @@
 }
 
 .cal__count {
+  color: var(--btn-fg) !important;
   position: absolute;
   top: 3px;
   right: 4px;
@@ -265,8 +263,7 @@
   height: 1.1rem;
   padding-inline: 0.25rem;
   border-radius: 999px;
-  background: var(--daisy-ink);
-  color: #fff;
+  background: var(--btn-bg);
   font-size: 0.68rem;
   font-weight: 700;
   line-height: 1.1rem;
@@ -281,7 +278,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--gold);
-  box-shadow: 0 0 0 2px #fffdf8;
+  box-shadow: 0 0 0 2px var(--card);
 }
 
 .cal__mark--arch {

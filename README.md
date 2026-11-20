@@ -3,9 +3,12 @@
 Una web-regalo para Shara Melizza. La relación es un jardín que se cultiva:
 cada día juntos, cada recuerdo y cada carta lo hacen crecer.
 
-1. **Semilla** (amanecer): una semilla cae, brota y se abre una margarita morada.
-2. **Tierra** (pleno día): el calendario de recuerdos y el jardín vivo que nace de ellos.
-3. **Cartas** (atardecer y noche): la pérgola de cartas y el jardín completo, de noche.
+1. **Inicio** (amanecer): una semilla cae, brota y se abre una margarita morada.
+2. **Recuerdos** (pleno día): el calendario y el jardín vivo que nace de ellos.
+3. **Cartas** (atardecer y noche): la pérgola de cartas y el cierre con la margarita ya florecida.
+
+Modo claro u oscuro con el botón Noche/Día (se recuerda en cada dispositivo). En modo
+oscuro el jardín se ve de noche: luna, luciérnagas y los faroles de cada mesiversario encendidos.
 
 ## Comandos
 
@@ -28,6 +31,7 @@ Todo lo editable está en `src/config.js`:
 | Frases | `config.intro`, `config.memories`, `config.letters`, `config.closing`, `config.signature` |
 | Clima | `config.climate`: `"tropical"` (Colombia: temporadas secas y de lluvias), `"north"` o `"south"` |
 | Maduración | `config.growth` (días para brote → capullo → flor abierta → flor plena) |
+| Música | `config.music.src`: `null` usa la nana del jardín; para vuestra canción copia el archivo a `public/musica/` y pon `"/musica/nombre.mp3"` |
 
 **Cartas iniciales:** `src/data/letters.js`. La carta de las margaritas moradas es la primera.
 Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`).

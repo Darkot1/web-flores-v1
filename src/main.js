@@ -31,13 +31,14 @@ import { createLetters } from "./components/letters.js";
 import { createLetterComposer } from "./components/letter-composer.js";
 import { createSettings, askGardenCode } from "./components/settings.js";
 import { showToast } from "./components/toast.js";
+import { mountClosing } from "./components/closing.js";
 
 const $ = (selector) => document.querySelector(selector);
 
 const setupMusic = () => {
   const button = $("[data-music]");
   const label = $("[data-music-label]");
-  const music = createAmbientMusic();
+  const music = createAmbientMusic(config.music);
   button.addEventListener("click", async () => {
     const next = !music.playing;
     button.setAttribute("aria-pressed", String(next));
@@ -54,7 +55,35 @@ const setupMusic = () => {
   });
 };
 
+const setupTheme = () => {
+  const button = $("[data-theme-toggle]");
+  const label = $("[data-theme-label]");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const apply = (theme, { save = false } = {}) => {
+    document.documentElement.dataset.theme = theme;
+    const dark = theme === "dark";
+    button.setAttribute("aria-pressed", String(dark));
+    button.setAttribute("aria-label", dark ? "Modo oscuro activado. Cambiar a modo claro" : "Cambiar a modo oscuro");
+    label.textContent = dark ? "Día" : "Noche";
+    meta?.setAttribute("content", dark ? "#1d0f28" : "#fbf6ec");
+    if (save) {
+      try {
+        localStorage.setItem("jardin:theme", theme);
+      } catch {
+        /* ignorar */
+      }
+    }
+    document.dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
+  };
+  apply(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => apply(document.documentElement.dataset.theme === "dark" ? "light" : "dark", { save: true }));
+};
+
 const setupNav = () => {
+  const topbar = document.querySelector(".topbar");
+  const onScroll = () => topbar.classList.toggle("is-scrolled", window.scrollY > 40);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
   const links = [...document.querySelectorAll("[data-nav]")];
   const sections = links.map((a) => document.getElementById(a.dataset.nav));
   if (!("IntersectionObserver" in window)) return;
@@ -64,7 +93,7 @@ const setupNav = () => {
         if (!entry.isIntersecting) continue;
         const link = links.find((a) => a.dataset.nav === entry.target.id);
         links.forEach((a) => a.removeAttribute("aria-current"));
-        link.setAttribute("aria-current", "step");
+        link.setAttribute("aria-current", "location");
         link.classList.add("is-visited");
         document.body.dataset.act = entry.target.id;
       }
@@ -113,6 +142,7 @@ const boot = async () => {
   ensureGardenSprite();
   mountIntro({ root: $("#semilla"), config });
   mountStemPath($("[data-stem-path]"));
+  setupTheme();
   setupMusic();
   setupNav();
   setupReveal();
@@ -125,7 +155,7 @@ const boot = async () => {
   const settings = createSettings({ store });
   const openSettings = (opener) => settings.open(opener ?? document.activeElement);
 
-  let dayGarden = null;
+  let garden = null;
   const sheet = createMemorySheet({
     store,
     onPlanted: (memory) => {
@@ -134,7 +164,7 @@ const boot = async () => {
           label: "Verla",
           onClick: () => {
             showView("garden");
-            dayGarden.reveal(memory.id);
+            garden.reveal(memory.id);
           },
         },
       });
@@ -156,9 +186,8 @@ const boot = async () => {
   const gardenLabel = (model) =>
     `Jardín con ${model.counts.memories} ${model.counts.memories === 1 ? "recuerdo" : "recuerdos"} y ${model.counts.letters} ${model.counts.letters === 1 ? "carta" : "cartas"}. Usa las flechas para recorrer las flores en orden.`;
 
-  dayGarden = createGarden($("[data-garden-day]"), {
+  garden = createGarden($("[data-garden-day]"), {
     store,
-    variant: "day",
     label: gardenLabel,
     onOpen: openFromGarden,
     onPlantFirst: () => {
@@ -169,12 +198,7 @@ const boot = async () => {
     onChooseStart: () => openSettings(),
   });
 
-  const nightGarden = createGarden($("[data-garden-night]"), {
-    store,
-    variant: "night",
-    label: (model) => `El jardín completo de noche, con los faroles encendidos. ${gardenLabel(model)}`,
-    onOpen: openFromGarden,
-  });
+  mountClosing({ scene: $("[data-closing-scene]"), tally: $("[data-closing-tally]"), store });
 
   const timeline = createTimeline($("[data-timeline]"), {
     store,
@@ -187,7 +211,13 @@ const boot = async () => {
     onSent: (letter) => {
       composer.reset();
       showToast("Tu carta ya cuelga de la pérgola y su flor está brotando.", {
-        action: { label: "Verla", onClick: () => nightGarden.reveal(letter.id) },
+        action: {
+          label: "Ver su flor",
+          onClick: () => {
+            showView("garden");
+            garden.reveal(letter.id);
+          },
+        },
       });
     },
   });

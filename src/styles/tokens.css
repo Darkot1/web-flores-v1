@@ -28,14 +28,38 @@
   --gold-soft: #f8e3a8;
   --rose: #c24d7a;
 
-  /* Semánticos */
+  /* Semánticos (cambian con el tema) */
+  --bg: var(--paper);
+  --panel: var(--paper);
+  --card: #fffdf8;
   --ink: var(--plum);
   --ink-soft: #5b4a63;       /* 7.5:1 sobre papel */
-  --surface: color-mix(in srgb, var(--paper) 88%, transparent);
-  --surface-solid: var(--paper);
+  --accent-ink: var(--daisy-ink);
+  --btn-bg: var(--daisy-ink);
+  --btn-bg-hover: var(--daisy-deep);
+  --btn-fg: #fff;
   --line: color-mix(in srgb, var(--plum) 16%, transparent);
+  --line-strong: color-mix(in srgb, var(--plum) 26%, transparent);
   --focus: var(--daisy-ink);
   --danger: #a3324f;
+  --tag-special-fg: #6b4a0e;
+  --tag-stage-fg: #3f5a3a;
+  --day-cell: color-mix(in srgb, var(--sage-soft) 55%, #fffdf8);
+  --day-cell-future: color-mix(in srgb, var(--paper-warm) 80%, transparent);
+  --day-cell-memory: linear-gradient(180deg, #fffdf8 0%, color-mix(in srgb, var(--sage-soft) 80%, #fffdf8) 58%, color-mix(in srgb, #c9a985 45%, #fffdf8) 100%);
+
+  /* El día que pasa: amanecer → pleno día → atardecer */
+  --bg-seed:
+    radial-gradient(60% 40% at 50% 100%, rgb(246 217 198 / 0.9), transparent 70%),
+    radial-gradient(40% 30% at 80% 18%, rgb(201 182 242 / 0.55), transparent 70%),
+    linear-gradient(180deg, #ece1f6 0%, #f3e2e4 32%, #f8e4d4 62%, #faf0e2 86%, #f8f3e6 100%);
+  --bg-soil:
+    radial-gradient(50% 30% at 86% 6%, rgb(242 193 78 / 0.18), transparent 70%),
+    radial-gradient(60% 40% at 10% 60%, rgb(157 181 154 / 0.22), transparent 70%),
+    linear-gradient(180deg, #f8f3e6 0%, #f2f2e4 22%, #eef1e3 50%, #f4eedc 80%, #ecdfcd 100%);
+  --bg-letters-top: #ecdfcd;
+  --bg-letters-mid: #d9b9b8;
+  --bg-letters-mid2: #a77d9d;
 
   /* Tipografía */
   --font-display: "Fraunces Variable", "Cormorant Garamond", Georgia, serif;
@@ -78,4 +102,47 @@
   --z-garden-tip: 20;
   --z-nav: 40;
   --z-toast: 60;
+}
+
+/* ───────── Modo oscuro: el jardín de noche ───────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1a0f24;
+  --panel: #241731;
+  --card: #2c1d3a;
+  --ink: #f3ecf8;            /* 15:1 sobre --bg */
+  --ink-soft: #cfc2da;       /* 10:1 */
+  --daisy-ink: #c9b6f2;      /* 9.6:1: texto y acentos sobre oscuro */
+  --accent-ink: #c9b6f2;
+  --earth-ink: #e2c9a6;
+  --btn-bg: #c9b6f2;
+  --btn-bg-hover: #e8ddf7;
+  --btn-fg: #2a1638;         /* 9.2:1 */
+  --line: color-mix(in srgb, var(--lavender) 18%, transparent);
+  --line-strong: color-mix(in srgb, var(--lavender) 34%, transparent);
+  --focus: var(--gold);
+  --danger: #ff8fa8;
+  --lavender-soft: #3a2650;
+  --sage-soft: #26302a;
+  --paper-warm: #2a1d33;
+  --gold-soft: #4a3a17;
+  --tag-special-fg: #f8e3a8;
+  --tag-stage-fg: #cfe3c9;
+  --day-cell: #2a2234;
+  --day-cell-future: #231a2d;
+  --day-cell-memory: linear-gradient(180deg, #33263f 0%, #2c3330 60%, #3a2f2a 100%);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 28px -10px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.3), 0 22px 50px -18px rgb(0 0 0 / 0.7);
+
+  --bg-seed:
+    radial-gradient(50% 35% at 50% 100%, rgb(123 79 191 / 0.35), transparent 70%),
+    radial-gradient(35% 25% at 78% 16%, rgb(201 182 242 / 0.22), transparent 70%),
+    linear-gradient(180deg, #120a1a 0%, #1d1029 40%, #241433 75%, #1f1229 100%);
+  --bg-soil:
+    radial-gradient(45% 25% at 86% 6%, rgb(201 182 242 / 0.12), transparent 70%),
+    radial-gradient(60% 40% at 10% 60%, rgb(95 130 89 / 0.16), transparent 70%),
+    linear-gradient(180deg, #1f1229 0%, #1c1726 40%, #1b1a24 70%, #1d1324 100%);
+  --bg-letters-top: #1d1324;
+  --bg-letters-mid: #241431;
+  --bg-letters-mid2: #2a1638;
 }

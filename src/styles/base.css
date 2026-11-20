@@ -14,7 +14,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  background: var(--paper);
+  background: var(--bg);
   color-scheme: light;
 }
 
@@ -28,7 +28,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: var(--step-0);
@@ -155,17 +155,17 @@ p {
 }
 
 .btn--primary {
-  background: var(--daisy-ink);
-  color: #fff;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
 }
 
 .btn--primary:hover {
-  background: var(--daisy-deep);
+  background: var(--btn-bg-hover);
 }
 
 .btn--ghost {
   background: transparent;
-  border-color: color-mix(in srgb, var(--plum) 26%, transparent);
+  border-color: var(--line-strong);
   color: var(--ink);
 }
 
@@ -231,9 +231,9 @@ p {
   width: 100%;
   min-height: var(--tap);
   padding: 0.65rem 0.85rem;
-  border: 1.5px solid color-mix(in srgb, var(--plum) 22%, transparent);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-s);
-  background: #fffdf8;
+  background: var(--card);
   color: var(--ink);
   transition: border-color var(--dur-quick);
 }
@@ -292,18 +292,18 @@ textarea.field__input {
   gap: var(--space-2);
   min-height: var(--tap);
   padding: 0.45rem 0.95rem;
-  border: 1.5px solid color-mix(in srgb, var(--plum) 22%, transparent);
+  border: 1.5px solid var(--line-strong);
   border-radius: 999px;
   font-size: var(--step--1);
   font-weight: 600;
-  background: #fffdf8;
+  background: var(--card);
   transition: background-color var(--dur-quick), border-color var(--dur-quick);
 }
 
 .choice input:checked + span {
-  border-color: var(--daisy-ink);
+  border-color: var(--accent-ink);
   background: var(--lavender-soft);
-  box-shadow: inset 0 0 0 1px var(--daisy-ink);
+  box-shadow: inset 0 0 0 1px var(--accent-ink);
 }
 
 .choice input:focus-visible + span {
@@ -329,6 +329,7 @@ textarea.field__input {
 
 .check input {
   width: 1.3rem;
+  accent-color: var(--accent-ink);
   height: 1.3rem;
   margin-top: 0.15rem;
   accent-color: var(--daisy-ink);

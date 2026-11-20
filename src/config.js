@@ -40,6 +40,13 @@ export const config = {
 
   signature: "Con todo mi cariño",
 
+  /**
+   * Música. Con src: null suena la nana sintetizada del jardín.
+   * Para usar vuestra canción, copia el archivo a public/musica/ y pon, por ejemplo:
+   *   src: "/musica/nuestra-cancion.mp3"
+   */
+  music: { src: null },
+
   /** Días de antigüedad para cada etapa de la flor. */
   growth: { sprout: 0, bud: 7, open: 30, full: 90 },
 
