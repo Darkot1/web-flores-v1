@@ -73,7 +73,7 @@ html.has-modal {
 .composer__title,
 .sheet__title {
   padding-right: 3rem;
-  font-size: var(--step-3);
+  font-size: var(--step-2);
 }
 
 .settings__form,

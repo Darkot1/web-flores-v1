@@ -1,11 +1,11 @@
 /* ───────── Acto III · Atardecer y noche ───────── */
 .act--letters {
-  padding-top: clamp(9rem, 26vh, 14rem);
+  padding-top: 300px;
   padding-bottom: var(--space-8);
   color: var(--paper);
   background:
     radial-gradient(40% 12% at 50% 0%, rgb(242 193 78 / 0.25), transparent 70%),
-    linear-gradient(180deg, #ecdfcd 0%, #d9b9b8 5%, #a77d9d 11%, #6e4a7e 17%, #4a2a5d 24%, #3e1f4f 34%, #2a1638 62%, #1d0f28 100%);
+    linear-gradient(180deg, #ecdfcd 0, #d9b9b8 50px, #a77d9d 120px, #6e4a7e 180px, #4a2a5d 240px, #3e1f4f 320px, #2a1638 60%, #1d0f28 100%);
 }
 
 .act--letters .eyebrow {
@@ -41,12 +41,17 @@
   list-style: none;
 }
 
+/* Los sobres cuelgan quietos, levemente ladeados; se mecen al pasar o enfocar. */
 .pergola__item {
   --string: 30px;
   padding-top: var(--string);
   transform-origin: 50% 0;
-  animation: envelope-swing 7s ease-in-out infinite alternate;
-  animation-delay: var(--delay, 0s);
+  transform: rotate(var(--swing, 0deg));
+}
+
+.pergola__item:hover,
+.pergola__item:focus-within {
+  animation: envelope-swing 1.6s ease-in-out 2 alternate;
 }
 
 @keyframes envelope-swing {

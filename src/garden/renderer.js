@@ -8,7 +8,7 @@
  */
 import { buildGardenModel, STAGE_LABELS } from "./growth.js";
 import { DIMENSIONS, layoutGrass, layoutItems, pathOutline, seasonBands } from "./layout.js";
-import { daisySymbolId, ensureGardenSprite, paletteVars, symbolSeed, DAISY_SCALE } from "./symbols.js";
+import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
 import { prefersReducedMotion, watchVisibility } from "../lib/motion.js";
@@ -39,20 +39,23 @@ export const describeItem = (item) => {
   }
 };
 
-const INTERACTIVE = new Set(["memory", "letter", "cluster", "bench", "tree", "lamp", "arch"]);
+/** Se pueden abrir (botones, recorridos con flechas). */
+const INTERACTIVE = new Set(["memory", "letter", "cluster", "bench"]);
+/** Solo informan (tooltip al pasar el ratón); para lectores, la vista Camino los lista. */
+const DECOR_WITH_TIP = new Set(["tree", "lamp", "arch"]);
 
 const itemContent = (item) => {
   switch (item.kind) {
     case "memory":
-      return el("use", { href: `#${daisySymbolId(item.stage, item.petals)}` });
+      return el("use", { href: symbolHref(daisySymbolId(item.stage, item.petals)) });
     case "letter":
-      return el("use", { href: `#${daisySymbolId(item.stage, item.petals, true)}` });
+      return el("use", { href: symbolHref(daisySymbolId(item.stage, item.petals, true)) });
     case "wild":
-      return el("use", { href: item.stage === "full" || item.stage === "open" ? "#w-open" : "#w-bud" });
+      return el("use", { href: symbolHref(item.stage === "full" || item.stage === "open" ? "w-open" : "w-bud") });
     case "tree":
-      return el("use", { href: `#tree-${item.stage}` });
+      return el("use", { href: symbolHref(`tree-${item.stage}`) });
     default:
-      return el("use", { href: `#${item.kind}` });
+      return el("use", { href: symbolHref(item.kind) });
   }
 };
 
@@ -70,6 +73,7 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
   ensureGardenSprite();
 
   host.classList.add("garden-view", `garden-view--${variant}`);
+  host.dataset.focusScope = "";
   const svg = el("svg", { class: "garden-svg", role: "group", "aria-roledescription": "jardín", focusable: "false" });
   const tip = document.createElement("div");
   tip.className = "garden-tip";
@@ -213,18 +217,21 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
 
     const grass = el("g", { class: "garden-grass", "aria-hidden": "true" });
     for (const t of layoutGrass(model.density, dims, caps.grass)) {
-      grass.append(el("use", { href: `#grass-${t.variant}`, transform: `translate(${t.x} ${t.y}) scale(${t.flip ? -t.scale : t.scale} ${t.scale})` }));
+      grass.append(el("use", { href: symbolHref(`grass-${t.variant}`), transform: `translate(${t.x} ${t.y}) scale(${t.flip ? -t.scale : t.scale} ${t.scale})` }));
     }
     frag.append(grass);
 
     // Semilla de espera si no hay nada plantado.
     if (model.counts.memories + model.counts.letters === 0) {
       const front = laid.length ? null : { x: width / 2, y: height - dims.pad - 40 };
-      if (front) frag.append(el("use", { href: "#empty-seed", class: "garden-waiting-seed", transform: `translate(${front.x} ${front.y}) scale(1.4)` }));
+      if (front) frag.append(el("use", { href: symbolHref("empty-seed"), class: "garden-waiting-seed", transform: `translate(${front.x} ${front.y}) scale(1.4)` }));
     }
 
     const items = el("g", { class: "garden-items" });
-    const swayBudget = compact ? 24 : 70;
+    // Viento: menos flores en móvil y aún menos si el jardín está muy poblado.
+    const swayBudget = compact ? (laid.length > 90 ? 8 : 18) : laid.length > 200 ? 36 : 60;
+    // En móvil el viewBox se encoge: el área de toque se agranda para seguir rondando 44px.
+    const hitW = compact ? 76 : 48;
     const byNearest = [...laid].filter((i) => i.kind === "memory" || i.kind === "letter" || i.kind === "wild").sort((a, b) => b.y - a.y);
     const swaying = new Set(prefersReducedMotion() ? [] : byNearest.slice(0, swayBudget).map((i) => i.id));
 
@@ -249,8 +256,12 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
         g.setAttribute("tabindex", "-1");
         g.setAttribute("aria-label", info.label);
         // Área de toque generosa e invisible.
-        const hit = el("rect", { class: "g-hit", x: -22, y: -92 * item.scale - 10, width: 44, height: 92 * item.scale + 22, fill: "transparent" });
+        const h = Math.max(hitW, 92 * item.scale + 22);
+        const hit = el("rect", { class: "g-hit", x: -hitW / 2, y: 12 - h, width: hitW, height: h, rx: 12, fill: "transparent" });
         g.prepend(hit);
+      } else if (DECOR_WITH_TIP.has(item.kind)) {
+        g.dataset.tip = "";
+        g.setAttribute("aria-hidden", "true");
       } else {
         g.setAttribute("aria-hidden", "true");
       }
@@ -263,7 +274,7 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
       frag.append(el("rect", { class: "garden-night-veil", width, height, fill: "#1d0f28", opacity: 0.28, "pointer-events": "none" }));
       const glows = el("g", { class: "garden-lamp-glows", "pointer-events": "none", "aria-hidden": "true" });
       for (const item of laid.filter((i) => i.kind === "lamp")) {
-        glows.append(el("circle", { class: "lamp-halo", cx: item.x, cy: item.y - 66 * item.scale, r: 46 * item.scale + 6, fill: "url(#lamp-glow)", style: `animation-delay:${item.swayDelay}s` }));
+        glows.append(el("circle", { class: "lamp-halo", cx: item.x, cy: item.y - 56 * item.scale, r: 40 * item.scale + 6, fill: "url(#lamp-glow)" }));
       }
       frag.append(glows);
     }
@@ -277,7 +288,8 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
     if (!focusOrder.length) focusIndex = 0;
     if (focusOrder.length) {
       nodesById.get(focusOrder[focusIndex].id)?.g.setAttribute("tabindex", "0");
-      svg.removeAttribute("tabindex");
+      // tabindex="-1" (no quitarlo): Chromium deja el <svg> enfocable si se elimina.
+      svg.setAttribute("tabindex", "-1");
     } else {
       svg.setAttribute("tabindex", "0");
     }
@@ -335,8 +347,8 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
     tipItem = null;
   };
 
-  const itemFromEvent = (event) => {
-    const g = event.target.closest?.(".g-item[role=button]");
+  const itemFromEvent = (event, { decor = false } = {}) => {
+    const g = event.target.closest?.(decor ? ".g-item[role=button], .g-item[data-tip]" : ".g-item[role=button]");
     return g ? nodesById.get(g.dataset.id)?.item : null;
   };
 
@@ -361,12 +373,15 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
   };
 
   let lastPointer = "mouse";
+  let pointerFocus = false;
   svg.addEventListener("pointerdown", (e) => {
     lastPointer = e.pointerType;
+    pointerFocus = true;
+    setTimeout(() => (pointerFocus = false), 400);
   });
   svg.addEventListener("pointerover", (e) => {
     if (e.pointerType !== "mouse") return;
-    const item = itemFromEvent(e);
+    const item = itemFromEvent(e, { decor: true });
     if (item) showTip(item);
   });
   svg.addEventListener("pointerout", (e) => {
@@ -393,6 +408,7 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
   });
   tipOpen.addEventListener("click", () => open(tipItem));
   svg.addEventListener("focusin", (e) => {
+    if (pointerFocus) return; // el toque gestiona su propio tooltip
     const item = itemFromEvent(e);
     if (item) showTip(item);
   });

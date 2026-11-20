@@ -53,7 +53,7 @@ export const mountIntro = ({ root, config }) => {
   );
   const growth = growDaisy(daisy, { delay: 950, petalStagger: 40 });
   animations.push(...growth.animations);
-  const copyDelay = 3000;
+  const copyDelay = 2300;
   copyNodes.forEach((node, i) => {
     animations.push(
       node.animate([{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], {

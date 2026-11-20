@@ -5,7 +5,7 @@
  */
 import { addDays, formatLong, formatMonth, parseKey, toKey } from "../lib/dates.js";
 import { computeMilestones, stageFor, flowerColorFor } from "../garden/growth.js";
-import { daisySymbolId, ensureGardenSprite, paletteVars, symbolSeed, DAISY_SCALE } from "../garden/symbols.js";
+import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "../garden/symbols.js";
 import { buildDaisy, el, growDaisy } from "./daisy.js";
 import { config } from "../config.js";
 
@@ -31,7 +31,7 @@ export const cellViewBox = (stage) => ({ seed: "-14 -14 28 18", sprout: "-22 -44
 
 const miniDaisy = (stage, color) => {
   const svg = el("svg", { class: "cal-daisy", viewBox: cellViewBox(stage), "aria-hidden": "true", focusable: "false", style: paletteVars(color) });
-  svg.append(el("use", { href: `#${daisySymbolId(stage, 16)}` }));
+  svg.append(el("use", { href: symbolHref(daisySymbolId(stage, 16)) }));
   return svg;
 };
 
@@ -42,6 +42,7 @@ export const createCalendar = (root, { store, onSelectDay }) => {
   const prev = root.querySelector("[data-calendar-prev]");
   const next = root.querySelector("[data-calendar-next]");
   const todayBtn = root.querySelector("[data-calendar-today]");
+  grid.dataset.focusScope = "";
 
   let visible = monthStart(store.today());
   let focused = store.today();
@@ -58,7 +59,8 @@ export const createCalendar = (root, { store, onSelectDay }) => {
       byDate.get(m.date).push(m);
     }
 
-    label.textContent = formatMonth(visible);
+    const monthText = formatMonth(visible);
+    if (label.textContent !== monthText) label.textContent = monthText; // aria-live: solo al cambiar de mes
     if (focused.slice(0, 7) !== visible.slice(0, 7)) focused = visible;
 
     const first = parseKey(visible);

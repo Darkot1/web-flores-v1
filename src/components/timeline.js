@@ -4,7 +4,7 @@
  */
 import { computeMilestones, seasonFor, stageFor, STAGE_LABELS, flowerColorFor } from "../garden/growth.js";
 import { formatLong, formatMonth, monthKey } from "../lib/dates.js";
-import { daisySymbolId, ensureGardenSprite, paletteVars } from "../garden/symbols.js";
+import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref } from "../garden/symbols.js";
 import { el } from "./daisy.js";
 import { config } from "../config.js";
 
@@ -19,7 +19,7 @@ const ICONS = { tree: "tree-sapling", lamp: "lamp", arch: "arch" };
 
 const icon = (href, style, viewBox = "-34 -110 68 116") => {
   const svg = el("svg", { class: "timeline__icon", viewBox, "aria-hidden": "true", focusable: "false", style });
-  svg.append(el("use", { href: `#${href}` }));
+  svg.append(el("use", { href: symbolHref(href) }));
   return svg;
 };
 
@@ -89,9 +89,22 @@ export const createTimeline = (host, { store, onOpenMemory, onOpenLetter }) => {
     host.replaceChildren(root);
   };
 
+  // Con cientos de recuerdos la lista es grande: solo se dibuja cuando se ve.
+  let stale = true;
+  const renderIfVisible = () => {
+    if (host.hidden) return;
+    render();
+    stale = false;
+  };
   store.subscribe((event) => {
-    if (["load", "memories", "letters", "settings"].includes(event.type) && !event.read) render();
+    if (["load", "memories", "letters", "settings"].includes(event.type) && !event.read) {
+      stale = true;
+      renderIfVisible();
+    }
   });
-  render();
-  return { render };
+  return {
+    show() {
+      if (stale) renderIfVisible();
+    },
+  };
 };

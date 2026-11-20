@@ -176,7 +176,7 @@ const boot = async () => {
     onOpen: openFromGarden,
   });
 
-  createTimeline($("[data-timeline]"), {
+  const timeline = createTimeline($("[data-timeline]"), {
     store,
     onOpenMemory: (memory, button) => sheet.open(memory.date, button),
     onOpenLetter: (letter, button) => letters.open(letter.id, button),
@@ -199,6 +199,7 @@ const boot = async () => {
     viewButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
     $("[data-garden-day]").hidden = view !== "garden";
     $("[data-timeline]").hidden = view !== "path";
+    if (view === "path") timeline.show();
   };
   viewButtons.forEach((b) => b.addEventListener("click", () => showView(b.dataset.view)));
 

@@ -226,9 +226,10 @@ export const createMemorySheet = ({ store, onPlanted }) => {
 
   const openList = (heading, memories, opener) => {
     // Lista de una mata (muchos recuerdos de un mes).
-    const listSheet = createDialog({ className: "sheet", labelledBy: "cluster-title" });
+    const clusterId = `cluster-title-${++uid}`;
+    const listSheet = createDialog({ className: "sheet", labelledBy: clusterId });
     const t = h("h2", "sheet__title", heading);
-    t.id = "cluster-title";
+    t.id = clusterId;
     const ul = h("ul", "sheet__list");
     for (const m of memories) {
       const li = h("li", "cluster-item");
@@ -248,8 +249,12 @@ export const createMemorySheet = ({ store, onPlanted }) => {
     setTimeout(() => ul.querySelector("button")?.focus(), 30);
   };
 
-  form.addEventListener("input", () => {
+  form.addEventListener("input", (event) => {
     dirty = true;
+    if (event.target === titleInput && titleInput.value.trim()) {
+      titleInput.removeAttribute("aria-invalid");
+      error.hidden = true;
+    }
   });
   addButton.addEventListener("click", () => {
     resetForm();

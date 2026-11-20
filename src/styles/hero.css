@@ -141,10 +141,6 @@ body[data-act="cartas"] .sprout-nav a[aria-current] {
 [aria-current] .sprout-icon__bloom { transform: scale(1); }
 
 @media (min-width: 1100px) {
-  .act {
-    padding-inline: max(var(--gutter), 140px);
-  }
-
   .sprout-nav {
     left: auto;
     right: 18px;
@@ -336,6 +332,47 @@ body[data-act="cartas"] .sprout-nav a[aria-current] {
 
 .stem-path__line--wide {
   display: none;
+}
+
+/* Espacio para la navegación fija: abajo en móvil, a la derecha en escritorio. */
+html {
+  scroll-padding-top: 4.5rem;
+  scroll-padding-bottom: 5rem;
+}
+
+body {
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 640px) {
+  .music-btn {
+    width: var(--tap);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .music-btn [data-music-label] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hero {
+    padding-bottom: 5.5rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  body {
+    padding-bottom: 0;
+  }
+
+  .act {
+    padding-inline: max(var(--gutter), 150px);
+  }
 }
 
 @media (min-width: 900px) {

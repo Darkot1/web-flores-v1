@@ -135,8 +135,9 @@ export const createLetterComposer = ({ store, onSent }) => {
     });
   };
 
-  form.addEventListener("input", () => {
+  form.addEventListener("input", (event) => {
     dirty = true;
+    if (event.target.value?.trim()) event.target.removeAttribute("aria-invalid");
     updatePreview();
   });
   form.addEventListener("change", updatePreview);

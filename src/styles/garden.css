@@ -31,7 +31,7 @@
 }
 
 .segmented button {
-  min-height: 40px;
+  min-height: var(--tap);
   min-width: var(--tap);
   padding: 0.4rem 1.1rem;
   border: 0;
@@ -70,6 +70,14 @@
 .garden-svg:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: -3px;
+}
+
+.garden-view--night .garden-svg:focus-visible {
+  outline-color: var(--gold);
+}
+
+.g-item[data-tip] {
+  cursor: help;
 }
 
 .g-item[role="button"] {
@@ -118,7 +126,7 @@
 }
 
 .garden-view.is-paused .g-sway,
-.garden-view.is-paused .lamp-halo {
+.garden-view.is-paused .garden-lamp-glows {
   animation-play-state: paused;
 }
 
@@ -163,8 +171,8 @@
   display: none;
 }
 
-.lamp-halo {
-  mix-blend-mode: screen;
+/* Un solo parpadeo para todos los faroles (barato en móvil). */
+.garden-lamp-glows {
   animation: lamp-flicker 5s ease-in-out infinite alternate;
 }
 

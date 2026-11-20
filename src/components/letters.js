@@ -98,7 +98,6 @@ export const createLetters = (root, { store, onCompose }) => {
   const shelf = root.querySelector("[data-letters-list]");
   const composeBtn = root.querySelector("[data-letters-compose]");
   const reader = createDialog({ className: "letter-dialog on-dark" });
-  let currentLetter = null;
 
   const render = () => {
     const { authors } = store.settings();
@@ -114,7 +113,7 @@ export const createLetters = (root, { store, onCompose }) => {
       const btn = h("button", `envelope${unread ? " is-unread" : ""}`);
       btn.type = "button";
       btn.dataset.letterId = letter.id;
-      btn.setAttribute("aria-label", `Carta: ${letter.title}, de ${authors[letter.from] ?? "—"}, ${formatLong(letter.date)}${unread ? ", sin leer" : ", leída"}`);
+      btn.setAttribute("aria-label", `${letter.title}, ${authors[letter.from] ?? ""} · ${formatShort(letter.date)}${unread ? ", sin leer" : ", leída"} (carta)`);
       const body = h("span", "envelope__body");
       body.append(h("span", "envelope__flap"), createSeal(letter.sealColor, 34));
       body.querySelector(".seal").classList.add("envelope__seal");
@@ -130,7 +129,6 @@ export const createLetters = (root, { store, onCompose }) => {
   };
 
   const openLetter = (letter, opener) => {
-    currentLetter = letter;
     const { authors } = store.settings();
     const stage = h("div", "letter-open");
     const envelope = h("div", "letter-envelope");
@@ -191,12 +189,6 @@ export const createLetters = (root, { store, onCompose }) => {
   };
 
   composeBtn?.addEventListener("click", () => onCompose(composeBtn));
-  reader.onClose(() => {
-    if (currentLetter) {
-      const btn = shelf.querySelector(`[data-letter-id="${CSS.escape(currentLetter.id)}"]`);
-      if (btn) setTimeout(() => btn.focus(), 0);
-    }
-  });
 
   store.subscribe((event) => {
     if (["load", "letters", "settings"].includes(event.type)) render();

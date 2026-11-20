@@ -45,7 +45,7 @@ export const config = {
 
   /** Límite de flores individuales antes de agruparlas en matas. */
   caps: {
-    mobile: { flowers: 80, wild: 30, grass: 70 },
+    mobile: { flowers: 50, wild: 24, grass: 60 },
     desktop: { flowers: 250, wild: 90, grass: 150 },
   },
 };

@@ -7,6 +7,20 @@ import { prefersReducedMotion } from "../lib/motion.js";
 
 let openCount = 0;
 
+/**
+ * Si el elemento que abrió el diálogo se re-renderiza (calendario, jardín,
+ * sobres), lo volvemos a encontrar por su clave estable para devolverle el foco.
+ */
+const describeOpener = (node) => {
+  if (!(node instanceof Element)) return null;
+  const host = node.closest("[data-focus-scope]");
+  const key = ["date", "id", "letterId"].find((k) => node.dataset?.[k]);
+  if (!key) return null;
+  const attr = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+  const selector = `[data-${attr}="${CSS.escape(node.dataset[key])}"]`;
+  return () => (host && document.contains(host) ? host : document).querySelector(selector);
+};
+
 export const createDialog = ({ className = "", labelledBy, describedBy, closeLabel = "Cerrar" } = {}) => {
   const dialog = document.createElement("dialog");
   dialog.className = `dialog ${className}`.trim();
@@ -27,6 +41,7 @@ export const createDialog = ({ className = "", labelledBy, describedBy, closeLab
   document.body.append(dialog);
 
   let opener = null;
+  let reselect = null;
   let beforeClose = null;
   const closeListeners = new Set();
 
@@ -44,6 +59,7 @@ export const createDialog = ({ className = "", labelledBy, describedBy, closeLab
     },
     open(from = document.activeElement) {
       opener = from;
+      reselect = describeOpener(from);
       if (!dialog.open) {
         dialog.showModal();
         openCount += 1;
@@ -76,7 +92,16 @@ export const createDialog = ({ className = "", labelledBy, describedBy, closeLab
     openCount = Math.max(0, openCount - 1);
     if (!openCount) document.documentElement.classList.remove("has-modal");
     closeListeners.forEach((fn) => fn());
-    if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
+    const target = opener && document.contains(opener) ? opener : reselect?.();
+    target?.focus({ preventScroll: true });
+  });
+  // Esc: siempre pasa por requestClose (Chrome no deja cancelar un segundo `cancel`).
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      api.requestClose();
+    }
   });
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault();

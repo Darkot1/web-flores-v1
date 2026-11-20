@@ -165,16 +165,48 @@ const emptySeed = () =>
     ]),
   ]);
 
-let built = false;
+let defs = null;
+const built = new Set();
 
-/** Inserta el sprite en el documento (idempotente). */
+const scale = () => `scale(${DAISY_SCALE})`;
+const daisyBuilder = (stage, petals, ribbon) => () =>
+  wrap(daisySymbolId(stage, petals, ribbon), [buildDaisy({ stage, petals, seed: symbolSeed(stage, petals), ribbon, useVars: true })], scale());
+
+/** Constructores de cada símbolo: solo se crean cuando alguien los usa. */
+const builder = (id) => {
+  if (id === "d-seed") return daisyBuilder("seed", 16);
+  if (id === "d-sprout") return daisyBuilder("sprout", 16);
+  if (id === "d-bud") return daisyBuilder("bud", 16);
+  if (id === "d-bud-r") return daisyBuilder("bud", 16, true);
+  const m = id.match(/^d-(open|full)-(\d+)(-r)?$/);
+  if (m) return daisyBuilder(m[1], Number(m[2]), Boolean(m[3]));
+  const simple = {
+    "d-head": () => wrap("d-head", [daisyHead()]),
+    "w-bud": () => wrap("w-bud", [wildflower("bud")]),
+    "w-open": () => wrap("w-open", [wildflower("open")]),
+    lamp: () => wrap("lamp", [lamp()]),
+    arch: () => wrap("arch", [arch()]),
+    bench: () => wrap("bench", [bench()]),
+    cluster: () => {
+      symbolHref("d-head");
+      return wrap("cluster", [cluster()]);
+    },
+    "empty-seed": () => wrap("empty-seed", [emptySeed()]),
+  };
+  if (simple[id]) return simple[id];
+  const g = id.match(/^grass-(\d)$/);
+  if (g) return () => wrap(id, [tuft(Number(g[1]))]);
+  const t = id.match(/^tree-(sapling|young|tree)$/);
+  if (t) return () => wrap(id, [tree(t[1])]);
+  return null;
+};
+
+/** Inserta el contenedor del sprite (idempotente). */
 export const ensureGardenSprite = () => {
-  if (built) return;
-  built = true;
+  if (defs) return;
   const svg = el("svg", { id: "garden-sprite", width: 0, height: 0, "aria-hidden": "true", focusable: "false", style: "position:absolute;width:0;height:0;overflow:hidden" });
-  const defs = el("defs");
+  defs = el("defs");
   svg.append(defs);
-
   defs.append(
     el("radialGradient", { id: "lamp-glow" }, [
       el("stop", { offset: "0", "stop-color": "#f8e3a8", "stop-opacity": "0.9" }),
@@ -182,20 +214,18 @@ export const ensureGardenSprite = () => {
       el("stop", { offset: "1", "stop-color": "#f2c14e", "stop-opacity": "0" }),
     ]),
   );
+  document.body.prepend(svg);
+};
 
-  const scale = `scale(${DAISY_SCALE})`;
-  const daisy = (stage, petals, ribbon) => buildDaisy({ stage, petals, seed: symbolSeed(stage, petals), ribbon, useVars: true });
-  defs.append(wrap("d-seed", [daisy("seed", 16)], scale), wrap("d-sprout", [daisy("sprout", 16)], scale), wrap("d-bud", [daisy("bud", 16)], scale), wrap("d-bud-r", [daisy("bud", 16, true)], scale));
-  for (const stage of ["open", "full"]) {
-    for (const p of PETAL_VARIANTS) {
-      defs.append(wrap(`d-${stage}-${p}`, [daisy(stage, p)], scale), wrap(`d-${stage}-${p}-r`, [daisy(stage, p, true)], scale));
+/** Devuelve "#id" asegurando que el símbolo existe en el sprite. */
+export const symbolHref = (id) => {
+  ensureGardenSprite();
+  if (!built.has(id)) {
+    const make = builder(id);
+    if (make) {
+      defs.append(make());
+      built.add(id);
     }
   }
-  defs.append(wrap("d-head", [daisyHead()]));
-  defs.append(wrap("w-bud", [wildflower("bud")]), wrap("w-open", [wildflower("open")]));
-  [0, 1, 2].forEach((v) => defs.append(wrap(`grass-${v}`, [tuft(v)])));
-  defs.append(wrap("lamp", [lamp()]), wrap("arch", [arch()]), wrap("bench", [bench()]), wrap("cluster", [cluster()]), wrap("empty-seed", [emptySeed()]));
-  for (const stage of ["sapling", "young", "tree"]) defs.append(wrap(`tree-${stage}`, [tree(stage)]));
-
-  document.body.prepend(svg);
+  return `#${id}`;
 };
