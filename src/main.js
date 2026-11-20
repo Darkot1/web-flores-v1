@@ -21,7 +21,7 @@ import { createAmbientMusic } from "./lib/audio.js";
 import { setupReveal } from "./lib/motion.js";
 import { formatMonth } from "./lib/dates.js";
 import { ensureGardenSprite } from "./garden/symbols.js";
-import { createGarden } from "./garden/renderer.js";
+import { createGarden, phaseAt } from "./garden/renderer.js";
 import { mountIntro, mountStemPath } from "./components/intro.js";
 import { renderGardenCounters, renderHeroCounter } from "./components/counters.js";
 import { createCalendar } from "./components/calendar.js";
@@ -199,6 +199,15 @@ const boot = async () => {
   });
 
   mountClosing({ scene: $("[data-closing-scene]"), tally: $("[data-closing-tally]"), store });
+
+  // El jardín sigue la hora real: lo decimos en voz baja bajo el jardín.
+  const clockNode = $("[data-garden-clock]");
+  const renderClock = () => {
+    clockNode.textContent =
+      phaseAt(new Date(), config.gardenClock) === "night" ? "Ahora es de noche: los faroles están encendidos." : "Ahora es de día; al anochecer se encienden los faroles.";
+  };
+  renderClock();
+  setInterval(renderClock, 60_000);
 
   const timeline = createTimeline($("[data-timeline]"), {
     store,

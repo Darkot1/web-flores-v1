@@ -6,6 +6,7 @@ import {
   computeMilestones,
   grassDensity,
   nextMilestone,
+  phaseAt,
   seasonFor,
   stageFor,
   treeStage,
@@ -95,4 +96,14 @@ test("cartas e hitos marcados plantan elementos propios", () => {
   const letter = model.items.find((i) => i.kind === "letter");
   assert.equal(letter.color, "lavanda");
   assert.equal(letter.stage, "full");
+});
+
+test("el jardín sigue la hora, no el tema", () => {
+  const at = (h, m = 0) => new Date(2026, 10, 20, h, m);
+  assert.equal(phaseAt(at(5, 59)), "night");
+  assert.equal(phaseAt(at(6, 0)), "day");
+  assert.equal(phaseAt(at(17, 59)), "day");
+  assert.equal(phaseAt(at(18, 0)), "night");
+  assert.equal(phaseAt(at(23, 30)), "night");
+  assert.equal(phaseAt(at(19, 0), { sunrise: 6, sunset: 19.5 }), "day");
 });

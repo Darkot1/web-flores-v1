@@ -16,6 +16,9 @@ export const config = {
   },
   climate: "tropical",
 
+  /** Horas (locales) en que el jardín pasa a día y a noche. Colombia: ~6:00 y ~18:00. */
+  gardenClock: { sunrise: 6, sunset: 18 },
+
   intro: {
     eyebrow: "Un jardín para",
     phrase: "Todo empezó como una semilla.",

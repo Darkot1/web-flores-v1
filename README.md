@@ -7,8 +7,8 @@ cada día juntos, cada recuerdo y cada carta lo hacen crecer.
 2. **Recuerdos** (pleno día): el calendario y el jardín vivo que nace de ellos.
 3. **Cartas** (atardecer y noche): la pérgola de cartas y el cierre con la margarita ya florecida.
 
-Modo claro u oscuro con el botón Noche/Día (se recuerda en cada dispositivo). En modo
-oscuro el jardín se ve de noche: luna, luciérnagas y los faroles de cada mesiversario encendidos.
+Modo claro u oscuro con el botón Noche/Día (se recuerda en cada dispositivo). El jardín no depende del
+tema: sigue la hora real (de día de 6:00 a 18:00, configurable en `config.gardenClock`); de noche hay luna, luciérnagas y los faroles de cada mesiversario encendidos.
 
 ## Comandos
 

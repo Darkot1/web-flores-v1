@@ -6,7 +6,7 @@
  * Accesibilidad: el jardín es un único tab stop (roving tabindex); las flechas
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
-import { buildGardenModel, STAGE_LABELS } from "./growth.js";
+import { buildGardenModel, phaseAt, STAGE_LABELS } from "./growth.js";
 import { DIMENSIONS, layoutGrass, layoutItems, pathOutline, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
@@ -67,11 +67,13 @@ const itemStyle = (item) => {
 
 /**
  * @param {HTMLElement} host
- * El jardín es uno solo; su luz sigue al tema: claro = de día, oscuro = de noche
- * (faroles encendidos, luna). Se re-dibuja al cambiar el tema.
+ * El jardín es uno solo y su luz sigue la hora real del dispositivo (no el
+ * tema claro/oscuro de la página): de día sol y faroles apagados; de noche
+ * luna, luciérnagas y faroles encendidos. Se comprueba cada minuto.
  * @param {{ store, onOpen?: (item) => void, onPlantFirst?: () => void, onChooseStart?: () => void, label: (model) => string }} options
  */
-const currentPhase = () => (document.documentElement.dataset.theme === "dark" ? "night" : "day");
+export { phaseAt };
+const currentPhase = () => phaseAt(new Date(), config.gardenClock);
 
 export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart, label }) => {
   let variant = currentPhase();
@@ -468,7 +470,10 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     }, 150);
   });
 
-  document.addEventListener("themechange", () => render());
+  // Al amanecer o al anochecer, el jardín cambia solo.
+  setInterval(() => {
+    if (currentPhase() !== variant) render();
+  }, 60_000);
 
   store.subscribe((event) => {
     if (["load", "memories", "letters", "settings"].includes(event.type)) {
