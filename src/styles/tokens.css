@@ -1,0 +1,81 @@
+/*
+ * Design tokens · Dirección "Herbario al amanecer".
+ * Contraste verificado (WCAG): ink/paper 12.9 · violet-ink/paper 6.6 ·
+ * earth-ink/paper 6.7 · lavender/plum 7.6 · gold/plum 8.3 · blanco/violet-ink 7.1.
+ */
+:root {
+  /* Margarita */
+  --daisy: #7b4fbf;          /* ilustración y texto grande (5.25:1 sobre papel) */
+  --daisy-ink: #6a3fb0;      /* texto y UI (6.6:1 sobre papel) */
+  --daisy-deep: #4e2c86;
+  --lavender: #c9b6f2;
+  --lavender-soft: #e8ddf7;
+  --plum: #3e1f4f;
+  --night: #2a1638;
+  --night-deep: #1d0f28;
+  --mauve: #8e6a9c;
+
+  /* Papel, tierra y luz */
+  --paper: #fbf6ec;
+  --paper-warm: #f6efe0;
+  --peach: #f6d9c6;
+  --sage: #9db59a;
+  --sage-soft: #e3ecdf;
+  --sage-deep: #5f8259;
+  --earth: #8a6a4f;          /* solo ilustración */
+  --earth-ink: #6e5139;      /* texto */
+  --gold: #f2c14e;
+  --gold-soft: #f8e3a8;
+  --rose: #c24d7a;
+
+  /* Semánticos */
+  --ink: var(--plum);
+  --ink-soft: #5b4a63;       /* 7.5:1 sobre papel */
+  --surface: color-mix(in srgb, var(--paper) 88%, transparent);
+  --surface-solid: var(--paper);
+  --line: color-mix(in srgb, var(--plum) 16%, transparent);
+  --focus: var(--daisy-ink);
+  --danger: #a3324f;
+
+  /* Tipografía */
+  --font-display: "Fraunces Variable", "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.45rem, 1.25rem + 0.9vw, 2rem);
+  --step-3: clamp(1.9rem, 1.5rem + 1.8vw, 3rem);
+  --step-4: clamp(2.5rem, 1.8rem + 3.4vw, 4.6rem);
+  --step-5: clamp(3rem, 2rem + 5vw, 6.4rem);
+
+  /* Espacio y forma */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --radius-s: 10px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+  --tap: 44px;
+
+  --shadow-soft: 0 1px 2px rgb(62 31 79 / 0.06), 0 8px 28px -10px rgb(62 31 79 / 0.22);
+  --shadow-lift: 0 2px 6px rgb(62 31 79 / 0.08), 0 22px 50px -18px rgb(62 31 79 / 0.38);
+
+  /* Movimiento */
+  --ease-organic: cubic-bezier(0.22, 0.8, 0.3, 1);
+  --ease-bloom: cubic-bezier(0.34, 1.35, 0.64, 1);
+  --dur-quick: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 700ms;
+
+  --z-garden-tip: 20;
+  --z-nav: 40;
+  --z-toast: 60;
+}

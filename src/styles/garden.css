@@ -1,860 +1,408 @@
-.scene--garden {
+/* ───────── Panel del jardín ───────── */
+.garden-panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.garden-panel__head {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(252, 231, 0, 0.06), transparent 20%),
-    linear-gradient(to bottom, #16233d 0%, #172c35 45%, #071b10 75%, #020804 100%);
-  content-visibility: auto;
-  contain-intrinsic-size: 1000px;
-  contain: layout paint style;
-}
-
-.garden-sky {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 70% 22%, rgba(255,244,178,.08), transparent 14%),
-    radial-gradient(ellipse at 50% 100%, rgba(10,100,43,.3), transparent 55%);
-}
-
-.garden-stars {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(255,255,255,.9) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,.75) 0 1.2px, transparent 2px),
-    radial-gradient(circle at 34% 21%, rgba(255,255,255,.8) 0 1.1px, transparent 2px),
-    radial-gradient(circle at 47% 14%, rgba(255,255,255,.9) 0 1.2px, transparent 2px),
-    radial-gradient(circle at 59% 27%, rgba(255,255,255,.75) 0 1.1px, transparent 2px),
-    radial-gradient(circle at 77% 20%, rgba(255,255,255,.85) 0 1.2px, transparent 2.1px),
-    radial-gradient(circle at 84% 33%, rgba(255,255,255,.8) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 92% 16%, rgba(255,255,255,.8) 0 1.1px, transparent 2px),
-    radial-gradient(circle at 70% 42%, rgba(255,255,255,.7) 0 1.2px, transparent 2.1px),
-    radial-gradient(circle at 26% 44%, rgba(255,255,255,.8) 0 1.2px, transparent 2px),
-    radial-gradient(circle at 54% 38%, rgba(255,255,255,.75) 0 1.1px, transparent 2px),
-    radial-gradient(circle at 66% 12%, rgba(255,255,255,.7) 0 1.1px, transparent 2px);
-  opacity: .9;
-  animation: twinkle-stars 5.5s ease-in-out infinite alternate;
-}
-
-.moon {
-  position: absolute;
-  top: 12%;
-  right: 12%;
-  width: clamp(50px, 7vw, 100px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #fff9df;
-  box-shadow: 0 0 50px rgba(255,249,223,.16);
-}
-
-.moon::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: -15%;
-  top: 8%;
-  border-radius: inherit;
-  background: #16233d;
-}
-
-.fireflies {
-  position: absolute;
-  inset: 0;
-  opacity: .75;
-  background:
-    radial-gradient(circle at 12% 50%, #fff69a 0 2px, transparent 3px),
-    radial-gradient(circle at 24% 70%, #fff69a 0 1px, transparent 3px),
-    radial-gradient(circle at 42% 34%, #fff69a 0 2px, transparent 3px),
-    radial-gradient(circle at 59% 62%, #fff69a 0 1px, transparent 3px),
-    radial-gradient(circle at 78% 47%, #fff69a 0 2px, transparent 3px),
-    radial-gradient(circle at 89% 72%, #fff69a 0 1px, transparent 3px);
-  animation: firefly-flicker 3s ease-in-out infinite alternate;
-}
-
-.garden-depth {
-  position: absolute;
-  inset: auto 0 0;
-  height: 58%;
-  background:
-    radial-gradient(circle at 16% 100%, rgba(24, 98, 49, 0.8) 0 18%, transparent 19%),
-    radial-gradient(circle at 38% 100%, rgba(14, 76, 38, 0.92) 0 22%, transparent 23%),
-    radial-gradient(circle at 62% 100%, rgba(22, 110, 53, 0.82) 0 20%, transparent 21%),
-    radial-gradient(circle at 83% 100%, rgba(10, 63, 31, 0.9) 0 18%, transparent 19%);
-  opacity: .45;
-  filter: blur(8px);
-}
-
-.garden-path {
-  position: absolute;
-  left: 50%;
-  bottom: -2%;
-  width: min(24vw, 240px);
-  height: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(to top, rgba(173, 141, 68, 0.2), rgba(173, 141, 68, 0.03) 66%, transparent 100%);
-  clip-path: polygon(42% 100%, 58% 100%, 80% 0, 20% 0);
-  opacity: .45;
-  filter: blur(2px);
-}
-
-.garden-bush {
-  position: absolute;
-  bottom: 10%;
-  width: min(30vw, 260px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 30%, rgba(117, 223, 114, 0.92) 0 20%, transparent 21%),
-    radial-gradient(circle at 55% 24%, rgba(79, 191, 90, 0.92) 0 23%, transparent 24%),
-    radial-gradient(circle at 74% 40%, rgba(27, 140, 64, 0.9) 0 26%, transparent 27%),
-    radial-gradient(circle at 48% 62%, rgba(11, 75, 35, 0.98) 0 34%, rgba(4, 36, 18, 0.98) 62%, transparent 63%);
-  filter: blur(.2px);
-  opacity: .92;
-}
-
-.garden-bush::before,
-.garden-bush::after {
-  content: "";
-  position: absolute;
-  inset: auto;
-  border-radius: 50%;
-  background: inherit;
-}
-
-.garden-bush::before {
-  width: 65%;
-  height: 65%;
-  left: -10%;
-  bottom: 8%;
-}
-
-.garden-bush::after {
-  width: 54%;
-  height: 54%;
-  right: -6%;
-  bottom: 14%;
-}
-
-.garden-bush--left {
-  left: -8%;
-}
-
-.garden-bush--right {
-  right: -10%;
-}
-
-.garden-petals {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.garden-petals span {
-  position: absolute;
-  width: 2.1vmin;
-  height: 2.1vmin;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(237, 214, 255, 0.96) 0 24%, rgba(186, 115, 255, 0.98) 25% 55%, rgba(79, 23, 138, 0.9) 56% 68%, transparent 69%),
-    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), transparent 28%);
-  box-shadow:
-    0 0 0 0.08vmin rgba(234, 210, 255, 0.36),
-    0 0 18px rgba(186, 115, 255, 0.12);
-  transform: scale(var(--scale, 1));
-  opacity: .92;
-  animation: purple-bloom 4.5s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-.garden-petals--purple span {
-  width: 1.6vmin;
-  height: 1.6vmin;
-}
-
-.garden-petals span::before,
-.garden-petals span::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: inherit;
-}
-
-.garden-petals span::before {
-  transform: translateX(-42%) rotate(22deg);
-}
-
-.garden-petals span::after {
-  transform: translateX(42%) rotate(-22deg);
-}
-
-.garden-butterflies {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.garden-butterflies span {
-  position: absolute;
-  width: 1.2rem;
-  height: 1rem;
-  border-radius: 60% 40% 55% 45%;
-  background:
-    radial-gradient(circle at 35% 50%, rgba(255, 242, 194, 0.95) 0 18%, transparent 19%),
-    radial-gradient(circle at 65% 50%, rgba(255, 234, 143, 0.92) 0 18%, transparent 19%),
-    linear-gradient(135deg, rgba(252, 231, 0, 0.95), rgba(255, 174, 64, 0.75));
-  opacity: .8;
-  filter: blur(.15px) drop-shadow(0 0 10px rgba(252, 231, 0, 0.14));
-  animation: butterfly-float 5.5s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-  transform: translateY(0);
-}
-
-.garden-butterflies span::before,
-.garden-butterflies span::after {
-  content: "";
-  position: absolute;
-  top: 34%;
-  width: 58%;
-  height: 58%;
-  border-radius: 50% 50% 42% 58%;
-  background: inherit;
-}
-
-.garden-butterflies span::before {
-  left: -40%;
-  transform: rotate(28deg);
-}
-
-.garden-butterflies span::after {
-  right: -40%;
-  transform: rotate(-28deg);
-}
-
-.garden-title {
-  position: absolute;
-  z-index: 30;
-  top: 13%;
-  left: 8%;
-  max-width: 480px;
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.garden-title h2,
-.message-card h2 {
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(3rem, 7vw, 6.5rem);
-  line-height: .88;
-  font-weight: 500;
-  letter-spacing: -.04em;
-}
-
-.garden-title p:last-child {
-  margin-top: 1.2rem;
-  color: var(--muted);
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1rem, 2vw, 1.35rem);
-}
-
-.memory-journal {
-  position: absolute;
-  z-index: 34;
-  top: 30%;
-  right: 4.5%;
-  width: min(360px, 30vw);
-  padding: 0.95rem 0.9rem 0.9rem;
-  border: 1px solid rgba(252, 231, 0, 0.18);
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(186, 115, 255, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(12, 16, 20, 0.72), rgba(8, 12, 14, 0.64));
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(14px);
-}
-
-.memory-journal__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.memory-journal__header h3 {
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.35rem, 2.7vw, 2rem);
-  line-height: 1;
-  font-weight: 600;
-}
-
-.memory-journal__hint,
-.memory-journal__month {
-  color: var(--muted);
-  font-size: 0.7rem;
-  line-height: 1.4;
-}
-
-.memory-journal__month {
-  margin-top: 0.7rem;
-  color: var(--cream);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.61rem;
-}
-
-.memory-journal__toolbar {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  margin: 0.7rem 0 0.8rem;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.memory-journal__nav,
-.memory-journal__today {
-  border: 1px solid rgba(252, 231, 0, 0.18);
-  border-radius: 999px;
-  background: rgba(8, 12, 14, 0.55);
-  color: var(--text);
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+.garden-panel__title {
+  font-size: var(--step-2);
 }
 
-.memory-journal__nav {
-  width: 1.55rem;
-  height: 1.55rem;
-  font-size: 0.72rem;
-}
-
-.memory-journal__today {
-  padding: 0.34rem 0.58rem;
-  font-size: 0.54rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.memory-journal__nav:hover,
-.memory-journal__today:hover {
-  transform: translateY(-1px);
-  border-color: rgba(252, 231, 0, 0.42);
-  color: var(--yellow);
-}
-
-.memory-journal__nav:disabled,
-.memory-journal__today:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-  transform: none;
-}
-
-.memory-calendar {
-  position: relative;
-  display: grid;
-  gap: 0.42rem;
-}
-
-.memory-calendar--disabled::after {
-  position: absolute;
-  inset: -0.5rem;
-  z-index: 2;
-  content: "";
-  cursor: not-allowed;
-}
-
-.memory-calendar__notice {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 3;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid rgba(252, 231, 0, 0.45);
-  background: rgba(10, 15, 18, 0.9);
-  color: var(--yellow);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  pointer-events: none;
-  text-transform: uppercase;
-  transform: translate(-50%, -50%) rotate(-3deg);
-  white-space: nowrap;
-}
-
-.memory-calendar__weekdays,
-.memory-calendar__grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.34rem;
-}
-
-.memory-calendar__weekdays span {
-  color: rgba(255, 249, 223, 0.7);
-  font-size: 0.56rem;
-  letter-spacing: 0.14em;
+.garden-panel__hint {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
   text-align: center;
-  text-transform: uppercase;
 }
 
-.memory-calendar__day,
-.memory-calendar__cell {
-  aspect-ratio: 1;
-  border-radius: 13px;
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, #fffdf8 80%, transparent);
 }
 
-.memory-calendar__cell--empty {
-  background: rgba(255, 255, 255, 0.02);
+.segmented button {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0.4rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
-.memory-calendar__day {
+.segmented button[aria-pressed="true"] {
+  background: var(--daisy-ink);
+  color: #fff;
+}
+
+/* ───────── Jardín SVG ───────── */
+.garden-view {
   position: relative;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.08), transparent 26%),
-    rgba(10, 15, 18, 0.68);
-  color: var(--text);
-  cursor: pointer;
   overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-lift);
+  background: #f7e6cf;
+  isolation: isolate;
 }
 
-.memory-calendar__day:hover {
-  transform: translateY(-2px);
-  border-color: rgba(186, 115, 255, 0.45);
+.garden-view--night {
+  background: var(--night-deep);
 }
 
-.memory-calendar__day.is-today {
-  border-color: rgba(252, 231, 0, 0.36);
+.garden-svg {
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
 }
 
-.memory-calendar__day.is-active {
-  outline: 2px solid rgba(186, 115, 255, 0.35);
-  outline-offset: 2px;
+.garden-svg:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
 }
 
-.memory-calendar__day.has-memory {
-  background:
-    radial-gradient(circle at 50% 18%, rgba(209, 176, 255, 0.18), transparent 25%),
-    rgba(14, 8, 22, 0.82);
+.garden-view--night .garden-svg:focus-visible {
+  outline-color: var(--gold);
 }
 
-.memory-calendar__number {
-  position: absolute;
-  top: 0.36rem;
-  left: 0.38rem;
-  font-size: 0.62rem;
-  color: rgba(255, 249, 223, 0.88);
+.g-item[data-tip] {
+  cursor: help;
 }
 
-.memory-calendar__flower {
-  position: absolute;
-  right: 0.28rem;
-  bottom: 0.2rem;
-  color: #c58cff;
-  font-size: 0.82rem;
-  text-shadow: 0 0 10px rgba(197, 140, 255, 0.55);
+.g-item[role="button"] {
+  cursor: pointer;
+  outline: none;
 }
 
-.memory-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 140;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.26s ease, visibility 0s linear 0.26s;
+.g-hit {
+  rx: 12px;
+  stroke: transparent;
+  stroke-width: 3;
+  transition: fill var(--dur-quick);
 }
 
-.memory-modal.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 0.26s ease;
+.g-item[role="button"]:hover .g-hit {
+  fill: rgb(255 255 255 / 0.22);
 }
 
-.memory-modal[hidden] {
+.g-item:focus-visible .g-hit {
+  fill: rgb(255 255 255 / 0.4);
+  stroke: var(--daisy-ink);
+}
+
+.garden-view--night .g-item:focus-visible .g-hit {
+  stroke: var(--gold);
+  fill: rgb(255 255 255 / 0.12);
+}
+
+.g-item.is-highlight .g-hit {
+  animation: highlight 1.6s var(--ease-organic) 2;
+}
+
+@keyframes highlight {
+  0%, 100% { fill: transparent; }
+  40% { fill: rgb(242 193 78 / 0.5); }
+}
+
+/* Viento: por flor, solo en las más cercanas, en pausa fuera de pantalla. */
+.g-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.g-sway.is-swaying {
+  animation: garden-sway 6s ease-in-out infinite alternate;
+}
+
+.garden-view.is-paused .g-sway,
+.garden-view.is-paused .garden-lamp-glows {
+  animation-play-state: paused;
+}
+
+@keyframes garden-sway {
+  from { transform: rotate(-2.2deg); }
+  to { transform: rotate(2.2deg); }
+}
+
+.plant-ripple {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple 1.4s var(--ease-organic) 2;
+}
+
+@keyframes ripple {
+  from { transform: scale(0.3); opacity: 1; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+
+.garden-waiting-seed {
+  animation: seed-breathe 3.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@keyframes seed-breathe {
+  50% { opacity: 0.75; }
+}
+
+.garden-view--day .lamp__glow {
   display: none;
 }
 
-.memory-modal__backdrop {
+.garden-view--night .lamp__light {
+  fill: #ffe9a8;
+}
+
+.garden-view--night .lamp__glow {
+  display: none;
+}
+
+/* Un solo parpadeo para todos los faroles (barato en móvil). */
+.garden-lamp-glows {
+  animation: lamp-flicker 5s ease-in-out infinite alternate;
+}
+
+@keyframes lamp-flicker {
+  0%, 100% { opacity: 0.85; }
+  40% { opacity: 1; }
+  70% { opacity: 0.7; }
+}
+
+/* Tooltip */
+.garden-tip {
   position: absolute;
-  inset: 0;
-  background: rgba(1, 4, 5, 0.72);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  transition: opacity 0.26s ease;
-}
-
-.memory-modal.is-open .memory-modal__backdrop {
-  opacity: 1;
-}
-
-.memory-modal__panel {
-  position: relative;
-  z-index: 1;
-  width: min(520px, 92vw);
-  padding: 1.25rem 1.25rem 1.05rem;
-  border: 1px solid rgba(252, 231, 0, 0.16);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(186, 115, 255, 0.14), transparent 30%),
-    linear-gradient(180deg, rgba(11, 16, 18, 0.98), rgba(7, 10, 12, 0.98));
-  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.48);
-  transform: translateY(24px) scale(0.96);
-  opacity: 0;
-  transition: transform 0.26s ease, opacity 0.26s ease;
-}
-
-.memory-modal.is-open .memory-modal__panel {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-.memory-modal__close {
-  position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
-  width: 2rem;
-  height: 2rem;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.memory-modal__panel h3 {
-  margin-top: 0.35rem;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.6rem, 4.4vw, 2.5rem);
-  line-height: 1;
-}
-
-.memory-form {
-  display: grid;
-  gap: 0.85rem;
-  margin-top: 0.9rem;
-}
-
-.memory-form label {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.memory-form span {
-  color: rgba(255, 249, 223, 0.72);
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.memory-form input,
-.memory-form textarea {
-  width: 100%;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-  font: inherit;
-  resize: vertical;
-}
-
-.memory-form input:focus,
-.memory-form textarea:focus {
-  outline: 2px solid rgba(186, 115, 255, 0.45);
-  border-color: transparent;
-}
-
-.memory-form__actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.55rem;
-}
-
-.memory-form__actions-right {
-  display: flex;
-  gap: 0.5rem;
-  margin-left: auto;
-}
-
-.memory-form__ghost,
-.memory-form__primary {
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.memory-form__ghost {
-  padding: 0.68rem 0.9rem;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-}
-
-.memory-form__primary {
-  padding: 0.72rem 1rem;
-  background: linear-gradient(135deg, #b56bff, #7b2dd9);
-  color: #fff9df;
-  box-shadow: 0 0 24px rgba(186, 115, 255, 0.18);
-}
-
-.memory-form__ghost:hover,
-.memory-form__primary:hover {
-  transform: translateY(-1px);
-}
-
-.garden {
-  position: absolute;
-  left: 50%;
-  bottom: -2vmin;
-  width: 130%;
-  height: 68%;
-  transform: translateX(-50%);
-  background:
-    radial-gradient(ellipse at 50% 100%, rgba(6, 59, 27, 0.95) 0 30%, transparent 65%),
-    radial-gradient(circle at 50% 72%, rgba(252, 231, 0, 0.04), transparent 22%);
-}
-
-.garden::before {
-  content: "";
-  position: absolute;
+  top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 30%;
-  background: linear-gradient(to top, #020904, transparent);
+  z-index: var(--z-garden-tip);
+  display: grid;
+  gap: 2px;
+  max-width: min(260px, 80%);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-s);
+  background: var(--plum);
+  color: var(--paper);
+  box-shadow: var(--shadow-lift);
+  pointer-events: none;
 }
 
-.garden-flower {
-  position: absolute;
-  bottom: 16%;
-  width: 1.35vmin;
-  height: 1.35vmin;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,244,160,.98) 0 26%, rgba(250,214,30,.9) 27% 52%, rgba(141,105,0,.35) 53% 60%, transparent 61%);
-  box-shadow:
-    0 0 0 0.1vmin rgba(255,255,180,.46),
-    -0.7vmin 0 0 0 rgba(255,233,118,.78),
-    0.7vmin 0 0 0 rgba(255,233,118,.78),
-    0 -0.7vmin 0 0 rgba(255,233,118,.78),
-    0 0.7vmin 0 0 rgba(255,233,118,.78),
-    -0.48vmin -0.48vmin 0 0 rgba(255,236,142,.72),
-    0.48vmin -0.48vmin 0 0 rgba(255,236,142,.72),
-    -0.48vmin 0.48vmin 0 0 rgba(255,236,142,.72),
-    0.48vmin 0.48vmin 0 0 rgba(255,236,142,.72);
-  opacity: .9;
-  transform: scale(var(--scale, 0.5));
-  transform-origin: bottom center;
-  animation: distant-sway 4s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
+.garden-tip:has(.garden-tip__open:not([hidden])) {
+  pointer-events: auto;
 }
 
-.garden-flower::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 92%;
-  width: 0.18vmin;
-  height: 2.8vmin;
-  transform: translateX(-50%);
-  background: linear-gradient(to bottom, rgba(9, 118, 52, 0.9), rgba(2, 22, 12, 0.9));
-  border-radius: 999px;
-  z-index: -1;
-  opacity: 0.9;
+.garden-tip__kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lavender);
 }
 
-.garden-grass {
+.garden-tip__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.garden-tip__meta {
+  font-size: var(--step--1);
+  color: color-mix(in srgb, var(--paper) 85%, transparent);
+}
+
+.garden-tip__open {
+  justify-self: start;
+  margin-top: var(--space-2);
+  background: var(--gold);
+  color: var(--plum);
+}
+
+/* Estado vacío */
+.garden-empty {
   position: absolute;
   inset: auto 0 0;
-  height: 25%;
-  background:
-    radial-gradient(ellipse at 50% 15%, rgba(76, 166, 87, 0.42), transparent 45%),
-    linear-gradient(to top, rgba(2, 18, 10, 0.96), rgba(3, 52, 26, 0.25) 40%, transparent 90%);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  pointer-events: none;
 }
 
-@keyframes firefly-flicker {
-  from { opacity: .35; }
-  to { opacity: .9; }
+.garden-empty__card {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  max-width: 26rem;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  pointer-events: auto;
 }
 
-@keyframes distant-sway {
-  0%, 100% { rotate: -2deg; }
-  50% { rotate: 3deg; }
+.garden-empty__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--plum);
 }
 
-@keyframes butterfly-float {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
-  50% { transform: translate3d(var(--float, 12px), -16px, 0) rotate(6deg); }
+.garden-empty__body {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
 }
 
-@keyframes purple-bloom {
-  0%, 100% { transform: scale(var(--scale, 1)) translateY(0); }
-  50% { transform: scale(calc(var(--scale, 1) * 1.08)) translateY(-4px); }
-}
-
-@keyframes twinkle-stars {
-  0% { opacity: .35; }
-  50% { opacity: .8; }
-  100% { opacity: 1; }
+.garden-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 @media (max-width: 700px) {
-  .garden-stars,
-  .fireflies,
-  .garden-butterflies span,
-  .garden-petals span,
-  .garden-flower {
-    animation: none !important;
+  .garden-view {
+    margin-inline: calc(var(--gutter) * -1 + 6px);
+    border-radius: var(--radius-m);
   }
 
-  .scene--garden {
-    content-visibility: visible;
-    contain: none;
-  }
-
-  .garden-title {
-    top: 10%;
-    left: 8%;
-    right: 8%;
-  }
-
-  .moon {
-    top: 8%;
-    right: 10%;
-  }
-
-  .garden {
-    width: 170%;
-    height: 58%;
-  }
-
-  .garden-bush {
-    width: 42vw;
-  }
-
-  .memory-journal {
-    top: 47%;
-    right: 4%;
-    left: 4%;
-    width: auto;
-    padding: 0.8rem;
-    border-radius: 18px;
-  }
-
-  .memory-journal__header {
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .memory-journal .eyebrow,
-  .memory-journal__hint,
-  .memory-journal__month {
-    display: none;
-  }
-
-  .memory-journal__header h3 {
-    font-size: 1.4rem;
-  }
-
-  .memory-journal__toolbar {
-    justify-content: space-between;
-    margin: 0.65rem 0 0.8rem;
-    gap: 0.4rem;
-  }
-
-  .memory-calendar__weekdays,
-  .memory-calendar__grid {
-    gap: 0.18rem;
-  }
-
-  .memory-calendar__weekdays span {
-    font-size: 0.46rem;
-    letter-spacing: 0.08em;
-  }
-
-  .memory-calendar__day,
-  .memory-calendar__cell {
-    border-radius: 10px;
-  }
-
-  .memory-calendar__number {
-    top: 0.26rem;
-    left: 0.28rem;
-    font-size: 0.5rem;
-  }
-
-  .memory-calendar__flower {
-    right: 0.18rem;
-    bottom: 0.1rem;
-    font-size: 0.68rem;
-  }
-
-  .memory-modal__panel {
-    width: min(560px, 94vw);
-    padding: 0.95rem;
-    border-radius: 20px;
-  }
-
-  .memory-modal__panel h3 {
-    font-size: clamp(1.25rem, 6vw, 1.8rem);
-  }
-
-  .memory-form {
-    gap: 0.7rem;
-    margin-top: 0.75rem;
-  }
-
-  .memory-form input,
-  .memory-form textarea {
-    padding: 0.62rem 0.75rem;
-    border-radius: 13px;
-    font-size: 0.9rem;
-  }
-
-  .memory-form textarea {
-    min-height: 72px;
-  }
-
-  .memory-form__actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.45rem;
-  }
-
-  .memory-form__actions-right {
-    margin-left: 0;
-    justify-content: stretch;
-  }
-
-  .memory-form__actions-right > * {
-    flex: 1;
+  .garden-empty {
+    position: static;
+    padding: var(--space-3);
+    background: #fbf6ec;
   }
 }
 
-@media (max-width: 1100px) {
-  .memory-journal {
-    top: 28%;
-    right: 4%;
-    width: min(400px, 44vw);
-  }
+/* ───────── Camino (línea de tiempo) ───────── */
+.timeline-host {
+  max-height: 70vh;
+  overflow: auto;
+  padding: var(--space-4) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, #fffdf8 85%, transparent);
+}
 
-  .memory-journal__header h3 {
-    font-size: clamp(1.4rem, 2.9vw, 2rem);
-  }
+.timeline,
+.timeline__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-  .memory-journal__hint {
-    max-width: 14rem;
-  }
+.timeline {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  padding-left: 1.4rem;
+}
 
-  .memory-calendar__weekdays span {
-    font-size: 0.58rem;
-  }
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 0.45rem;
+  width: 6px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #dcc7a6, #c4aa84);
+}
+
+.timeline__month-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--step-1);
+}
+
+.timeline__month-title small {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--earth-ink);
+}
+
+.timeline__items {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.timeline__btn,
+.timeline__milestone {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-s);
+  background: transparent;
+  text-align: left;
+}
+
+.timeline__btn:hover {
+  background: color-mix(in srgb, var(--lavender) 22%, transparent);
+  border-color: var(--line);
+}
+
+.timeline__icon {
+  flex: none;
+  width: 36px;
+  height: 44px;
+  overflow: visible;
+}
+
+.timeline__text {
+  display: grid;
+}
+
+.timeline__kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--daisy-ink);
+}
+
+.timeline__item--lamp .timeline__kicker,
+.timeline__item--arch .timeline__kicker,
+.timeline__item--tree .timeline__kicker {
+  color: var(--earth-ink);
+}
+
+.timeline__title {
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  color: var(--plum);
+}
+
+.timeline__date {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.timeline__today,
+.timeline__empty {
+  display: grid;
+  padding: var(--space-3);
+  border-radius: var(--radius-s);
+  background: var(--lavender-soft);
+}
+
+.timeline__empty {
+  color: var(--ink-soft);
 }

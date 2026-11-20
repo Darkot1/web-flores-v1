@@ -1,0 +1,321 @@
+/* ───────── Acto II · Pleno día ───────── */
+.act--soil {
+  padding-bottom: var(--space-8);
+  background:
+    radial-gradient(50% 30% at 86% 6%, rgb(242 193 78 / 0.18), transparent 70%),
+    radial-gradient(60% 40% at 10% 60%, rgb(157 181 154 / 0.22), transparent 70%),
+    linear-gradient(180deg, #f8f3e6 0%, #f2f2e4 22%, #eef1e3 50%, #f4eedc 80%, #ecdfcd 100%);
+}
+
+.act__header {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  max-width: 44rem;
+  margin: 0 auto var(--space-7);
+  text-align: center;
+}
+
+.act__title {
+  font-size: var(--step-4);
+}
+
+.act__lead {
+  max-width: 34rem;
+  color: var(--ink-soft);
+}
+
+.on-dark .act__lead {
+  color: color-mix(in srgb, var(--paper) 82%, transparent);
+}
+
+/* Contadores con alma */
+.soul-counters {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.soul-counters__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-5);
+  padding: 0;
+  list-style: none;
+  font-size: var(--step-0);
+  color: var(--ink-soft);
+}
+
+.soul-counters__list li {
+  position: relative;
+}
+
+.soul-counters__list li + li::before {
+  content: "✿";
+  position: absolute;
+  left: calc(var(--space-5) / -2);
+  transform: translateX(-50%);
+  color: var(--daisy);
+  font-size: 0.8em;
+}
+
+.soul-counters__list strong {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 500;
+  color: var(--plum);
+}
+
+.soul-counters__next {
+  font-size: var(--step--1);
+  color: var(--earth-ink);
+}
+
+/* Disposición: calendario + jardín */
+.soil-layout {
+  display: grid;
+  gap: var(--space-6);
+  max-width: 1320px;
+  margin-inline: auto;
+}
+
+@media (min-width: 1100px) {
+  .soil-layout {
+    grid-template-columns: minmax(380px, 0.85fr) 1.15fr;
+    align-items: start;
+  }
+
+  .garden-panel {
+    position: sticky;
+    top: 5rem;
+  }
+}
+
+.soil-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.save-status {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.save-status[data-status="offline"] {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ───────── Calendario ───────── */
+.calendar {
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, #fffdf8 82%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.calendar__head {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.calendar__title {
+  font-size: var(--step-2);
+}
+
+.calendar__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.calendar__month {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  text-align: center;
+  color: var(--plum);
+}
+
+.calendar__today {
+  padding-inline: 1rem;
+}
+
+.calendar__hint {
+  margin-top: var(--space-4);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.cal {
+  display: grid;
+  gap: 4px;
+}
+
+.cal.is-swipe-left { animation: swipe-left 320ms var(--ease-organic); }
+.cal.is-swipe-right { animation: swipe-right 320ms var(--ease-organic); }
+
+@keyframes swipe-left { from { transform: translateX(24px); opacity: 0.4; } }
+@keyframes swipe-right { from { transform: translateX(-24px); opacity: 0.4; } }
+
+.cal__row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cal__weekday {
+  padding-block: var(--space-1);
+  text-align: center;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.cal__weekday abbr {
+  text-decoration: none;
+}
+
+.cal__cell {
+  min-width: 0;
+}
+
+.cal__day {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: var(--tap);
+  aspect-ratio: 1 / 1.08;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--sage-soft) 55%, #fffdf8);
+  color: var(--plum);
+  transition: background-color var(--dur-quick), transform var(--dur-quick) var(--ease-organic), border-color var(--dur-quick);
+}
+
+.cal__day:hover {
+  background: color-mix(in srgb, var(--lavender) 30%, #fffdf8);
+}
+
+.cal__day:active {
+  transform: scale(0.96);
+}
+
+.cal__day.is-future {
+  background: color-mix(in srgb, var(--paper-warm) 80%, transparent);
+}
+
+.cal__day.has-memory {
+  background: linear-gradient(180deg, #fffdf8 0%, color-mix(in srgb, var(--sage-soft) 80%, #fffdf8) 58%, color-mix(in srgb, #c9a985 45%, #fffdf8) 100%);
+  border-color: color-mix(in srgb, var(--sage-deep) 26%, transparent);
+}
+
+.cal__day.is-today {
+  border: 2px solid var(--daisy-ink);
+}
+
+.cal__day.is-special {
+  box-shadow: inset 0 0 0 2px var(--gold), 0 0 0 3px color-mix(in srgb, var(--gold) 28%, transparent);
+}
+
+.cal__num {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.is-today .cal__num {
+  color: var(--daisy-ink);
+}
+
+.cal__flower {
+  position: absolute;
+  inset: 22% 8% 2%;
+  display: grid;
+  place-items: end center;
+}
+
+.cal-daisy {
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cal__count {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding-inline: 0.25rem;
+  border-radius: 999px;
+  background: var(--daisy-ink);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+.cal__mark {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 2px #fffdf8;
+}
+
+.cal__mark--arch {
+  width: 10px;
+  height: 7px;
+  border-radius: 8px 8px 0 0;
+  background: var(--daisy);
+}
+
+.cal__mark--tree {
+  background: var(--sage-deep);
+}
+
+.cal__cell--out {
+  visibility: hidden;
+}
+
+@media (max-width: 420px) {
+  .calendar {
+    margin-inline: calc(var(--gutter) * -1 + 6px);
+    padding: var(--space-4) 6px;
+    border-radius: var(--radius-m);
+  }
+
+  .calendar__head {
+    padding-inline: var(--space-2);
+  }
+
+  .calendar__month {
+    font-size: var(--step-0);
+  }
+
+  .cal,
+  .cal__row {
+    gap: 2px;
+  }
+}
