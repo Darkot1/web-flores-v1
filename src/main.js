@@ -139,10 +139,20 @@ const connectStorage = async (statusNode) => {
   return createStorage();
 };
 
+/** Enlaces viejos (#semilla, #tierra) siguen funcionando. */
+const redirectLegacyHash = () => {
+  const legacy = { "#semilla": "#inicio", "#tierra": "#recuerdos" };
+  const target = legacy[window.location.hash];
+  if (!target) return;
+  history.replaceState(null, "", target);
+  requestAnimationFrame(() => document.querySelector(target)?.scrollIntoView());
+};
+
 const boot = async () => {
+  redirectLegacyHash();
   fillCopy();
   ensureGardenSprite();
-  mountIntro({ root: $("#semilla"), config });
+  mountIntro({ root: $("#inicio"), config });
   mountStemPath($("[data-stem-path]"));
   setupTheme();
   setupMusic();
