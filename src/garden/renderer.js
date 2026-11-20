@@ -67,12 +67,17 @@ const itemStyle = (item) => {
 
 /**
  * @param {HTMLElement} host
- * @param {{ store, variant?: "day"|"night", onOpen?: (item) => void, onPlantFirst?: () => void, onChooseStart?: () => void, label: string }} options
+ * El jardín es uno solo; su luz sigue al tema: claro = de día, oscuro = de noche
+ * (faroles encendidos, luna). Se re-dibuja al cambiar el tema.
+ * @param {{ store, onOpen?: (item) => void, onPlantFirst?: () => void, onChooseStart?: () => void, label: (model) => string }} options
  */
-export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirst, onChooseStart, label }) => {
+const currentPhase = () => (document.documentElement.dataset.theme === "dark" ? "night" : "day");
+
+export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart, label }) => {
+  let variant = currentPhase();
   ensureGardenSprite();
 
-  host.classList.add("garden-view", `garden-view--${variant}`);
+  host.classList.add("garden-view");
   host.dataset.focusScope = "";
   const svg = el("svg", { class: "garden-svg", role: "group", "aria-roledescription": "jardín", focusable: "false" });
   const tip = document.createElement("div");
@@ -110,7 +115,7 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
   const renderEmpty = (model) => {
     const hasContent = model.counts.memories + model.counts.letters > 0;
     const hasStart = model.hasStart;
-    const showEmpty = variant === "day" && (!hasContent || !hasStart);
+    const showEmpty = !hasContent || !hasStart;
     empty.hidden = !showEmpty;
     if (!showEmpty) return;
     const card = document.createElement("div");
@@ -167,6 +172,10 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
   };
 
   const render = (event) => {
+    variant = currentPhase();
+    host.classList.toggle("garden-view--day", variant === "day");
+    host.classList.toggle("garden-view--night", variant === "night");
+    svg.style.setProperty("--lamp-light", variant === "night" ? "#ffe9a8" : "#e9e1d3");
     compact = isCompact();
     dims = compact ? DIMENSIONS.tall : DIMENSIONS.wide;
     const caps = config.caps[compact ? "mobile" : "desktop"];
@@ -191,6 +200,17 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
     const { width, height, horizon } = dims;
     frag.append(el("rect", { width, height, fill: `url(#sky-${variant})` }));
     frag.append(el("circle", { cx: width * (variant === "night" ? 0.22 : 0.78), cy: horizon * 0.55, r: 120, fill: `url(#orb-${variant})` }));
+    if (variant === "night") {
+      // Luna nítida dentro del halo y unas pocas luciérnagas fijas (deterministas).
+      frag.append(el("circle", { cx: width * 0.22, cy: horizon * 0.55, r: 16, fill: "#f3ecff" }));
+      const flies = el("g", { class: "garden-fireflies", "aria-hidden": "true" });
+      for (let i = 0; i < (compact ? 10 : 22); i += 1) {
+        const fx = ((i * 0.6180339) % 1) * width;
+        const fy = horizon + 30 + ((i * 0.3819660 + 0.2) % 1) * (height - horizon - 80);
+        flies.append(el("circle", { cx: fx.toFixed(1), cy: fy.toFixed(1), r: 1.8, fill: "#ffe9a8", opacity: 0.85 }));
+      }
+      frag.append(flies);
+    }
     // Colinas lejanas
     frag.append(
       el("path", { d: `M0 ${horizon + 10} C${width * 0.18} ${horizon - 30} ${width * 0.34} ${horizon - 6} ${width * 0.5} ${horizon - 18} S${width * 0.82} ${horizon - 34} ${width} ${horizon - 4} L${width} ${horizon + 20} L0 ${horizon + 20}Z`, fill: variant === "night" ? "#4f3a63" : "#d9cfe9", opacity: 0.85 }),
@@ -271,7 +291,7 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
     frag.append(items);
 
     if (variant === "night") {
-      frag.append(el("rect", { class: "garden-night-veil", width, height, fill: "#1d0f28", opacity: 0.28, "pointer-events": "none" }));
+      frag.append(el("rect", { class: "garden-night-veil", width, height, fill: "#1d0f28", opacity: 0.14, "pointer-events": "none" }));
       const glows = el("g", { class: "garden-lamp-glows", "pointer-events": "none", "aria-hidden": "true" });
       for (const item of laid.filter((i) => i.kind === "lamp")) {
         glows.append(el("circle", { class: "lamp-halo", cx: item.x, cy: item.y - 56 * item.scale, r: 40 * item.scale + 6, fill: "url(#lamp-glow)" }));
@@ -447,6 +467,8 @@ export const createGarden = (host, { store, variant = "day", onOpen, onPlantFirs
       if (isCompact() !== compact) render();
     }, 150);
   });
+
+  document.addEventListener("themechange", () => render());
 
   store.subscribe((event) => {
     if (["load", "memories", "letters", "settings"].includes(event.type)) {

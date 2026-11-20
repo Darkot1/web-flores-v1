@@ -5,7 +5,7 @@
   color: var(--paper);
   background:
     radial-gradient(40% 12% at 50% 0%, rgb(242 193 78 / 0.25), transparent 70%),
-    linear-gradient(180deg, #ecdfcd 0, #d9b9b8 50px, #a77d9d 120px, #6e4a7e 180px, #4a2a5d 240px, #3e1f4f 320px, #2a1638 60%, #1d0f28 100%);
+    linear-gradient(180deg, var(--bg-letters-top) 0, var(--bg-letters-mid) 50px, var(--bg-letters-mid2) 120px, #6e4a7e 180px, #4a2a5d 240px, #3e1f4f 320px, #2a1638 60%, #1d0f28 100%);
 }
 
 .act--letters .eyebrow {
@@ -159,20 +159,40 @@
   margin-top: var(--space-7);
 }
 
-/* Cierre: el jardín completo de noche */
+/* Cierre: la margarita del principio, ya florecida, de noche */
 .closing {
   display: grid;
-  gap: var(--space-6);
-  max-width: 1240px;
+  justify-items: center;
+  gap: var(--space-5);
+  max-width: 900px;
   margin: var(--space-8) auto 0;
+  padding-bottom: var(--space-7);
+  text-align: center;
+}
+
+.closing__scene {
+  width: min(100%, 720px);
+}
+
+.closing-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.closing-halo {
+  animation: lamp-flicker 5s ease-in-out infinite alternate;
+}
+
+.closing-daisy .daisy__body {
+  animation: hero-sway 8s ease-in-out infinite alternate;
+  transform-origin: 0 0;
 }
 
 .closing__copy {
   display: grid;
   justify-items: center;
   gap: var(--space-3);
-  text-align: center;
-  padding-bottom: var(--space-7);
 }
 
 .closing__phrase {
@@ -186,13 +206,32 @@
   color: color-mix(in srgb, var(--paper) 85%, transparent);
 }
 
+.closing__tally {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--gold);
+}
+
 /* ───────── Papel de carta ───────── */
 .letter-paper {
   position: relative;
   display: grid;
   gap: var(--space-3);
+  width: 100%;
   padding: clamp(1.5rem, 5vw, 3rem);
-  border-radius: 4px;
+  padding-top: clamp(2rem, 6vw, 3.25rem);
+  padding-bottom: clamp(2rem, 6vw, 3rem);
+  border-radius: 6px;
+  /* El papel es siempre papel: colores fijos, también en modo oscuro. */
+  color-scheme: light;
+  --daisy-ink: #6a3fb0;
+  --accent-ink: #6a3fb0;
+  --ink: #3e1f4f;
+  --ink-soft: #5b4a63;
+  --earth-ink: #6e5139;
+  --line-strong: rgb(62 31 79 / 0.26);
+  --danger: #a3324f;
+  --focus: #6a3fb0;
   background:
     radial-gradient(120% 70% at 0% 0%, rgb(255 255 255 / 0.7), transparent 60%),
     linear-gradient(180deg, #fbf6ec, #f5ecd9);
@@ -202,9 +241,9 @@
 
 .letter-paper__flower {
   position: absolute;
-  top: clamp(0.5rem, 3vw, 1.5rem);
-  right: clamp(0.5rem, 3vw, 1.5rem);
-  width: clamp(56px, 14vw, 92px);
+  bottom: clamp(0.75rem, 3vw, 1.5rem);
+  left: clamp(0.75rem, 3vw, 1.75rem);
+  width: clamp(54px, 12vw, 84px);
   height: auto;
   opacity: 0.88;
   filter: saturate(0.82) sepia(0.12);
@@ -213,7 +252,7 @@
 }
 
 .letter-paper__title {
-  padding-right: 4.5rem;
+  padding-right: 3rem;
   font-family: var(--font-display);
   font-size: var(--step-3);
   font-weight: 500;
@@ -260,7 +299,8 @@
 .letter-paper__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
+  padding-left: clamp(60px, 13vw, 96px);
   gap: var(--space-2);
   margin-top: var(--space-4);
 }
@@ -277,17 +317,18 @@
 /* Sobre que se abre */
 .letter-open {
   position: relative;
+  display: grid;
+  justify-items: center;
   perspective: 900px;
 }
 
 .letter-envelope {
   position: absolute;
-  top: 2rem;
+  top: 3rem;
   left: 50%;
   z-index: 2;
-  width: min(320px, 80vw);
+  width: min(320px, 76vw);
   aspect-ratio: 3 / 2;
-  transform-origin: center;
   translate: -50% 0;
 }
 

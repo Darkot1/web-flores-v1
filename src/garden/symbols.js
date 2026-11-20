@@ -61,12 +61,11 @@ const tuft = (variant) => {
 
 const lamp = () =>
   el("g", { class: "lamp" }, [
-    el("circle", { class: "lamp__glow", cx: 0, cy: -62, r: 34, fill: "url(#lamp-glow)" }),
     el("ellipse", { cx: 0, cy: 1, rx: 7, ry: 2, fill: "#3e1f4f", opacity: 0.2 }),
     el("path", { d: "M-1.6 0 L-1.2 -54 L1.2 -54 L1.6 0Z", fill: "#4a3a52" }),
     el("path", { d: "M0 -54 Q7 -58 9 -52", fill: "none", stroke: "#4a3a52", "stroke-width": 1.4 }),
     el("path", { d: "M-6 -56 L6 -56 L4.5 -70 L-4.5 -70Z", fill: "#4a3a52" }),
-    el("path", { class: "lamp__light", d: "M-4.4 -57.5 L4.4 -57.5 L3.4 -68.5 L-3.4 -68.5Z", fill: "#f8e3a8" }),
+    el("path", { class: "lamp__light", d: "M-4.4 -57.5 L4.4 -57.5 L3.4 -68.5 L-3.4 -68.5Z", style: "fill:var(--lamp-light,#e9e1d3)" }),
     el("path", { d: "M-7 -70 L0 -76 L7 -70Z", fill: "#3e1f4f" }),
   ]);
 

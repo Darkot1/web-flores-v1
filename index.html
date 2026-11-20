@@ -8,39 +8,60 @@
     <title>Nuestro jardín</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon.png" />
+    <script>
+      // Tema antes del primer pintado (evita el destello claro en modo oscuro).
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("jardin:theme"); } catch (e) {}
+        if (t !== "dark" && t !== "light") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#tierra">Ir al calendario de recuerdos</a>
 
     <header class="topbar">
-      <nav class="sprout-nav" aria-label="Actos del jardín">
+      <a class="brand" href="#semilla" aria-label="Nuestro jardín, ir al inicio">
+        <svg class="brand__icon" viewBox="-32 -32 64 64" aria-hidden="true" focusable="false"><g fill="currentColor"><ellipse cx="0" cy="-15" rx="5.5" ry="13" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(45)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(90)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(135)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(180)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(225)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(270)" /><ellipse cx="0" cy="-15" rx="5.5" ry="13" transform="rotate(315)" /></g><circle r="9" fill="#F2C14E" /></svg>
+        <span class="brand__text">Nuestro jardín</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Secciones">
         <ol>
           <li>
             <a href="#semilla" data-nav="semilla">
-              <svg class="sprout-icon" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path class="sprout-icon__stem" d="M12 30 C11 22 13 16 12 10" /><path class="sprout-icon__leaf" d="M12 20 C7 19 5 15 5 13 C9 13 12 16 12 20Z" /><path class="sprout-icon__leaf" d="M12 17 C17 16 19 12 19 10 C15 10 12 13 12 17Z" /><g class="sprout-icon__bloom"><circle cx="12" cy="8" r="5" /><circle class="sprout-icon__center" cx="12" cy="8" r="1.8" /></g></svg>
-              <span>Semilla</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21v-8M12 13c-4 0-6-3-6-6 4 0 6 3 6 6zm0 0c4 0 6-3 6-6-4 0-6 3-6 6zM6 21h12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <span>Inicio</span>
             </a>
           </li>
           <li>
             <a href="#tierra" data-nav="tierra">
-              <svg class="sprout-icon" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path class="sprout-icon__stem" d="M12 30 C11 22 13 16 12 10" /><path class="sprout-icon__leaf" d="M12 20 C7 19 5 15 5 13 C9 13 12 16 12 20Z" /><path class="sprout-icon__leaf" d="M12 17 C17 16 19 12 19 10 C15 10 12 13 12 17Z" /><g class="sprout-icon__bloom"><circle cx="12" cy="8" r="5" /><circle class="sprout-icon__center" cx="12" cy="8" r="1.8" /></g></svg>
-              <span>Tierra</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.7" /><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /><circle cx="12" cy="15" r="1.8" fill="currentColor" /></svg>
+              <span>Recuerdos</span>
             </a>
           </li>
           <li>
             <a href="#cartas" data-nav="cartas">
-              <svg class="sprout-icon" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path class="sprout-icon__stem" d="M12 30 C11 22 13 16 12 10" /><path class="sprout-icon__leaf" d="M12 20 C7 19 5 15 5 13 C9 13 12 16 12 20Z" /><path class="sprout-icon__leaf" d="M12 17 C17 16 19 12 19 10 C15 10 12 13 12 17Z" /><g class="sprout-icon__bloom"><circle cx="12" cy="8" r="5" /><circle class="sprout-icon__center" cx="12" cy="8" r="1.8" /></g></svg>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7" /><path d="M3.5 7l8.5 6.5L20.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
               <span>Cartas</span>
             </a>
           </li>
         </ol>
       </nav>
 
-      <button class="music-btn" type="button" aria-pressed="false" data-music>
-        <svg class="icon music-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><circle cx="6.5" cy="18" r="2.5" fill="currentColor" /><circle cx="16.5" cy="16" r="2.5" fill="currentColor" /></svg>
-        <span class="music-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span data-music-label>Música</span>
-      </button>
+      <div class="topbar__tools">
+        <button class="tool-btn" type="button" aria-pressed="false" data-theme-toggle>
+          <svg class="icon tool-btn__moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+          <svg class="icon tool-btn__sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+          <span class="tool-btn__label" data-theme-label>Noche</span>
+        </button>
+        <button class="tool-btn music-btn" type="button" aria-pressed="false" data-music>
+          <svg class="icon music-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><circle cx="6.5" cy="18" r="2.5" fill="currentColor" /><circle cx="16.5" cy="16" r="2.5" fill="currentColor" /></svg>
+          <span class="music-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="tool-btn__label" data-music-label>Música</span>
+        </button>
+      </div>
     </header>
 
     <main id="main">
@@ -149,10 +170,11 @@
         </div>
 
         <section class="closing" aria-labelledby="closing-title">
-          <div class="garden-host garden-host--night" data-garden-night></div>
+          <div class="closing__scene" data-closing-scene aria-hidden="true"></div>
           <div class="closing__copy">
             <h2 id="closing-title" class="closing__phrase" data-closing-phrase></h2>
             <p class="closing__body" data-closing-body></p>
+            <p class="closing__tally" data-closing-tally></p>
             <a class="btn btn--ghost" href="#semilla">Volver al principio</a>
           </div>
         </section>

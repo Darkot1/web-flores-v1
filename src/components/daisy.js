@@ -193,12 +193,14 @@ export const buildDaisy = ({
     return root;
   }
 
-  const leafCount = stage === "full" ? 3 : 2;
+  // Hojas alternas a lo largo del tallo: una a cada lado, como en la planta real.
+  const leafCount = stage === "full" ? 4 : 2;
+  const firstRight = rng.float() < 0.5;
   for (let i = 0; i < leafCount; i += 1) {
-    const t = 0.16 + i * 0.2 + rng.range(-0.04, 0.04);
+    const t = 0.14 + i * (stage === "full" ? 0.15 : 0.2) + rng.range(-0.03, 0.03);
     const p = stemAt(t);
-    const right = (i + (rng.float() < 0.5 ? 0 : 1)) % 2 === 0;
-    const len = (stage === "full" ? 30 : 24) * (1 - i * 0.12) * rng.range(0.9, 1.1);
+    const right = i % 2 === 0 ? firstRight : !firstRight;
+    const len = (stage === "full" ? 30 : 24) * (1 - i * 0.1) * rng.range(0.9, 1.1);
     body.append(buildLeaf(p.x, p.y, right ? -28 + rng.range(-10, 6) : -152 + rng.range(-6, 10), len, len * 0.27, colors, false));
   }
 

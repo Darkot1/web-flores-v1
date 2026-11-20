@@ -27,7 +27,7 @@
   padding: 3px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: color-mix(in srgb, #fffdf8 80%, transparent);
+  background: color-mix(in srgb, var(--card) 80%, transparent);
 }
 
 .segmented button {
@@ -43,8 +43,8 @@
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--daisy-ink);
-  color: #fff;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
 }
 
 /* ───────── Jardín SVG ───────── */
@@ -53,7 +53,7 @@
   overflow: hidden;
   border-radius: var(--radius-l);
   box-shadow: var(--shadow-lift);
-  background: #f7e6cf;
+  background: var(--bg);
   isolation: isolate;
 }
 
@@ -159,16 +159,12 @@
   50% { opacity: 0.75; }
 }
 
-.garden-view--day .lamp__glow {
-  display: none;
+.garden-fireflies {
+  animation: lamp-flicker 3.4s ease-in-out infinite alternate;
 }
 
-.garden-view--night .lamp__light {
-  fill: #ffe9a8;
-}
-
-.garden-view--night .lamp__glow {
-  display: none;
+.garden-view.is-paused .garden-fireflies {
+  animation-play-state: paused;
 }
 
 /* Un solo parpadeo para todos los faroles (barato en móvil). */
@@ -246,7 +242,7 @@
   max-width: 26rem;
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-m);
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
   box-shadow: var(--shadow-soft);
   text-align: center;
   pointer-events: auto;
@@ -255,7 +251,7 @@
 .garden-empty__title {
   font-family: var(--font-display);
   font-size: var(--step-1);
-  color: var(--plum);
+  color: var(--ink);
 }
 
 .garden-empty__body {
@@ -280,7 +276,7 @@
   .garden-empty {
     position: static;
     padding: var(--space-3);
-    background: #fbf6ec;
+    background: var(--panel);
   }
 }
 
@@ -291,7 +287,7 @@
   padding: var(--space-4) var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-l);
-  background: color-mix(in srgb, #fffdf8 85%, transparent);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
 }
 
 .timeline,
@@ -375,7 +371,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--daisy-ink);
+  color: var(--accent-ink);
 }
 
 .timeline__item--lamp .timeline__kicker,
@@ -387,7 +383,7 @@
 .timeline__title {
   font-family: var(--font-display);
   font-size: var(--step-0);
-  color: var(--plum);
+  color: var(--ink);
 }
 
 .timeline__date {

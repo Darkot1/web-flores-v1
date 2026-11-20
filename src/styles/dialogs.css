@@ -4,6 +4,7 @@ html.has-modal {
 }
 
 .dialog {
+  margin: auto;
   max-width: none;
   max-height: none;
   padding: 0;
@@ -24,7 +25,7 @@ html.has-modal {
 
 .dialog__panel {
   position: relative;
-  background: var(--paper);
+  background: var(--panel);
   box-shadow: var(--shadow-lift);
   animation: pop-in var(--dur-base) var(--ease-organic);
 }
@@ -38,7 +39,7 @@ html.has-modal {
   top: var(--space-3);
   right: var(--space-3);
   z-index: 4;
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
 }
 
 .dialog__body {
@@ -252,7 +253,7 @@ html.has-modal {
   padding: var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-m);
-  background: #fffdf8;
+  background: var(--card);
 }
 
 .memory-card__daisy {
@@ -288,19 +289,19 @@ html.has-modal {
   padding: 0.05rem 0.55rem;
   border-radius: 999px;
   background: var(--lavender-soft);
-  color: var(--daisy-deep);
+  color: var(--accent-ink);
   font-size: 0.75rem;
   font-weight: 700;
 }
 
 .tag--special {
   background: var(--gold-soft);
-  color: #6b4a0e;
+  color: var(--tag-special-fg);
 }
 
 .tag--stage {
   background: var(--sage-soft);
-  color: #3f5a3a;
+  color: var(--tag-stage-fg);
 }
 
 .memory-card__actions {
@@ -340,7 +341,7 @@ html.has-modal {
   padding: var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-s);
-  background: #fffdf8;
+  background: var(--card);
   text-align: left;
 }
 
@@ -404,26 +405,43 @@ html.has-modal {
   }
 }
 
-/* Lector de cartas */
+/* Lector de cartas: una hoja centrada sobre la noche */
 .letter-dialog::backdrop {
-  background: rgb(29 15 40 / 0.78);
+  background:
+    radial-gradient(60% 50% at 50% 40%, rgb(123 79 191 / 0.25), transparent 70%),
+    rgb(20 10 28 / 0.86);
 }
 
 .letter-dialog .dialog__panel {
-  width: min(680px, calc(100vw - 20px));
-  max-height: calc(100dvh - 20px);
+  width: min(640px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
   overflow: auto;
-  padding: var(--space-6) 0 var(--space-4);
+  overscroll-behavior: contain;
+  padding: 0;
+  border-radius: 8px;
   background: transparent;
   box-shadow: none;
 }
 
+.letter-dialog .dialog__body {
+  gap: 0;
+}
+
 .letter-dialog .dialog__close {
-  top: 0;
-  right: 0;
-  border-color: color-mix(in srgb, var(--paper) 40%, transparent);
-  background: var(--night);
-  color: var(--paper);
+  top: 10px;
+  right: 10px;
+  border-color: color-mix(in srgb, var(--plum) 22%, transparent);
+  background: #f5ecd9;
+  color: var(--plum);
+}
+
+.letter-dialog .dialog__close:focus-visible {
+  outline-color: var(--daisy-ink);
+}
+
+.letter-dialog .letter-paper__actions .btn--ghost:focus-visible,
+.letter-dialog .letter-paper :focus-visible {
+  outline-color: #6a3fb0;
 }
 
 /* Avisos */
