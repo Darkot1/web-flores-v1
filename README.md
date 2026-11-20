@@ -1,0 +1,76 @@
+# Jardín vivo · web-flores-v1
+
+Una web-regalo para Shara Melizza. La relación es un jardín que se cultiva:
+cada día juntos, cada recuerdo y cada carta lo hacen crecer.
+
+1. **Semilla** (amanecer): una semilla cae, brota y se abre una margarita morada.
+2. **Tierra** (pleno día): el calendario de recuerdos y el jardín vivo que nace de ellos.
+3. **Cartas** (atardecer y noche): la pérgola de cartas y el jardín completo, de noche.
+
+## Comandos
+
+```bash
+npm install
+npm run dev       # desarrollo
+npm test          # reglas del jardín, layout, fechas y migración (node --test)
+npm run build     # producción en dist/
+```
+
+## Personalizar
+
+Todo lo editable está en `src/config.js`:
+
+| Qué | Dónde |
+| --- | --- |
+| Nombre | `config.name` |
+| Fecha de inicio | `config.relationshipStart` (`"YYYY-MM-DD"` o `null`). También se puede elegir desde la app en **Ajustes del jardín**, y eso tiene prioridad. Con `null` la web muestra "aún no empieza". |
+| Nombres de él y ella | `config.authors` (por defecto "Él"/"Ella"). Se cambian desde la app en **Ajustes del jardín**. |
+| Frases | `config.intro`, `config.memories`, `config.letters`, `config.closing`, `config.signature` |
+| Clima | `config.climate`: `"tropical"` (Colombia: temporadas secas y de lluvias), `"north"` o `"south"` |
+| Maduración | `config.growth` (días para brote → capullo → flor abierta → flor plena) |
+
+**Cartas iniciales:** `src/data/letters.js`. La carta de las margaritas moradas es la primera.
+Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`).
+
+**Hitos:**
+- Automáticos desde la fecha de inicio: el arbolito del primer día, un farol cada mesiversario y un arco de flores cada aniversario.
+- Marcados a mano: al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
+
+## Guardado: modo local y modo compartido
+
+| | Modo local (por defecto) | Modo compartido (Supabase) |
+| --- | --- | --- |
+| Dónde vive | `localStorage` de cada navegador | Base de datos en Supabase |
+| Quién lo ve | Solo ese dispositivo | Los dos, cada uno en su dispositivo |
+| Requisitos | Ninguno | `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` |
+| Copia de seguridad | Ajustes → Descargar / Restaurar copia | En la nube |
+
+Para activar el modo compartido:
+
+1. Crea un proyecto en Supabase y ejecuta `supabase/schema.sql` en el SQL Editor.
+2. Crea vuestro jardín con un código largo y privado (la última línea del SQL, descomentada).
+3. Copia `.env.example` a `.env` con la URL y la anon key, y vuelve a hacer build/deploy.
+4. Abrid la web con el enlace `https://tu-web/#c=TU-CODIGO`. El código se recuerda en cada dispositivo y se borra de la barra de direcciones.
+
+Las tablas tienen RLS sin políticas: la anon key, que es pública, no puede leer nada por sí sola.
+Todo pasa por funciones que exigen el código. Sin conexión se guarda en local y se sincroniza al volver.
+Lo que plantó el otro aparece al volver a la pestaña o cada 30 s.
+
+## Estructura
+
+```
+src/
+  main.js                 arranque y orquestación
+  config.js               nombre, fecha, autores, textos, clima
+  data/letters.js         cartas iniciales
+  lib/                    storage (+ local, supabase), store, migrate, dates, seed, motion, audio
+  garden/growth.js        reglas puras: etapas, hitos, estaciones, matas
+  garden/layout.js        posiciones deterministas (camino en perspectiva)
+  garden/symbols.js       sprite SVG (<symbol>/<use>)
+  garden/renderer.js      dibujo e interacción del jardín
+  components/             daisy, intro, counters, calendar, memory-sheet, timeline,
+                          letters, letter-composer, settings, modal, toast
+  styles/                 tokens, base, hero, calendar, garden, letters, dialogs
+supabase/schema.sql
+tests/
+```
