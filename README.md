@@ -10,6 +10,10 @@ cada día juntos, cada recuerdo y cada carta lo hacen crecer.
 Modo claro u oscuro con el botón Noche/Día (se recuerda en cada dispositivo). El jardín no depende del
 tema: sigue la hora real (de día de 6:00 a 18:00, configurable en `config.gardenClock`); de noche hay luna, luciérnagas y los faroles de cada mesiversario encendidos.
 
+**Zoom del jardín:** botones + / − / ver todo, pellizco en el móvil, Ctrl/⌘ + rueda o pellizco
+del trackpad en el ordenador, doble toque o doble clic, y teclas + − 0 con el jardín enfocado.
+Con zoom, se arrastra para recorrerlo.
+
 ## Comandos
 
 ```bash
