@@ -12,6 +12,7 @@ import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed,
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
 import { prefersReducedMotion, watchVisibility } from "../lib/motion.js";
+import { createZoom } from "./zoom.js";
 import { config } from "../config.js";
 
 const SEAL_RIBBON = { ciruela: "#5B2E7E", morado: "#7B4FBF", dorado: "#D9A93F", rosa: "#C24D7A", salvia: "#5F8259" };
@@ -103,7 +104,58 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
   empty.className = "garden-empty";
   empty.hidden = true;
 
-  host.replaceChildren(svg, tip, empty);
+  // Controles de zoom
+  const zoomBar = document.createElement("div");
+  zoomBar.className = "garden-zoom";
+  zoomBar.setAttribute("role", "group");
+  zoomBar.setAttribute("aria-label", "Zoom del jardín");
+  const zoomBtn = (label, path) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "garden-zoom__btn";
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    b.innerHTML = `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${path}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    zoomBar.append(b);
+    return b;
+  };
+  const zoomInBtn = zoomBtn("Acercar el jardín", "M12 5v14M5 12h14");
+  const zoomOutBtn = zoomBtn("Alejar el jardín", "M5 12h14");
+  const zoomResetBtn = zoomBtn("Ver todo el jardín", "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5");
+  const zoomStatus = document.createElement("span");
+  zoomStatus.className = "visually-hidden";
+  zoomStatus.setAttribute("aria-live", "polite");
+  zoomBar.append(zoomStatus);
+  const zoomHint = document.createElement("p");
+  zoomHint.className = "garden-zoom__hint";
+  zoomHint.setAttribute("aria-hidden", "true");
+
+  host.replaceChildren(svg, tip, empty, zoomBar, zoomHint);
+
+  let hintTimer = 0;
+  const zoom = createZoom(svg, {
+    onChange: (scale) => {
+      const zoomed = scale > 1.001;
+      zoomOutBtn.disabled = !zoomed;
+      zoomResetBtn.disabled = !zoomed;
+      zoomInBtn.disabled = scale >= 3.99;
+      zoomStatus.textContent = zoomed ? `Zoom ${scale.toFixed(1).replace(".0", "")}×` : "Jardín completo";
+      host.classList.toggle("is-zoomed", zoomed);
+      if (zoomed && !hintTimer) {
+        zoomHint.textContent = window.matchMedia("(pointer: coarse)").matches ? "Arrastra para recorrerlo" : "Arrastra para recorrerlo · doble clic para volver";
+        hintTimer = setTimeout(() => (zoomHint.textContent = ""), 2600);
+      }
+      if (!zoomed) {
+        clearTimeout(hintTimer);
+        hintTimer = 0;
+        zoomHint.textContent = "";
+      }
+      hideTip();
+    },
+  });
+  zoomInBtn.addEventListener("click", () => zoom.zoomIn());
+  zoomOutBtn.addEventListener("click", () => zoom.zoomOut());
+  zoomResetBtn.addEventListener("click", () => zoom.reset());
 
   let dims = null;
   let laid = [];
@@ -193,7 +245,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     });
 
     laid = layoutItems(model.items, dims);
-    svg.setAttribute("viewBox", `0 0 ${dims.width} ${dims.height}`);
+    zoom.setBase(dims);
     svg.setAttribute("aria-label", label(model));
     nodesById.clear();
 
@@ -392,6 +444,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     const next = nodesById.get(focusOrder[focusIndex].id);
     next.g.setAttribute("tabindex", "0");
     next.g.focus();
+    zoom.ensureVisible(next.item.x, next.item.y - 30 * next.item.scale);
   };
 
   let lastPointer = "mouse";
@@ -410,6 +463,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     if (e.pointerType === "mouse" && !e.relatedTarget?.closest?.(".g-item")) hideTip();
   });
   svg.addEventListener("click", (e) => {
+    if (zoom.consumeMoved()) return; // fue un arrastre o pellizco, no un toque
     const item = itemFromEvent(e);
     if (!item) {
       hideTip();
@@ -455,6 +509,15 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       open(item);
     } else if (e.key === "Escape") {
       hideTip();
+    } else if (e.key === "+" || e.key === "=") {
+      e.preventDefault();
+      zoom.zoomIn();
+    } else if (e.key === "-") {
+      e.preventDefault();
+      zoom.zoomOut();
+    } else if (e.key === "0") {
+      e.preventDefault();
+      zoom.reset();
     }
   });
 
@@ -488,6 +551,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     reveal(id) {
       const entry = nodesById.get(id) ?? [...nodesById.values()].find((e) => e.item.members?.some((m) => m.id === id));
       if (!entry) return;
+      zoom.ensureVisible(entry.item.x, entry.item.y - 30 * entry.item.scale);
       entry.g.scrollIntoView?.({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
       entry.g.classList.remove("is-highlight");
       void entry.g.getBoundingClientRect();
