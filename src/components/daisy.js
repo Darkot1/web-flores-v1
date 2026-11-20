@@ -166,7 +166,7 @@ export const buildDaisy = ({
   }
 
   const bend = rng.range(-9, 9);
-  const H = stage === "sprout" ? stemHeight * 0.3 : stage === "bud" ? stemHeight * 0.86 : stemHeight;
+  const H = stage === "sprout" ? stemHeight * 0.36 : stage === "bud" ? stemHeight * 0.86 : stemHeight;
   const c1 = bend * 0.6 + rng.range(-4, 4);
   const c2 = bend * 1.2;
   const bx = bend * 0.7;
@@ -187,8 +187,8 @@ export const buildDaisy = ({
   if (stage === "sprout") {
     const top = stemAt(1);
     body.append(
-      buildLeaf(top.x, top.y, -35 + rng.range(-8, 8), 12, 5.5, colors, false),
-      buildLeaf(top.x, top.y, -145 + rng.range(-8, 8), 11, 5, colors, false),
+      buildLeaf(top.x, top.y, -35 + rng.range(-8, 8), 16, 7, colors, false),
+      buildLeaf(top.x, top.y, -145 + rng.range(-8, 8), 15, 6.5, colors, false),
     );
     return root;
   }
