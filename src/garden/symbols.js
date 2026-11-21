@@ -181,8 +181,8 @@ const tree = (stage) => {
 
   // sombra, pétalos caídos y raíces
   g.append(el("ellipse", { cx: 0, cy: 2, rx: 74, ry: 9, fill: "#3e1f4f", opacity: 0.13 }));
-  for (let i = 0; i < 14; i += 1) {
-    const x = rng.range(-64, 64);
+  for (let i = 0; i < 26; i += 1) {
+    const x = rng.range(-70, 70);
     g.append(el("ellipse", { cx: x.toFixed(1), cy: rng.range(-2, 6).toFixed(1), rx: 2.2, ry: 1.2, transform: `rotate(${rng.int(0, 180)} ${x.toFixed(1)} 2)`, fill: rng.pick(["#B79CEB", "#9A73D8", "#E8DDF7"]), opacity: 0.85 }));
   }
   g.append(el("path", { d: "M-14 0 C-22 2 -32 4 -42 3 M14 0 C22 2 34 5 44 3 M-5 1 C-10 5 -14 7 -22 9 M6 1 C11 5 17 7 24 9", fill: "none", stroke: "#6b4f39", "stroke-width": 5, "stroke-linecap": "round" }));
@@ -210,34 +210,55 @@ const tree = (stage) => {
     }),
   );
 
-  // copa: solo hojas, en forma de cúpula
-  const leafGreens = ["#5F8259", "#6F9468", "#7E9F78", "#86A77F", "#93B28C", "#9DB59A"];
-  const leaf = (x, y, size, rot, fill, opacity = 1) =>
-    el("ellipse", { cx: 0, cy: 0, rx: (6.5 * size).toFixed(1), ry: (2.7 * size).toFixed(1), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})`, fill, opacity });
-  // Copa con forma de cúpula: una base de follaje redondo...
+  // copa: cerezo (sakura) morado — nubes de flor, florecitas de cinco pétalos y ramas que asoman
   const CX = 0;
-  const CY = -130;
-  const RX = 80;
-  const RY = 48;
-  const inDome = () => {
-    // punto aleatorio dentro de la cúpula (elipse algo aplanada abajo)
+  const CY = -132;
+  const RX = 84;
+  const RY = 46;
+  const inCloud = () => {
     const a = rng.range(0, Math.PI * 2);
     const rr = Math.sqrt(rng.float());
     const y = Math.sin(a) * RY * rr;
-    return { x: CX + Math.cos(a) * RX * rr, y: CY + (y > 0 ? y * 0.55 : y) };
+    return { x: CX + Math.cos(a) * RX * rr, y: CY + (y > 0 ? y * 0.6 : y) };
   };
-  const domeBlobs = [[-52, -124, 28], [52, -124, 28], [-28, -148, 31], [28, -148, 31], [0, -162, 27], [0, -130, 38], [-66, -110, 19], [66, -110, 19]];
-  for (const [x, y, r] of domeBlobs) g.append(el("circle", { cx: x, cy: y, r, fill: "#5F8259" }));
-  for (const [x, y, r] of domeBlobs) g.append(el("circle", { cx: x - 4, cy: y - 5, r: r * 0.78, fill: "#7E9F78", opacity: 0.8 }));
-  // ...cubierta de hojas
-  for (let i = 0; i < conf.n * 2.4; i += 1) {
-    const p = inDome();
-    g.append(leaf(p.x, p.y, rng.range(0.9, 1.35), rng.int(-80, 80), rng.pick(leafGreens)));
+  // nubes de flor: tres capas, de la sombra (fondo) a la luz (frente)
+  const puffs = [
+    [-58, -122, 24], [58, -122, 24], [-34, -146, 28], [34, -146, 28], [0, -160, 26],
+    [0, -128, 34], [-74, -108, 16], [74, -108, 16], [-18, -112, 20], [20, -112, 20],
+  ];
+  for (const [x, y, r] of puffs) g.append(el("circle", { cx: x, cy: y + 3, r: r * 1.04, fill: "#6A3FB0" }));
+  for (const [x, y, r] of puffs) g.append(el("circle", { cx: x - 2, cy: y - 1, r: r * 0.92, fill: "#9A73D8" }));
+  for (const [x, y, r] of puffs) g.append(el("circle", { cx: x - 5, cy: y - 6, r: r * 0.66, fill: "#B79CEB" }));
+  for (const [x, y, r] of puffs) g.append(el("circle", { cx: x - 8, cy: y - 10, r: r * 0.36, fill: "#D7C4F3", opacity: 0.9 }));
+  // ramitas oscuras que asoman entre las nubes
+  g.append(
+    el("path", {
+      d: "M-56 -132 Q-66 -138 -78 -134 M-34 -156 Q-40 -170 -50 -174 M58 -128 Q70 -132 80 -126 M30 -158 Q36 -172 46 -176 M-2 -164 Q-6 -178 2 -186",
+      fill: "none",
+      stroke: "#5b4330",
+      "stroke-width": 2.6,
+      "stroke-linecap": "round",
+    }),
+  );
+  // florecitas de sakura (cinco pétalos con muesca) sobre las nubes
+  const blossomColors = ["#F3ECFF", "#E8DDF7", "#D7C4F3", "#C9B6F2", "#B79CEB", "#8E5CC8"];
+  const blossom = (x, y, r, fill, rot) => {
+    const f = el("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})` });
+    for (let k = 0; k < 5; k += 1) {
+      f.append(el("path", { d: `M0 0 C${(-r * 0.7).toFixed(1)} ${(-r * 0.5).toFixed(1)} ${(-r * 0.5).toFixed(1)} ${(-r * 1.2).toFixed(1)} 0 ${(-r).toFixed(1)} C${(r * 0.5).toFixed(1)} ${(-r * 1.2).toFixed(1)} ${(r * 0.7).toFixed(1)} ${(-r * 0.5).toFixed(1)} 0 0Z`, transform: `rotate(${k * 72})`, fill }));
+    }
+    f.append(el("circle", { r: (r * 0.28).toFixed(1), fill: "#5B2E7E" }));
+    return f;
+  };
+  for (let i = 0; i < conf.n * 1.6; i += 1) {
+    const p = inCloud();
+    g.append(blossom(p.x, p.y, rng.range(2.6, 4.2), rng.pick(blossomColors), rng.int(0, 72)));
   }
-  // hojas delante, dando volumen y luz a la copa
-  for (let i = 0; i < conf.n * 1.8; i += 1) {
-    const p = inDome();
-    g.append(leaf(p.x * 0.96, p.y, rng.range(0.75, 1.05), rng.int(-70, 70), rng.pick(leafGreens.slice(2)), 0.95));
+  // pétalos que caen alrededor de la copa
+  for (let i = 0; i < Math.round(conf.n * 0.35); i += 1) {
+    const x = rng.range(-90, 90);
+    const y = rng.range(-100, -20);
+    g.append(el("ellipse", { cx: 0, cy: 0, rx: 2.4, ry: 1.3, transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rng.int(0, 180)})`, fill: rng.pick(["#C9B6F2", "#B79CEB", "#E8DDF7"]), opacity: 0.9 }));
   }
   // el columpio, cuando el árbol ya es grande
   if (conf.swing) {

@@ -41,7 +41,7 @@ Todo lo editable está en `src/config.js`:
 Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`).
 
 **Hitos** (salen solos de la fecha de inicio):
-- **El árbol del primer día:** dos troncos que se entrelazan hasta formar una sola copa frondosa. Preside la cabecera del camino y crece con los años: primero dos brotes enroscados, luego un árbol joven y al final un árbol pleno con un columpio.
+- **El árbol del primer día:** dos troncos que se entrelazan hasta formar una sola copa de cerezo (sakura) morado. Preside la cabecera del camino y crece con los años: primero dos brotes enroscados, luego un árbol joven y al final un árbol pleno con un columpio.
 - **Cada mes:** un farolillo colgado en la guirnalda del cielo, con una guirnalda de 12 luces por año. De noche se encienden.
 - **Cada 3 meses:** un gran arco de flores sobre el camino, con los colores de la temporada. En el aniversario es dorado.
 - **El estanque:** un pez por cada carta, del color de su flor, y un koi dorado por cada aniversario.
