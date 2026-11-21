@@ -370,7 +370,10 @@ html.has-modal {
 }
 
 textarea.composer__body {
-  min-height: 3.6rem;
+  /* Siempre 2 líneas (line-height 1.5 + relleno + borde); el resto se desplaza dentro. */
+  height: calc(3em + 1.3rem + 3px);
+  min-height: 0;
+  max-height: calc(3em + 1.3rem + 3px);
   resize: none;
   overflow-y: auto;
   scrollbar-width: none;
@@ -411,9 +414,18 @@ textarea.composer__body {
     grid-template-columns: 1fr 1fr;
   }
 
+  /* La vista previa acompaña al desplazarse por el formulario. */
   .composer__preview {
     position: sticky;
     top: 0;
+    align-self: start;
+    max-height: calc(100dvh - 120px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .composer__preview::-webkit-scrollbar {
+    display: none;
   }
 }
 

@@ -141,12 +141,10 @@ export const createLetterComposer = ({ store, onSent }) => {
   });
   form.addEventListener("change", updatePreview);
 
-  // El campo de la carta empieza pequeño y crece mientras se escribe.
-  const autoGrow = () => {
-    bodyInput.style.height = "auto";
-    bodyInput.style.height = `${Math.min(bodyInput.scrollHeight + 2, 320)}px`;
-  };
-  bodyInput.addEventListener("input", autoGrow);
+  // El campo de la carta mide siempre 2 líneas; si se escribe más, se desplaza por dentro.
+  bodyInput.addEventListener("input", () => {
+    if (bodyInput.selectionStart === bodyInput.value.length) bodyInput.scrollTop = bodyInput.scrollHeight;
+  });
 
   const rainHost = h("div", "petal-rain");
   rainHost.setAttribute("aria-hidden", "true");
@@ -206,7 +204,6 @@ export const createLetterComposer = ({ store, onSent }) => {
     reset() {
       form.reset();
       signInput.value = config.signature;
-      bodyInput.style.height = "";
       dirty = false;
     },
   };
