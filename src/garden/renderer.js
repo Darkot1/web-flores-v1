@@ -335,10 +335,10 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     frag.append(defsFor());
     const { width, height, horizon } = dims;
     frag.append(el("rect", { width, height, fill: `url(#sky-${variant})` }));
-    frag.append(el("circle", { cx: width * (variant === "night" ? 0.22 : 0.78), cy: horizon * 0.55, r: 120, fill: `url(#orb-${variant})` }));
+    frag.append(el("circle", { cx: width * 0.78, cy: horizon * 0.55, r: 120, fill: `url(#orb-${variant})` }));
     if (variant === "night") {
       // Luna nítida dentro del halo y unas pocas luciérnagas fijas (deterministas).
-      frag.append(el("circle", { cx: width * 0.22, cy: horizon * 0.55, r: 16, fill: "#f3ecff" }));
+      frag.append(el("circle", { cx: width * 0.78, cy: horizon * 0.55, r: 16, fill: "#f3ecff" }));
       const flies = el("g", { class: "garden-fireflies", "aria-hidden": "true" });
       for (let i = 0; i < (compact ? 10 : 22); i += 1) {
         const fx = ((i * 0.6180339) % 1) * width;

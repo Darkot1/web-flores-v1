@@ -79,7 +79,8 @@ export const firstTreePlacement = (dims, stage = "tree") => {
   // El símbolo ya crece por etapa (retoño 0.45 · joven 0.72 · árbol 1); aquí solo su tamaño de protagonista.
   const scale = dims.width < 800 ? 0.92 : 1.0;
   const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
-  const x = clamp(p.x - p.halfWidth - 78 * scale * 0.55, 60 * scale, dims.width - 60 * scale);
+  // A la izquierda del jardín, separado del camino: protagonista sin tapar los arcos.
+  const x = clamp(dims.width * 0.18, 90 * scale * grow + 10, p.x - p.halfWidth - 70 * scale * grow);
   return { x: Math.round(x), y: Math.round(p.y + 6), scale: Math.round(scale * 100) / 100, radius: 30 + 60 * scale * grow };
 };
 
