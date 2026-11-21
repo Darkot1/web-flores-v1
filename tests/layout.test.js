@@ -50,7 +50,7 @@ test("los arcos abrazan el camino: más anchos que él", () => {
   const model = buildGardenModel({ ...base, start: "2024-01-01" });
   const laid = layoutItems(model.items, DIMENSIONS.wide);
   const arches = laid.filter((i) => i.kind === "arch" || i.kind === "grand");
-  // 34 meses: los aniversarios (12 y 24) + los grandes arcos de los últimos 12 meses (27, 30, 33).
+  // 34 meses: aniversarios de los 2 últimos años (12, 24) + grandes arcos del último año (27, 30, 33).
   assert.equal(arches.length, 5);
   for (const a of arches) {
     const half = (a.kind === "grand" ? 72 : 60) * a.scale;
@@ -107,9 +107,9 @@ test("un recuerdo sembrado a mano nunca se agrupa en una mata", () => {
 test("6 años: el camino no se cubre de arcos y las guirnaldas caben en el cielo", () => {
   const model = buildGardenModel({ today: "2026-11-21", start: "2020-11-14", memories });
   const arches = model.items.filter((i) => i.kind === "grand");
-  // 6 aniversarios dorados + los grandes arcos trimestrales de los últimos 2 años
-  assert.ok(arches.length <= 10, `demasiados arcos: ${arches.length}`);
-  assert.equal(arches.filter((a) => a.anniversary).length, 6);
+  // como mucho 5 arcos en el suelo: aniversarios recientes + los del último año
+  assert.ok(arches.length <= 5, `demasiados arcos: ${arches.length}`);
+  assert.ok(arches.some((a) => a.anniversary));
   for (const dims of Object.values(DIMENSIONS)) {
     const { strands, lights } = layoutGarland(model.lights, dims);
     assert.equal(strands.length, 6);
@@ -129,6 +129,22 @@ test("guirnaldas de punta a punta, sin farolillos detrás de la copa del árbol"
       for (const l of lights) {
         assert.ok(Math.abs(l.x - tree.x) > half, `${stage} ${l.id} x=${l.x} detrás de la copa`);
         assert.ok(l.x > -20 && l.x < dims.width + 20);
+      }
+    }
+  }
+});
+
+test("los arcos quedan bien separados a lo largo del camino", () => {
+  for (const start of ["2024-05-14", "2020-11-14"]) {
+    const model = buildGardenModel({ today: "2026-11-21", start, memories });
+    for (const dims of Object.values(DIMENSIONS)) {
+      const arches = layoutItems(model.items, dims)
+        .filter((i) => i.kind === "grand")
+        .sort((a, b) => a.date.localeCompare(b.date));
+      assert.ok(arches.length <= 5, `${arches.length} arcos`);
+      const gap = (dims.height - dims.horizon) * 0.1;
+      for (let i = 1; i < arches.length; i += 1) {
+        assert.ok(arches[i].y - arches[i - 1].y > gap, `${start}: arcos ${i - 1} y ${i} muy juntos`);
       }
     }
   }

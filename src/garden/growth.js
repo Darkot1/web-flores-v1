@@ -105,6 +105,9 @@ export const computeMilestones = (start, today, options) => {
 export const monthLights = (start, today, climate = "tropical") =>
   monthiversaries(start, today).map((m) => ({ ...m, kind: "lantern", id: `light-${m.n}`, season: seasonFor(m.date, climate).id }));
 
+/** Arcos visibles a la vez sobre el camino (más se amontonan por la perspectiva). */
+export const MAX_GROUND_ARCHES = 5;
+
 const GROWS_TEXT = {
   lantern: "el próximo farolillo",
   grand: "el próximo arco",
@@ -308,12 +311,19 @@ export const buildGardenModel = ({
     ref: l,
   }));
 
-  // En el suelo: todos los aniversarios (arco dorado) y los grandes arcos de los
-  // últimos 12 meses; los trimestrales más antiguos quedan en el calendario y el Camino.
+  // En el suelo, como mucho 5 arcos bien separados: los aniversarios (dorados) de
+  // los 2 últimos años y los grandes arcos del último año. Los demás siguen en el
+  // calendario y en el Camino.
   const monthsTogether = monthiversaries(start, today).length;
-  const milestones = computeMilestones(start, today)
-    .filter((ms) => ms.kind !== "lantern")
-    .filter((ms) => ms.kind !== "grand" || ms.anniversary || ms.n > monthsTogether - 12)
+  const all = computeMilestones(start, today).filter((ms) => ms.kind !== "lantern");
+  const groundArches = new Set(
+    all
+      .filter((ms) => ms.kind === "grand" && (ms.anniversary ? ms.n > monthsTogether - 24 : ms.n > monthsTogether - 12))
+      .slice(-MAX_GROUND_ARCHES)
+      .map((ms) => ms.id),
+  );
+  const milestones = all
+    .filter((ms) => ms.kind !== "grand" || groundArches.has(ms.id))
     .map((ms) => ({
       ...ms,
       title: ms.label,

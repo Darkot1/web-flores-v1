@@ -103,6 +103,19 @@ export const groundToCanvas = (spot, dims) => {
 };
 
 export const layoutItems = (items, dims) => {
+  // Los arcos se reparten parejos a lo largo del camino (en orden de fecha),
+  // para que no se amontonen cuando varios son del mismo año.
+  const arches = items.filter((i) => i.kind === "arch" || i.kind === "grand").sort((a, b) => a.date.localeCompare(b.date));
+  const archDepth = new Map(
+    arches.map((a, i) => {
+      if (arches.length === 1) return [a.id, Math.min(0.9, depthFor(a.t))];
+      // Parejos en pantalla (no en profundidad): la perspectiva los apretaría al fondo.
+      const from = 0.1;
+      const to = 0.86;
+      const e = from + ((to - from) * i) / (arches.length - 1);
+      return [a.id, e ** (1 / 1.45)];
+    }),
+  );
   const pond = pondPlacement(dims);
   const firstTree = firstTreePlacement(dims, items.find((i) => i.kind === "tree")?.stage);
   const inPond = (x, y) =>
@@ -127,7 +140,7 @@ export const layoutItems = (items, dims) => {
       const rng = createRng(item.id);
       const isArch = item.kind === "arch" || item.kind === "grand";
       const isStatic = isArch || item.kind === "tree" || item.kind === "lamp" || item.kind === "bloom";
-      let d = clamp(depthFor(item.t) + (isStatic ? 0 : rng.range(-0.015, 0.015)), 0.02, 0.995);
+      let d = archDepth.has(item.id) ? archDepth.get(item.id) : clamp(depthFor(item.t) + (isStatic ? 0 : rng.range(-0.015, 0.015)), 0.02, 0.995);
       let p = pathAt(d, dims);
       let x = p.x;
       let side = rng.sign();
