@@ -251,23 +251,46 @@ export const layoutSignature = (laid) => laid.map((i) => `${i.id}@${i.x},${i.y},
  * y los farolillos empiezan pasado el borde de la copa (clear).
  */
 export const garlandAnchor = (dims, stage) => {
-  if (!stage) return { anchor: -20, clear: -20 };
+  if (!stage) return { gapFrom: null, gapTo: null };
   const tree = firstTreePlacement(dims, stage);
   const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
   const half = 92 * tree.scale * grow; // medio ancho de la copa del sakura
-  return { anchor: Math.round(tree.x + half * 0.55), clear: Math.round(tree.x + half + 12) };
+  // Tramo de cielo tapado por la copa: ahí no se cuelgan farolillos.
+  return { gapFrom: Math.round(tree.x - half - 12), gapTo: Math.round(tree.x + half + 12) };
 };
 
-export const layoutGarland = (lights, dims, { anchor: anchorX = -20, clear: clearX = anchorX } = {}) => {
+/**
+ * Guirnaldas de punta a punta del cielo (una por año). La cuerda pasa por
+ * detrás de la copa del árbol, pero los farolillos solo se cuelgan en los
+ * tramos visibles, repartidos de forma pareja.
+ */
+export const layoutGarland = (lights, dims, { gapFrom = null, gapTo = null } = {}) => {
   if (!lights.length) return { strands: [], lights: [] };
   const years = Math.max(...lights.map((l) => l.year));
   const sag = dims.width * 0.028;
   const top = dims.horizon * 0.1;
   const bottom = dims.horizon - sag - 40; // cuerda + cordel + farolillo caben sobre el horizonte
   const gap = years > 1 ? Math.min(30, (bottom - top) / (years - 1)) : 0;
-  // Las guirnaldas salen de la copa del árbol (x0) y cruzan el cielo hasta el borde derecho.
-  const x0 = anchorX;
-  const span = dims.width + 20 - x0;
+  const x0 = -20;
+  const span = dims.width + 40;
+  // Tramos visibles de la cuerda (sin la copa del árbol).
+  const segments =
+    gapFrom === null
+      ? [[x0, x0 + span]]
+      : [
+          [x0, Math.max(x0, gapFrom)],
+          [Math.min(x0 + span, gapTo), x0 + span],
+        ].filter(([a, b]) => b - a > 24);
+  const visible = segments.reduce((sum, [a, b]) => sum + (b - a), 0);
+  /** Posición u (0–1 a lo largo de lo visible) → x real, saltando la copa. */
+  const xAt = (u) => {
+    let d = u * visible;
+    for (const [a, b] of segments) {
+      if (d <= b - a) return a + d;
+      d -= b - a;
+    }
+    return segments.at(-1)[1];
+  };
   const strands = Array.from({ length: years }, (_, i) => {
     const y0 = top + i * gap;
     // Las guirnaldas más antiguas quedan arriba, más pequeñas y tenues (más lejos).
@@ -284,15 +307,14 @@ export const layoutGarland = (lights, dims, { anchor: anchorX = -20, clear: clea
   });
   const laid = lights.map((light) => {
     const strand = strands[light.year - 1];
-    // Los 12 huecos se reparten entre el borde de la copa y el final de la cuerda.
-    const slotT = (light.slot - 1 + 0.25 + strand.shift * 0.5) / 12;
-    const start = Math.max(0, (clearX - x0) / span);
-    const t = start + slotT * (1 - start);
+    const u = (light.slot - 1 + 0.5 + (strand.shift - 0.25) * 0.5) / 12;
+    const x = xAt(u);
+    const t = (x - x0) / span;
     const rng = createRng(light.id);
     const dropMax = Math.max(6, Math.min(14, gap * 0.55));
     return {
       ...light,
-      x: Math.round((x0 + t * span) * 10) / 10,
+      x: Math.round(x * 10) / 10,
       y: Math.round((strand.y0 + 4 * sag * t * (1 - t)) * 10) / 10,
       drop: Math.round(rng.range(4, dropMax) * 10) / 10,
       rotate: Math.round(rng.range(-6, 6) * 10) / 10,

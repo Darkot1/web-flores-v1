@@ -408,7 +408,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       frag.append(flies);
     }
     // Guirnaldas del cielo: una luz por cada mes juntos.
-    // Atadas a la copa del árbol del primer día: ningún farolillo queda detrás de él.
+    // De punta a punta; ningún farolillo se cuelga donde lo taparía la copa del árbol.
     const treeItem = laid.find((i) => i.kind === "tree");
     const garland = layoutGarland(model.lights, dims, garlandAnchor(dims, treeItem?.stage));
     if (garland.strands.length) {

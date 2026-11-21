@@ -117,18 +117,18 @@ test("6 años: el camino no se cubre de arcos y las guirnaldas caben en el cielo
   }
 });
 
-test("ningún farolillo queda detrás de la copa del árbol del primer día", () => {
+test("guirnaldas de punta a punta, sin farolillos detrás de la copa del árbol", () => {
   for (const stage of ["sapling", "young", "tree"]) {
     for (const dims of Object.values(DIMENSIONS)) {
       const g = garlandAnchor(dims, stage);
       const tree = firstTreePlacement(dims, stage);
       const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage];
-      const canopyRight = tree.x + 92 * tree.scale * grow;
-      const { lights } = layoutGarland(monthLights("2020-11-14", "2026-11-21"), dims, g);
-      assert.ok(g.anchor < canopyRight, "la cuerda nace dentro de la copa");
+      const half = 92 * tree.scale * grow;
+      const { strands, lights } = layoutGarland(monthLights("2020-11-14", "2026-11-21"), dims, g);
+      for (const s of strands) assert.match(s.d, new RegExp(`^M-20 .* ${dims.width + 20} `), "la cuerda cruza todo el cielo");
       for (const l of lights) {
-        assert.ok(l.x - 6 > canopyRight, `${stage} ${l.id} x=${l.x} detrás de la copa (${canopyRight})`);
-        assert.ok(l.x < dims.width + 10);
+        assert.ok(Math.abs(l.x - tree.x) > half, `${stage} ${l.id} x=${l.x} detrás de la copa`);
+        assert.ok(l.x > -20 && l.x < dims.width + 20);
       }
     }
   }
