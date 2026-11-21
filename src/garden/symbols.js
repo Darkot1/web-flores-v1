@@ -210,7 +210,7 @@ const tree = (stage) => {
     }),
   );
 
-  // copa: primero un follaje de hojas, luego racimos de flores pequeños y de muchos colores
+  // copa: solo hojas, en forma de cúpula
   const leafGreens = ["#5F8259", "#6F9468", "#7E9F78", "#86A77F", "#93B28C", "#9DB59A"];
   const leaf = (x, y, size, rot, fill, opacity = 1) =>
     el("ellipse", { cx: 0, cy: 0, rx: (6.5 * size).toFixed(1), ry: (2.7 * size).toFixed(1), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})`, fill, opacity });
@@ -234,29 +234,11 @@ const tree = (stage) => {
     const p = inDome();
     g.append(leaf(p.x, p.y, rng.range(0.9, 1.35), rng.int(-80, 80), rng.pick(leafGreens)));
   }
-  // racimos de flores moradas (los colores originales del árbol)
-  const back = ["#5B2E7E", "#6A3FB0", "#7B4FBF"];
-  const front = ["#7B4FBF", "#9A73D8", "#B79CEB", "#C9B6F2"];
-  const clusters = [];
-  for (let i = 0; i < conf.n; i += 1) {
-    const p = inDome();
-    clusters.push({ x: p.x * 0.92, y: p.y, r: rng.range(10, 16), layer: rng.float() });
-  }
-  clusters.sort((p, q) => p.layer - q.layer);
-  for (const c of clusters) {
-    g.append(el("circle", { cx: c.x.toFixed(1), cy: c.y.toFixed(1), r: c.r.toFixed(1), fill: c.layer < 0.4 ? rng.pick(back) : rng.pick(front) }));
-  }
-  // hojas delante, asomando entre las flores y por el borde
-  for (let i = 0; i < conf.n * 0.9; i += 1) {
+  // hojas delante, dando volumen y luz a la copa
+  for (let i = 0; i < conf.n * 1.8; i += 1) {
     const p = inDome();
     g.append(leaf(p.x * 0.96, p.y, rng.range(0.75, 1.05), rng.int(-70, 70), rng.pick(leafGreens.slice(2)), 0.95));
   }
-  // destellos: centros de flor
-  for (let i = 0; i < conf.n * 1.4; i += 1) {
-    const p = inDome();
-    g.append(el("circle", { cx: (p.x * 0.92).toFixed(1), cy: p.y.toFixed(1), r: rng.range(0.9, 1.8).toFixed(1), fill: rng.pick(["#F3ECFF", "#E8DDF7", "#F2C14E"]), opacity: 0.9 }));
-  }
-
   // el columpio, cuando el árbol ya es grande
   if (conf.swing) {
     g.append(
