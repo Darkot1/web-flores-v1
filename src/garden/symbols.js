@@ -234,39 +234,17 @@ const tree = (stage) => {
     const p = inDome();
     g.append(leaf(p.x, p.y, rng.range(0.9, 1.35), rng.int(-80, 80), rng.pick(leafGreens)));
   }
-  // racimos de flores: más pequeños y variados
-  const palettes = [
-    ["#5B2E7E", "#6A3FB0", "#7B4FBF"], // morados
-    ["#9A73D8", "#B79CEB", "#C9B6F2"], // lavandas
-    ["#C24D7A", "#E58FB0", "#F4C6D8"], // rosas
-    ["#8E6A9C", "#A989B8", "#D7C4E3"], // malvas
-    ["#FAF6FC", "#F3ECFF", "#FFFFFF"], // blancos
-    ["#F2C14E", "#F8D987"], // un toque dorado
-  ];
-  const weights = [30, 24, 16, 14, 11, 5];
-  const pickPalette = () => {
-    let r = rng.float() * 100;
-    for (let k = 0; k < palettes.length; k += 1) {
-      r -= weights[k];
-      if (r <= 0) return palettes[k];
-    }
-    return palettes[0];
-  };
+  // racimos de flores moradas (los colores originales del árbol)
+  const back = ["#5B2E7E", "#6A3FB0", "#7B4FBF"];
+  const front = ["#7B4FBF", "#9A73D8", "#B79CEB", "#C9B6F2"];
   const clusters = [];
-  for (let i = 0; i < conf.n * 1.7; i += 1) {
+  for (let i = 0; i < conf.n; i += 1) {
     const p = inDome();
-    clusters.push({ x: p.x * 0.94, y: p.y, r: rng.range(5.5, 10), layer: rng.float() });
+    clusters.push({ x: p.x * 0.92, y: p.y, r: rng.range(10, 16), layer: rng.float() });
   }
   clusters.sort((p, q) => p.layer - q.layer);
   for (const c of clusters) {
-    const pal = pickPalette();
-    // racimo = 3 o 4 círculos de tonos vecinos (se lee como flores apiñadas)
-    const n = rng.int(3, 4);
-    for (let k = 0; k < n; k += 1) {
-      const ox = rng.range(-c.r * 0.6, c.r * 0.6);
-      const oy = rng.range(-c.r * 0.5, c.r * 0.4);
-      g.append(el("circle", { cx: (c.x + ox).toFixed(1), cy: (c.y + oy).toFixed(1), r: (c.r * rng.range(0.5, 0.75)).toFixed(1), fill: pal[Math.min(pal.length - 1, Math.floor(rng.float() * pal.length))], opacity: c.layer < 0.35 ? 0.85 : 1 }));
-    }
+    g.append(el("circle", { cx: c.x.toFixed(1), cy: c.y.toFixed(1), r: c.r.toFixed(1), fill: c.layer < 0.4 ? rng.pick(back) : rng.pick(front) }));
   }
   // hojas delante, asomando entre las flores y por el borde
   for (let i = 0; i < conf.n * 0.9; i += 1) {
@@ -276,7 +254,7 @@ const tree = (stage) => {
   // destellos: centros de flor
   for (let i = 0; i < conf.n * 1.4; i += 1) {
     const p = inDome();
-    g.append(el("circle", { cx: (p.x * 0.92).toFixed(1), cy: p.y.toFixed(1), r: rng.range(0.9, 1.8).toFixed(1), fill: rng.pick(["#F3ECFF", "#FFF1BF", "#F2C14E", "#FFFFFF"]), opacity: 0.9 }));
+    g.append(el("circle", { cx: (p.x * 0.92).toFixed(1), cy: p.y.toFixed(1), r: rng.range(0.9, 1.8).toFixed(1), fill: rng.pick(["#F3ECFF", "#E8DDF7", "#F2C14E"]), opacity: 0.9 }));
   }
 
   // el columpio, cuando el árbol ya es grande
@@ -311,7 +289,12 @@ const cluster = () => {
     el("path", { d: "M-24 -6 C-26 -20 -12 -28 0 -22 C10 -30 26 -22 22 -8", fill: "#9DB59A", opacity: 0.8 }),
   );
   const heads = [[-22, -30, 0.42], [0, -44, 0.5], [20, -32, 0.44], [-6, -24, 0.38], [28, -14, 0.34], [-30, -12, 0.32]];
-  for (const [x, y, s] of heads) g.append(el("use", { href: "#d-head", transform: `translate(${x} ${y}) scale(${s})` }));
+  // Cada cabeza toma uno de tres colores (--c1, --c2, --c3): la mata se ve variada.
+  heads.forEach(([x, y, sc], i) => {
+    const k = (i % 3) + 1;
+    const vars = `--petal:var(--c${k}-petal,#7B4FBF);--petal-inner:var(--c${k}-inner,#9A73D8);--petal-edge:var(--c${k}-edge,#4E2C86);--center:var(--c${k}-center,#F2C14E);--center-dark:var(--c${k}-center-dark,#A8701C)`;
+    g.append(el("g", { style: vars }, [el("use", { href: "#d-head", transform: `translate(${x} ${y}) scale(${sc})` })]));
+  });
   return g;
 };
 

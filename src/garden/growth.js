@@ -197,10 +197,15 @@ export const seasonFor = (dateKey, climate = "tropical") => {
 /** Color de una margarita de recuerdo: protagonistas moradas. */
 export const flowerColorFor = (id) =>
   weightedPick(createRng(`${id}:color`), [
-    { value: "morada", weight: 68 },
-    { value: "lavanda", weight: 17 },
-    { value: "blanca", weight: 11 },
+    { value: "morada", weight: 34 },
+    { value: "lavanda", weight: 14 },
+    { value: "lila", weight: 12 },
+    { value: "rosa", weight: 10 },
+    { value: "blanca", weight: 10 },
+    { value: "malva", weight: 8 },
+    { value: "ciruela", weight: 6 },
     { value: "dorada", weight: 4 },
+    { value: "coral", weight: 2 },
   ]);
 
 export const petalCountFor = (id) => createRng(`${id}:petals`).pick([13, 16, 16, 21]);

@@ -18,6 +18,10 @@ export const PETAL_PALETTES = {
   blanca: { petal: "#FAF6FC", inner: "#FFFFFF", edge: "#B9A8D6", center: "#F2C14E", centerDark: "#A8701C", label: "Blanca" },
   dorada: { petal: "#F2C14E", inner: "#F8D987", edge: "#B98522", center: "#7B4FBF", centerDark: "#3E1F4F", label: "Dorada" },
   ciruela: { petal: "#5B2E7E", inner: "#7B4FBF", edge: "#2E1340", center: "#F2C14E", centerDark: "#A8701C", label: "Ciruela" },
+  rosa: { petal: "#E58FB0", inner: "#F4C6D8", edge: "#A9456E", center: "#F2C14E", centerDark: "#A8701C", label: "Rosa" },
+  malva: { petal: "#A989B8", inner: "#D7C4E3", edge: "#6E4F7E", center: "#F2C14E", centerDark: "#A8701C", label: "Malva" },
+  lila: { petal: "#9A73D8", inner: "#C9B6F2", edge: "#5E3FA0", center: "#FBEFC9", centerDark: "#C99227", label: "Lila" },
+  coral: { petal: "#F29E7E", inner: "#F8C8B4", edge: "#B5603F", center: "#7B4FBF", centerDark: "#3E1F4F", label: "Coral" },
 };
 
 export const GREENS = { stem: "#5F8259", leaf: "#86A77F", leafDark: "#5F8259", vein: "#C9DCC3", earth: "#8A6A4F" };

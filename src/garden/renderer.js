@@ -6,10 +6,10 @@
  * Accesibilidad: el jardín es un único tab stop (roving tabindex); las flechas
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
-import { ARCH_PALETTES, buildGardenModel, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
+import { ARCH_PALETTES, buildGardenModel, flowerColorFor, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
 import { canvasToGround, DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
-import { buildDaisy, el, growDaisy } from "../components/daisy.js";
+import { buildDaisy, el, growDaisy, PETAL_PALETTES } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
 import { prefersReducedMotion, watchVisibility } from "../lib/motion.js";
 import { createZoom } from "./zoom.js";
@@ -76,7 +76,20 @@ const itemContent = (item) => {
 };
 
 const itemStyle = (item) => {
-  if (item.kind === "memory" || item.kind === "cluster" || item.kind === "wild") return paletteVars(item.color ?? "morada");
+  if (item.kind === "cluster") {
+    // Tres colores de sus propios recuerdos (o variados por semilla).
+    const colors = [...new Set(item.members.map((m) => m.color))];
+    while (colors.length < 3) colors.push(flowerColorFor(`${item.id}-${colors.length}`));
+    return colors
+      .slice(0, 3)
+      .map((c, i) => {
+        const p = PETAL_PALETTES[c] ?? PETAL_PALETTES.morada;
+        const k = i + 1;
+        return `--c${k}-petal:${p.petal};--c${k}-inner:${p.inner};--c${k}-edge:${p.edge};--c${k}-center:${p.center};--c${k}-center-dark:${p.centerDark}`;
+      })
+      .join(";");
+  }
+  if (item.kind === "memory" || item.kind === "wild") return paletteVars(item.color ?? "morada");
   if (item.kind === "letter") return paletteVars(item.color, { "--ribbon": SEAL_RIBBON[item.sealColor] ?? "#C24D7A" });
   if (item.kind === "arch") {
     const [a, b, c] = ARCH_PALETTES[item.season] ?? ARCH_PALETTES.rain;

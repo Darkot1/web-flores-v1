@@ -45,7 +45,7 @@ export const pathOutline = (dims, steps = 40) => {
   return [...left, [last.x - last.halfWidth * 1.3, dims.height], [last.x + last.halfWidth * 1.3, dims.height], ...right.reverse()];
 };
 
-const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, tree: 1.2, bloom: 0.9, lamp: 0.95 };
+const KIND_SCALE = { memory: 0.82, letter: 1.4, wild: 0.6, cluster: 1.05, bench: 1, tree: 1.2, bloom: 0.9, lamp: 0.95 };
 /** Medio ancho de los símbolos de arco (unidades del sprite). */
 const ARCH_HALF = { arch: 60, grand: 72 };
 
