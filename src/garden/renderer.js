@@ -7,7 +7,7 @@
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
 import { ARCH_PALETTES, buildGardenModel, flowerColorFor, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
-import { canvasToGround, DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
+import { canvasToGround, DIMENSIONS, garlandAnchor, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy, PETAL_PALETTES } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
@@ -408,7 +408,9 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       frag.append(flies);
     }
     // Guirnaldas del cielo: una luz por cada mes juntos.
-    const garland = layoutGarland(model.lights, dims);
+    // Atadas a la copa del árbol del primer día: ningún farolillo queda detrás de él.
+    const treeItem = laid.find((i) => i.kind === "tree");
+    const garland = layoutGarland(model.lights, dims, garlandAnchor(dims, treeItem?.stage));
     if (garland.strands.length) {
       const sky = el("g", { class: "garden-garland" });
       for (const strand of garland.strands) {

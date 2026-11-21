@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildGardenModel } from "../src/garden/growth.js";
-import { canvasToGround, DIMENSIONS, groundToCanvas, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass, pondPlacement } from "../src/garden/layout.js";
+import { canvasToGround, DIMENSIONS, firstTreePlacement, garlandAnchor, groundToCanvas, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass, pondPlacement } from "../src/garden/layout.js";
 import { monthLights } from "../src/garden/growth.js";
 
 const memories = Array.from({ length: 60 }, (_, i) => ({
@@ -114,5 +114,22 @@ test("6 años: el camino no se cubre de arcos y las guirnaldas caben en el cielo
     const { strands, lights } = layoutGarland(model.lights, dims);
     assert.equal(strands.length, 6);
     for (const l of lights) assert.ok(l.y + l.drop + 20 < dims.horizon, `${l.id} se sale del cielo`);
+  }
+});
+
+test("ningún farolillo queda detrás de la copa del árbol del primer día", () => {
+  for (const stage of ["sapling", "young", "tree"]) {
+    for (const dims of Object.values(DIMENSIONS)) {
+      const g = garlandAnchor(dims, stage);
+      const tree = firstTreePlacement(dims, stage);
+      const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage];
+      const canopyRight = tree.x + 92 * tree.scale * grow;
+      const { lights } = layoutGarland(monthLights("2020-11-14", "2026-11-21"), dims, g);
+      assert.ok(g.anchor < canopyRight, "la cuerda nace dentro de la copa");
+      for (const l of lights) {
+        assert.ok(l.x - 6 > canopyRight, `${stage} ${l.id} x=${l.x} detrás de la copa (${canopyRight})`);
+        assert.ok(l.x < dims.width + 10);
+      }
+    }
   }
 });

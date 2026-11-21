@@ -246,15 +246,28 @@ export const layoutSignature = (laid) => laid.map((i) => `${i.id}@${i.x},${i.y},
  * Guirnaldas del cielo: una por año, 12 farolillos (uno por mes). La más
  * antigua arriba; cada año nuevo cuelga un poco más cerca del horizonte.
  */
-export const layoutGarland = (lights, dims) => {
+/**
+ * Las guirnaldas se atan dentro de la copa del árbol del primer día (anchor)
+ * y los farolillos empiezan pasado el borde de la copa (clear).
+ */
+export const garlandAnchor = (dims, stage) => {
+  if (!stage) return { anchor: -20, clear: -20 };
+  const tree = firstTreePlacement(dims, stage);
+  const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
+  const half = 92 * tree.scale * grow; // medio ancho de la copa del sakura
+  return { anchor: Math.round(tree.x + half * 0.55), clear: Math.round(tree.x + half + 12) };
+};
+
+export const layoutGarland = (lights, dims, { anchor: anchorX = -20, clear: clearX = anchorX } = {}) => {
   if (!lights.length) return { strands: [], lights: [] };
   const years = Math.max(...lights.map((l) => l.year));
   const sag = dims.width * 0.028;
   const top = dims.horizon * 0.1;
   const bottom = dims.horizon - sag - 40; // cuerda + cordel + farolillo caben sobre el horizonte
   const gap = years > 1 ? Math.min(30, (bottom - top) / (years - 1)) : 0;
-  const x0 = -20;
-  const span = dims.width + 40;
+  // Las guirnaldas salen de la copa del árbol (x0) y cruzan el cielo hasta el borde derecho.
+  const x0 = anchorX;
+  const span = dims.width + 20 - x0;
   const strands = Array.from({ length: years }, (_, i) => {
     const y0 = top + i * gap;
     // Las guirnaldas más antiguas quedan arriba, más pequeñas y tenues (más lejos).
@@ -266,12 +279,15 @@ export const layoutGarland = (lights, dims) => {
       size: Math.max(0.62, 1 - age * 0.08),
       // Cada año se corre media posición: los farolillos no forman columnas.
       shift: i % 2 === 0 ? 0 : 0.5,
-      d: `M${x0} ${y0.toFixed(1)} Q${(dims.width / 2).toFixed(1)} ${(y0 + 2 * sag).toFixed(1)} ${dims.width + 20} ${y0.toFixed(1)}`,
+      d: `M${x0} ${y0.toFixed(1)} Q${(x0 + span / 2).toFixed(1)} ${(y0 + 2 * sag).toFixed(1)} ${x0 + span} ${y0.toFixed(1)}`,
     };
   });
   const laid = lights.map((light) => {
     const strand = strands[light.year - 1];
-    const t = (light.slot - 1 + 0.25 + strand.shift * 0.5) / 12;
+    // Los 12 huecos se reparten entre el borde de la copa y el final de la cuerda.
+    const slotT = (light.slot - 1 + 0.25 + strand.shift * 0.5) / 12;
+    const start = Math.max(0, (clearX - x0) / span);
+    const t = start + slotT * (1 - start);
     const rng = createRng(light.id);
     const dropMax = Math.max(6, Math.min(14, gap * 0.55));
     return {
