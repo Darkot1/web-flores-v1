@@ -121,7 +121,9 @@ test("cartas e hitos marcados plantan elementos propios", () => {
     memories: [{ id: "a", date: "2025-02-14", title: "San Valentín", isMilestone: true }],
     letters: [{ id: "l1", date: "2025-03-01", title: "Carta", flower: { color: "lavanda", petals: 21 } }],
   });
-  assert.ok(model.items.find((i) => i.kind === "bench" && i.memoryId === "a"));
+  // El día especial no planta nada aparte: su propia margarita lleva el corazón de flores.
+  assert.ok(!model.items.some((i) => i.kind === "bench"));
+  assert.equal(model.items.find((i) => i.id === "a").isMilestone, true);
   const letter = model.items.find((i) => i.kind === "letter");
   assert.equal(letter.color, "lavanda");
   assert.equal(letter.stage, "full");

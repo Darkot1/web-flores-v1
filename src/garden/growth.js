@@ -300,10 +300,6 @@ export const buildGardenModel = ({
     ref: l,
   }));
 
-  const benches = memories
-    .filter((m) => m.isMilestone)
-    .map((m) => ({ id: `bench-${m.id}`, kind: "bench", date: m.date, title: m.title, memoryId: m.id, label: `Día especial: ${m.title}` }));
-
   const milestones = computeMilestones(start, today)
     .filter((ms) => ms.kind !== "lantern")
     .map((ms) => ({
@@ -321,7 +317,7 @@ export const buildGardenModel = ({
     return { id: `wild-${n}`, kind: "wild", date, stage: stageFor(date, today, thresholds), color: createRng(`wild-${n}`).pick(["lavanda", "blanca", "blanca", "dorada", "morada"]) };
   });
 
-  const items = [...milestones, ...benches, ...wild, ...flowers, ...letterItems]
+  const items = [...milestones, ...wild, ...flowers, ...letterItems]
     .map((item) => ({ ...item, t: tOf(item.date) }))
     .sort(byDate);
 

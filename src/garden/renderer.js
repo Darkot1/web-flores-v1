@@ -434,6 +434,24 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
         style: swaying.has(item.id) ? `animation-delay:${item.swayDelay}s;animation-duration:${item.swayDuration}s` : undefined,
       });
       const body = el("g", { transform: `scale(${item.scale}) rotate(${item.rotate})` }, [itemContent(item)]);
+      if (item.kind === "memory" && item.isMilestone) {
+        // Día especial: su margarita crece dentro de un corazón de florecitas.
+        g.classList.add("is-special");
+        const k = Math.max(0.55, item.scale);
+        g.append(el("ellipse", { class: "special-glow", cx: 0, cy: -62 * k, rx: 62 * k, ry: 62 * k, fill: "url(#lamp-glow)", opacity: variant === "night" ? 0.9 : 0.55 }));
+        // Corona de flores en forma de corazón, de pie, enmarcando la margarita.
+        const heart = el("g", { class: "special-heart", transform: `translate(0 ${(-66 * k).toFixed(1)}) scale(${k.toFixed(3)})` });
+        const N = 28;
+        for (let i = 0; i < N; i += 1) {
+          const t = (i / N) * Math.PI * 2;
+          const hx = 16 * Math.sin(t) ** 3;
+          const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+          const f = el("g", { transform: `translate(${(hx * 3.1).toFixed(1)} ${(hy * 3.1).toFixed(1)}) scale(0.24)`, style: paletteVars(i % 3 === 0 ? "dorada" : i % 3 === 1 ? "morada" : "lavanda") });
+          f.append(el("use", { href: symbolHref("d-head") }));
+          heart.append(f);
+        }
+        g.append(heart);
+      }
       if (item.kind === "tree") {
         // El árbol del primer día brilla un poco: es donde empezó todo.
         const grow = { sapling: 0.46, young: 0.74, tree: 1 }[item.stage] ?? 1;

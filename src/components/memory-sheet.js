@@ -76,7 +76,7 @@ export const createMemorySheet = ({ store, onPlanted }) => {
   const milestoneInput = document.createElement("input");
   milestoneInput.type = "checkbox";
   const milestoneText = h("span");
-  milestoneText.append(h("strong", "", "Es un día especial"), document.createElement("br"), h("small", "", "Crecerá una banca con lavanda junto al camino."));
+  milestoneText.append(h("strong", "", "Es un día especial"), document.createElement("br"), h("small", "", "Su margarita crecerá dentro de un corazón de flores y brillará de noche."));
   milestoneLabel.append(milestoneInput, milestoneText);
 
   const error = h("p", "form-error");

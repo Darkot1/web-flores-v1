@@ -161,7 +161,7 @@ export const createLetters = (root, { store, onCompose }) => {
       const li = h("li", "pergola__item");
       const rng = createRng(letter.id);
       li.style.setProperty("--swing", `${rng.range(-3, 3).toFixed(1)}deg`);
-      li.style.setProperty("--string", `${Math.round(rng.range(14, 40))}px`);
+      li.style.setProperty("--string", `${Math.round(rng.range(19, 45))}px`);
       const unread = !store.isRead(letter.id);
       const btn = h("button", `envelope${unread ? " is-unread" : ""}`);
       btn.type = "button";

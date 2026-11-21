@@ -45,7 +45,7 @@ Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`)
 - **Cada mes:** un farolillo colgado en la guirnalda del cielo, con una guirnalda de 12 luces por año. De noche se encienden.
 - **Cada 3 meses:** un gran arco de flores sobre el camino, con los colores de la temporada. En el aniversario es dorado.
 - **El estanque:** un pez por cada carta, del color de su flor, y un koi dorado por cada aniversario.
-- **Marcados a mano:** al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
+- **Días especiales:** al crear o editar un recuerdo, activa **"Es un día especial"**. Su margarita crece dentro de un corazón de flores doradas y moradas que brilla de noche, y el día se marca en dorado en el calendario.
 
 Los recuerdos y las flores silvestres se reparten por todo el prado, desde el camino hasta los bordes.
 
