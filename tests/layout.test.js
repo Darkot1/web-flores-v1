@@ -50,7 +50,7 @@ test("los arcos abrazan el camino: más anchos que él", () => {
   const model = buildGardenModel({ ...base, start: "2024-01-01" });
   const laid = layoutItems(model.items, DIMENSIONS.wide);
   const arches = laid.filter((i) => i.kind === "arch" || i.kind === "grand");
-  assert.ok(arches.length >= 20);
+  assert.ok(arches.length >= 12);
   const grand = arches.filter((a) => a.kind === "grand");
   const small = arches.filter((a) => a.kind === "arch");
   const avg = (l) => l.reduce((t, a) => t + (a.kind === "grand" ? 72 : 60) * a.scale / pathAt(a.depth, DIMENSIONS.wide).halfWidth, 0) / l.length;

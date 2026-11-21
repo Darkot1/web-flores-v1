@@ -58,21 +58,38 @@ const ARCH_HALF = { arch: 60, grand: 72 };
  * camino con más prado libre. Es un elemento fijo del jardín.
  */
 export const pondPlacement = (dims) => {
-  const d = 0.6;
+  const d = 0.34;
   const p = pathAt(d, dims);
-  const rx = dims.width * (dims.width < 800 ? 0.17 : 0.11);
-  const ry = rx * 0.34;
+  const rx = dims.width * (dims.width < 800 ? 0.13 : 0.085) * (0.55 + p.scale);
+  const ry = rx * 0.3;
   const roomRight = dims.width - (p.x + p.halfWidth);
   const roomLeft = p.x - p.halfWidth;
-  const side = roomRight >= roomLeft ? 1 : -1;
-  const gap = p.halfWidth + rx + 24 * p.scale;
-  const cx = clamp(p.x + side * Math.min(gap + 20, (side > 0 ? roomRight : roomLeft) * 0.55 + p.halfWidth), rx + 12, dims.width - rx - 12);
+  // Del lado contrario al árbol del primer día (que va a la izquierda del camino).
+  const side = roomRight > rx * 2.6 ? 1 : roomLeft > roomRight ? -1 : 1;
+  const cx = clamp(p.x + side * (p.halfWidth + rx + 70 * p.scale), rx + 14, dims.width - rx - 14);
   return { cx: Math.round(cx), cy: Math.round(p.y), rx: Math.round(rx), ry: Math.round(ry), depth: d, scale: p.scale };
+};
+
+/**
+ * El árbol del primer día: grande, a la cabecera del camino, visible desde
+ * todo el jardín. Crece con los años (retoño → joven → árbol).
+ */
+export const firstTreePlacement = (dims, stage = "tree") => {
+  const p = pathAt(0.06, dims);
+  // El símbolo ya crece por etapa (retoño 0.45 · joven 0.72 · árbol 1); aquí solo su tamaño de protagonista.
+  const scale = dims.width < 800 ? 1.0 : 1.15;
+  const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
+  const x = clamp(p.x - p.halfWidth - 78 * scale * 0.55, 60 * scale, dims.width - 60 * scale);
+  return { x: Math.round(x), y: Math.round(p.y + 6), scale: Math.round(scale * 100) / 100, radius: 30 + 60 * scale * grow };
 };
 
 export const layoutItems = (items, dims) => {
   const pond = pondPlacement(dims);
-  const inPond = (x, y) => ((x - pond.cx) / (pond.rx + 22)) ** 2 + ((y - pond.cy) / (pond.ry + 26)) ** 2 < 1;
+  const firstTree = firstTreePlacement(dims, items.find((i) => i.kind === "tree")?.stage);
+  const inPond = (x, y) =>
+    ((x - pond.cx) / (pond.rx + 22)) ** 2 + ((y - pond.cy) / (pond.ry + 26)) ** 2 < 1 ||
+    // alrededor del árbol del primer día no se planta nada: es su sitio
+    ((x - firstTree.x) / firstTree.radius) ** 2 + ((y - firstTree.y) / (firstTree.radius * 0.45)) ** 2 < 1;
   const cell = 30;
   const occupied = new Map();
   const keyOf = (x, y) => `${Math.round(x / cell)}:${Math.round(y / (cell * 0.6))}`;
@@ -100,7 +117,7 @@ export const layoutItems = (items, dims) => {
         x = p.x;
       } else if (item.kind === "tree") {
         side = -1;
-        x = p.x - p.halfWidth - 34 * p.scale;
+        x = firstTree.x;
       } else if (item.kind === "bench") {
         x = p.x + side * (p.halfWidth + 26 * p.scale);
       } else if (item.kind === "lamp") {
@@ -142,11 +159,13 @@ export const layoutItems = (items, dims) => {
       return {
         ...item,
         x: Math.round(x * 10) / 10,
-        y: Math.round(p.y * 10) / 10,
+        y: item.kind === "tree" ? firstTree.y : Math.round(p.y * 10) / 10,
         depth: d,
         side,
         // Los arcos abrazan el camino; el gran arco (cada 3 meses) es mucho mayor.
-        scale: isArch
+        scale: item.kind === "tree"
+          ? firstTree.scale
+          : isArch
           ? Math.round(Math.min(item.kind === "grand" ? 2.05 : 1.75, (p.halfWidth * (item.kind === "grand" ? 1.38 : 1.04) + (item.kind === "grand" ? 12 : 6)) / ARCH_HALF[item.kind]) * 1000) / 1000
           : Math.round(p.scale * (KIND_SCALE[item.kind] ?? 1) * (isStatic ? 1 : rng.range(0.86, 1.14)) * 1000) / 1000,
         rotate: isStatic ? 0 : Math.round(rng.range(-8, 8) * 10) / 10,

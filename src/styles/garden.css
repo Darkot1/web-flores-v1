@@ -375,6 +375,8 @@
 }
 
 .timeline__item--bloom .timeline__kicker,
+.timeline__item--lamp .timeline__kicker,
+.timeline__item--lantern .timeline__kicker,
 .timeline__item--grand .timeline__kicker,
 .timeline__item--arch .timeline__kicker,
 .timeline__item--tree .timeline__kicker {

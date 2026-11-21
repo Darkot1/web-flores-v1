@@ -434,6 +434,16 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
         style: swaying.has(item.id) ? `animation-delay:${item.swayDelay}s;animation-duration:${item.swayDuration}s` : undefined,
       });
       const body = el("g", { transform: `scale(${item.scale}) rotate(${item.rotate})` }, [itemContent(item)]);
+      if (item.kind === "tree") {
+        // El árbol del primer día brilla un poco: es donde empezó todo.
+        g.append(el("ellipse", { class: "first-tree-glow", cx: 0, cy: -70 * item.scale, rx: 95 * item.scale, ry: 85 * item.scale, fill: "url(#lamp-glow)", opacity: variant === "night" ? 0.9 : 0.55 }));
+        for (let k = 0; k < 9; k += 1) {
+          const a = (k / 9) * Math.PI * 2;
+          const ring = el("g", { transform: `translate(${(Math.cos(a) * 34 * item.scale).toFixed(1)} ${(Math.sin(a) * 7 * item.scale + 2).toFixed(1)}) scale(${(0.32 * item.scale).toFixed(2)})`, style: paletteVars(k % 3 ? "morada" : "lavanda") });
+          ring.append(el("use", { href: symbolHref("d-full-13") }));
+          g.append(ring);
+        }
+      }
       sway.append(body);
       g.append(sway);
       if (interactive) {

@@ -73,19 +73,27 @@ const monthLabel = (n) => {
 };
 
 /**
- * Plan de cada mes juntos (determinista: depende de la fecha de inicio y del mes):
- *   - una luz: farol de poste junto al camino ("lamp") o farolillo en la guirnalda ("lantern")
- *   - una estructura: arco de flores ("arch") o árbol en flor ("bloom")
- *   - cada 3 meses la estructura es un gran arco ("grand"); en el aniversario, dorado
+ * Plan de cada mes juntos (determinista: depende de la fecha de inicio y del mes).
+ * Cada mes crece UNA sola cosa. En cada trimestre:
+ *   - un mes: un farol junto al camino ("lamp") o un farolillo en la guirnalda ("lantern")
+ *   - otro mes: un arco de flores ("arch") o un árbol en flor ("bloom"), alternando por trimestre
+ *   - el tercer mes: un gran arco ("grand"); en el aniversario, dorado
+ * Al año: 4 faroles, 2 arcos, 2 árboles y 4 grandes arcos.
  */
 export const monthPlan = (start, n) => {
-  const rng = createRng(`${start}#mes-${n}`);
-  const light = rng.chance(0.5) ? "lamp" : "lantern";
-  const structure = n % 3 === 0 ? "grand" : rng.chance(0.45) ? "arch" : "bloom";
-  return { light, structure, anniversary: n % 12 === 0 };
+  const anniversary = n % 12 === 0;
+  if (n % 3 === 0) return { kind: "grand", anniversary };
+  // Equilibrado por trimestre: un farol y (alternando) un arco o un árbol.
+  const q = Math.floor((n - 1) / 3);
+  const rngQ = createRng(`${start}#trimestre-${q}`);
+  const farolFirst = rngQ.chance(0.5);
+  const offset = createRng(`${start}#jardin`).int(0, 1);
+  const isFarol = ((n - 1) % 3 === 0) === farolFirst;
+  if (isFarol) return { kind: createRng(`${start}#mes-${n}`).chance(0.5) ? "lamp" : "lantern", anniversary };
+  return { kind: (q + offset) % 2 === 0 ? "arch" : "bloom", anniversary };
 };
 
-/** Cada mesiversario hasta hoy. */
+/** Cada mesiversario hasta hoy, con lo que creció ese mes. */
 export const monthiversaries = (start, today, { maxMonths = 600 } = {}) => {
   if (!start || daysBetween(start, today) < 0) return [];
   const anchorDay = Number(start.slice(8, 10));
@@ -93,41 +101,32 @@ export const monthiversaries = (start, today, { maxMonths = 600 } = {}) => {
   for (let n = 1; n <= maxMonths; n += 1) {
     const date = addMonthsClamped(start, n, anchorDay);
     if (daysBetween(date, today) < 0) break;
-    list.push({ n, date, label: monthLabel(n), ...monthPlan(start, n) });
+    list.push({ n, date, label: monthLabel(n), year: Math.ceil(n / 12), slot: ((n - 1) % 12) + 1, ...monthPlan(start, n) });
   }
   return list;
 };
 
-/** Hitos del calendario y de la línea de tiempo: uno por fecha (kind = su estructura). */
+/** Hitos del calendario y de la línea de tiempo: uno por fecha. */
 export const computeMilestones = (start, today, options) => {
   if (!start || daysBetween(start, today) < 0) return [];
   return [
     { id: "ms-start", kind: "tree", date: start, label: "Aquí empezó todo", n: 0 },
-    ...monthiversaries(start, today, options).map((m) => ({ id: `ms-${m.n}`, kind: m.structure, ...m })),
+    ...monthiversaries(start, today, options).map((m) => ({ id: `ms-${m.n}`, ...m })),
   ];
 };
 
-/** Las luces de cada mes (farol o farolillo). Los farolillos cuelgan en una guirnalda por año. */
+/** Los farolillos de la guirnalda (solo los meses que tocó farolillo). */
 export const monthLights = (start, today, climate = "tropical") =>
-  monthiversaries(start, today).map(({ n, date, label, light }) => ({
-    id: `${light}-${n}`,
-    kind: light,
-    n,
-    date,
-    label,
-    year: Math.ceil(n / 12),
-    slot: ((n - 1) % 12) + 1,
-    season: seasonFor(date, climate).id,
-  }));
+  monthiversaries(start, today)
+    .filter((m) => m.kind === "lantern")
+    .map((m) => ({ ...m, id: `ms-${m.n}`, season: seasonFor(m.date, climate).id }));
 
-const STRUCTURE_TEXT = {
+const GROWS_TEXT = {
+  lamp: "se enciende un farol junto al camino",
+  lantern: "se cuelga una luz en la guirnalda",
   arch: "crece un arco de flores",
   bloom: "florece un árbol nuevo",
   grand: "crece un gran arco",
-};
-const LIGHT_TEXT = {
-  lamp: "se enciende un farol junto al camino",
-  lantern: "se cuelga una luz en la guirnalda",
 };
 
 /** El próximo hito: para un "faltan X días" discreto. */
@@ -141,8 +140,8 @@ export const nextMilestone = (start, today) => {
     if (inDays > 0) {
       const plan = monthPlan(start, n);
       const label = monthLabel(n);
-      const structure = plan.anniversary ? "crece el gran arco dorado del aniversario" : STRUCTURE_TEXT[plan.structure];
-      return { date, n, kind: plan.structure, ...plan, inDays, label, text: `${structure} y ${LIGHT_TEXT[plan.light]}: ${label}` };
+      const grows = plan.anniversary ? "crece el gran arco dorado del aniversario" : GROWS_TEXT[plan.kind];
+      return { date, n, ...plan, inDays, label, text: `${grows}: ${label}` };
     }
   }
   return null;
@@ -324,15 +323,15 @@ export const buildGardenModel = ({
     .filter((m) => m.isMilestone)
     .map((m) => ({ id: `bench-${m.id}`, kind: "bench", date: m.date, title: m.title, memoryId: m.id, label: `Día especial: ${m.title}` }));
 
-  const milestones = computeMilestones(start, today).map((ms) => ({
-    ...ms,
-    title: ms.label,
-    stage: ms.kind === "tree" ? treeStage(ageDays) : undefined,
-    season: seasonFor(ms.date, climate).id,
-  }));
-  const allLights = start ? monthLights(start, today, climate) : [];
-  const lamps = allLights.filter((l) => l.kind === "lamp").map((l) => ({ ...l, title: l.label }));
-  const lights = allLights.filter((l) => l.kind === "lantern");
+  const milestones = computeMilestones(start, today)
+    .filter((ms) => ms.kind !== "lantern")
+    .map((ms) => ({
+      ...ms,
+      title: ms.label,
+      stage: ms.kind === "tree" ? treeStage(ageDays) : undefined,
+      season: seasonFor(ms.date, climate).id,
+    }));
+  const lights = start ? monthLights(start, today, climate) : [];
   const fish = start ? pondFish({ letters, start, today }) : pondFish({ letters, start: null, today });
 
   const wildCount = start ? wildflowerCount(ageDays, caps.wild) : 0;
@@ -341,7 +340,7 @@ export const buildGardenModel = ({
     return { id: `wild-${n}`, kind: "wild", date, stage: stageFor(date, today, thresholds), color: createRng(`wild-${n}`).pick(["lavanda", "blanca", "blanca", "dorada", "morada"]) };
   });
 
-  const items = [...milestones, ...lamps, ...benches, ...wild, ...flowers, ...letterItems]
+  const items = [...milestones, ...benches, ...wild, ...flowers, ...letterItems]
     .map((item) => ({ ...item, t: tOf(item.date) }))
     .sort(byDate);
 

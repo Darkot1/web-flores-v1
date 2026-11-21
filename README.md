@@ -41,12 +41,12 @@ Todo lo editable está en `src/config.js`:
 Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`).
 
 **Hitos** (salen solos de la fecha de inicio):
-- **El primer día:** el arbolito al principio del camino, que crece con los años.
-- **Cada mes:**
-  - Una luz: un farol junto al camino o un farolillo de papel en la guirnalda del cielo (una guirnalda por año). De noche se encienden.
-  - Una estructura: un arco de flores sobre el camino o un árbol en flor a su orilla, con los colores de la temporada.
-  - Lo que toca cada mes sale de una semilla, así que el jardín es siempre el mismo.
-- **Cada 3 meses:** un gran arco, mucho más grande. En cada aniversario es dorado.
+- **El primer día:** el árbol del primer día preside la cabecera del camino. Es el más grande del jardín y crece con los años (retoño, joven, árbol).
+- **Cada mes crece una sola cosa.** En cada trimestre:
+  - un mes, un farol: de poste junto al camino o farolillo en la guirnalda del cielo;
+  - otro mes, un arco de flores o un árbol en flor (alternan de un trimestre al siguiente);
+  - el tercer mes, un gran arco, mucho más grande; en el aniversario es dorado.
+  - Al año salen 4 faroles, 2 arcos, 2 árboles y 4 grandes arcos. El orden sale de una semilla, así que el jardín es siempre el mismo.
 - **El estanque:** un pez por cada carta, del color de su flor, y un koi dorado por cada aniversario.
 - **Marcados a mano:** al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
 
