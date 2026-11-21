@@ -32,7 +32,7 @@ export const createSettings = ({ store }) => {
   const ellaInput = Object.assign(h("input", "field__input"), { type: "text", maxLength: 40, autocomplete: "off" });
   const clearStart = Object.assign(h("button", "btn btn--quiet", "Aún no empieza"), { type: "button" });
   const startRow = h("div", "settings__start");
-  startRow.append(field("El día en que todo empezó", startInput, "Con ella se cuentan los días juntos, los faroles y los aniversarios."), clearStart);
+  startRow.append(field("El día en que todo empezó", startInput, "Con esta fecha se cuentan los días juntos."), clearStart);
 
   const names = h("fieldset", "settings__names");
   names.append(h("legend", "", "Cómo os llamáis en el jardín"), field("Él", elInput), field("Ella", ellaInput));
@@ -55,7 +55,7 @@ export const createSettings = ({ store }) => {
     modeBox.replaceChildren(heading, text);
     if (store.mode === "shared") {
       heading.textContent = "Jardín compartido";
-      text.textContent = "Lo que planta uno lo ve el otro en su dispositivo. Este navegador recuerda vuestro código.";
+      text.textContent = "Lo que guarda uno lo ve el otro.";
       const forget = Object.assign(h("button", "btn btn--ghost", "Olvidar el código en este dispositivo"), { type: "button" });
       forget.addEventListener("click", () => {
         rememberGardenCode(null);
@@ -64,7 +64,7 @@ export const createSettings = ({ store }) => {
       modeBox.append(forget);
     } else {
       heading.textContent = "Guardado en este dispositivo";
-      text.textContent = "Lo que plantas vive solo en este navegador. Guarda una copia de vez en cuando.";
+      text.textContent = "Se guarda solo en este dispositivo.";
       const row = h("div", "settings__io");
       const exportBtn = Object.assign(h("button", "btn btn--ghost", "Descargar copia"), { type: "button" });
       const importLabel = h("label", "btn btn--ghost settings__import");

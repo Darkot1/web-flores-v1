@@ -219,7 +219,7 @@ const boot = async () => {
   const clockNode = $("[data-garden-clock]");
   const renderClock = () => {
     clockNode.textContent =
-      phaseAt(new Date(), config.gardenClock) === "night" ? "Ahora es de noche: los faroles están encendidos." : "Ahora es de día; al anochecer se encienden los faroles.";
+      phaseAt(new Date(), config.gardenClock) === "night" ? "Es de noche." : "Es de día.";
   };
   renderClock();
   setInterval(renderClock, 60_000);

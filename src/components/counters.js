@@ -32,7 +32,7 @@ export const renderHeroCounter = (node, store, { onChooseStart, notStartedText }
   number.className = "hero__days";
   number.textContent = formatNumber(days);
   const label = document.createElement("span");
-  label.textContent = days === 1 ? " día cultivando este jardín" : " días cultivando este jardín";
+  label.textContent = days === 1 ? " día juntos" : " días juntos";
   const since = document.createElement("small");
   since.className = "hero__since";
   since.textContent = `Desde el ${formatLong(start)} · ${formatDuration(start, today)}`;
@@ -45,8 +45,8 @@ export const renderGardenCounters = (node, store) => {
   const memories = store.memories().length;
   const letters = store.letters().length;
   const parts = [];
-  if (start && start <= today) parts.push([gardenAgeDays(start, today), "día cultivando", "días cultivando"]);
-  parts.push([memories, "recuerdo sembrado", "recuerdos sembrados"], [letters, "carta", "cartas"]);
+  if (start && start <= today) parts.push([gardenAgeDays(start, today), "día juntos", "días juntos"]);
+  parts.push([memories, "recuerdo", "recuerdos"], [letters, "carta", "cartas"]);
 
   const list = document.createElement("ul");
   list.className = "soul-counters__list";
@@ -64,7 +64,7 @@ export const renderGardenCounters = (node, store) => {
   if (next && start <= today) {
     const p = document.createElement("p");
     p.className = "soul-counters__next";
-    p.textContent = `En ${plural(next.inDays, "día", "días")} ${next.text}.`;
+    p.textContent = `Faltan ${plural(next.inDays, "día", "días")} para ${next.text}.`;
     node.append(p);
   }
 };

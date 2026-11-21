@@ -42,7 +42,7 @@ export const createLetterComposer = ({ store, onSent }) => {
   const dialog = createDialog({ className: "composer", labelledBy: "composer-title" });
   const title = h("h2", "composer__title", "Escribir una carta");
   title.id = "composer-title";
-  const intro = h("p", "composer__lead", "Lo que escribas se guardará en la pérgola, y su flor crecerá en el jardín.");
+  const intro = h("p", "composer__lead", "Su flor crecerá en el jardín.");
 
   const form = h("form", "composer__form");
   form.noValidate = true;

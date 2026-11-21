@@ -106,8 +106,8 @@ export const monthLights = (start, today, climate = "tropical") =>
   monthiversaries(start, today).map((m) => ({ ...m, kind: "lantern", id: `light-${m.n}`, season: seasonFor(m.date, climate).id }));
 
 const GROWS_TEXT = {
-  lantern: "se cuelga un farolillo más en la guirnalda",
-  grand: "se cuelga un farolillo y crece un gran arco de flores",
+  lantern: "el próximo farolillo",
+  grand: "el próximo arco",
 };
 
 /** El próximo hito: para un "faltan X días" discreto. */
@@ -121,8 +121,8 @@ export const nextMilestone = (start, today) => {
     if (inDays > 0) {
       const plan = monthPlan(start, n);
       const label = monthLabel(n);
-      const grows = plan.anniversary ? "se cuelga un farolillo y crece el gran arco dorado del aniversario" : GROWS_TEXT[plan.kind];
-      return { date, n, ...plan, inDays, label, text: `${grows}: ${label}` };
+      const grows = plan.anniversary ? "el arco dorado" : GROWS_TEXT[plan.kind];
+      return { date, n, ...plan, inDays, label, text: grows };
     }
   }
   return null;
@@ -177,10 +177,10 @@ const NORTH = {
 const SOUTH_SHIFT = { winter: "summer", summer: "winter", spring: "autumn", autumn: "spring" };
 
 export const SEASONS = {
-  dry: { label: "Temporada seca", tint: "#f4d9a2", light: 0.12 },
-  veranillo: { label: "Veranillo", tint: "#f6cf8f", light: 0.14 },
-  "rains-start": { label: "Llegan las lluvias", tint: "#d6dcc0", light: 0.05 },
-  rain: { label: "Temporada de lluvias", tint: "#b9d2c4", light: -0.04 },
+  dry: { label: "Verano", tint: "#f4d9a2", light: 0.12 },
+  veranillo: { label: "Verano", tint: "#f6cf8f", light: 0.14 },
+  "rains-start": { label: "Lluvias", tint: "#d6dcc0", light: 0.05 },
+  rain: { label: "Lluvias", tint: "#b9d2c4", light: -0.04 },
   winter: { label: "Invierno", tint: "#d4dcef", light: -0.06 },
   spring: { label: "Primavera", tint: "#e7d8f2", light: 0.06 },
   summer: { label: "Verano", tint: "#f6d79a", light: 0.14 },

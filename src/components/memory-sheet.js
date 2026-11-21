@@ -49,7 +49,7 @@ export const createMemorySheet = ({ store, onPlanted, onClosed }) => {
   dateField.append(h("span", "field__label", "Fecha"));
   const dateInput = Object.assign(h("input", "field__input"), { type: "date", required: true });
   dateField.append(dateInput);
-  const spotNote = h("p", "sheet__spot-note", "Se sembrará justo en el lugar que tocaste del jardín.");
+  const spotNote = h("p", "sheet__spot-note", "Se plantará donde tocaste.");
   spotNote.hidden = true;
   let pendingSpot = null;
 
@@ -85,7 +85,7 @@ export const createMemorySheet = ({ store, onPlanted, onClosed }) => {
   const milestoneInput = document.createElement("input");
   milestoneInput.type = "checkbox";
   const milestoneText = h("span");
-  milestoneText.append(h("strong", "", "Es un día especial"), document.createElement("br"), h("small", "", "Su margarita crecerá dentro de un corazón de flores y brillará de noche."));
+  milestoneText.append(h("strong", "", "Es un día especial"), document.createElement("br"), h("small", "", "Su flor tendrá un corazón."));
   milestoneLabel.append(milestoneInput, milestoneText);
 
   const error = h("p", "form-error");
@@ -213,7 +213,7 @@ export const createMemorySheet = ({ store, onPlanted, onClosed }) => {
     }
     list.hidden = !memories.length;
     emptyText.hidden = memories.length > 0;
-    emptyText.textContent = date > store.today() ? "Este día aún no llega. Lo que siembres será una semilla esperando." : "Aún no hay nada sembrado este día.";
+    emptyText.textContent = date > store.today() ? "Este día aún no llega." : "Aún no hay recuerdos este día.";
     addButton.hidden = formVisible || !memories.length;
   };
 
@@ -224,8 +224,7 @@ export const createMemorySheet = ({ store, onPlanted, onClosed }) => {
     title.textContent = formatWeekday(dateKey);
     const season = seasonFor(dateKey, config.climate);
     const stage = stageFor(dateKey, store.today(), config.growth);
-    const grows = { seed: "una semilla", sprout: "un brote", bud: "un capullo", open: "una flor abierta", full: "una flor plena" }[stage];
-    meta.textContent = `${season.label} · aquí crece ${grows}`;
+    meta.textContent = season.label;
     setAuthorLabels();
     renderList();
     const editing = editId ? store.memoriesOn(dateKey).find((m) => m.id === editId) : null;

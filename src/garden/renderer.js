@@ -322,8 +322,8 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     const actions = document.createElement("div");
     actions.className = "garden-empty__actions";
     if (!hasContent) {
-      title.textContent = "Aquí va a crecer nuestro primer recuerdo";
-      body.textContent = "La tierra ya está lista. Planta un recuerdo y mira cómo brota.";
+      title.textContent = "Planta el primer recuerdo";
+      body.textContent = "Toca un día o la tierra del jardín.";
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn btn--primary";
@@ -331,8 +331,8 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       btn.addEventListener("click", () => onPlantFirst?.());
       actions.append(btn);
     } else {
-      title.textContent = "El jardín aún no tiene su primer día";
-      body.textContent = "Elige la fecha en que todo empezó y el tiempo hará crecer el pasto, el arbolito y los faroles.";
+      title.textContent = "¿Cuándo empezó todo?";
+      body.textContent = "Elige la fecha en Ajustes.";
     }
     if (!hasStart) {
       const btn = document.createElement("button");

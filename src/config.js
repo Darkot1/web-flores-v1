@@ -24,18 +24,18 @@ export const config = {
   intro: {
     eyebrow: "Un jardín para",
     phrase: "Todo empezó como una semilla.",
-    body: "Cada día juntos, cada recuerdo y cada carta lo hacen crecer. Mira cómo florece.",
-    notStarted: "Nuestro jardín aún no empieza… pero la semilla ya está aquí.",
+    body: "Cada día juntos lo hace crecer.",
+    notStarted: "Nuestro jardín aún no empieza.",
   },
 
   memories: {
     title: "La tierra donde plantamos lo vivido",
-    body: "Toca un día para sembrar un recuerdo. Cada uno se vuelve una margarita que madura con el tiempo.",
+    body: "Cada recuerdo es una flor.",
   },
 
   letters: {
     title: "Las flores que nos regalamos",
-    body: "Cartas que cuelgan de la pérgola. Cada una florece también en el jardín.",
+    body: "Cartas que nos escribimos.",
   },
 
   closing: {

@@ -33,7 +33,7 @@ Todo lo editable está en `src/config.js`:
 | Fecha de inicio | `config.relationshipStart` (`"YYYY-MM-DD"` o `null`). También se puede elegir desde la app en **Ajustes del jardín**, y eso tiene prioridad. Con `null` la web muestra "aún no empieza". |
 | Nombres de él y ella | `config.authors` (por defecto "Él"/"Ella"). Se cambian desde la app en **Ajustes del jardín**. |
 | Frases | `config.intro`, `config.memories`, `config.letters`, `config.closing`, `config.signature` |
-| Clima | `config.climate`: `"tropical"` (Colombia: temporadas secas y de lluvias), `"north"` o `"south"` |
+| Clima | `config.climate`: `"tropical"` (Colombia: verano y lluvias), `"north"` o `"south"` |
 | Maduración | `config.growth` (días para brote → capullo → flor abierta → flor plena) |
 | Música | `config.music.src`: `null` usa la nana del jardín; para vuestra canción copia el archivo a `public/musica/` y pon `"/musica/nombre.mp3"` |
 
