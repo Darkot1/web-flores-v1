@@ -369,8 +369,20 @@ html.has-modal {
   gap: var(--space-6);
 }
 
-.composer__body {
-  min-height: 12rem;
+textarea.composer__body {
+  min-height: 3.6rem;
+  resize: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.composer__body::-webkit-scrollbar {
+  display: none;
+}
+
+.composer__rain-try {
+  align-self: center;
+  min-height: var(--tap);
 }
 
 .composer__preview {

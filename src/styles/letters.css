@@ -180,11 +180,24 @@
 }
 
 /* La flor de cada carta asoma detrás de su sobre: es la que crece en el jardín. */
+.envelope__art {
+  position: relative;
+  display: block;
+  width: 150px;
+  height: 100px;
+  transition: transform var(--dur-base) var(--ease-organic);
+}
+
+.envelope:hover .envelope__art,
+.envelope:focus-visible .envelope__art {
+  transform: translateY(-4px) rotate(-1deg);
+}
+
 .envelope__flower {
   position: absolute;
   top: -36px;
   right: 8px;
-  z-index: -1;
+  z-index: 0;
   width: 40px;
   height: auto;
   transform: rotate(14deg);
@@ -197,7 +210,7 @@
   top: -9px;
   left: 14px;
   right: 34px;
-  z-index: -1;
+  z-index: 0;
   height: 24px;
   border-radius: 3px 3px 0 0;
   background: #fffdf6;
@@ -267,9 +280,8 @@
   filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.3));
 }
 
-.envelope:hover .envelope__body,
-.envelope:focus-visible .envelope__body {
-  transform: translateY(-4px) rotate(-1deg);
+.envelope__art .envelope__body {
+  z-index: 1;
 }
 
 .envelope.is-unread .envelope__body {
@@ -415,6 +427,10 @@
   font-family: var(--font-display);
   font-size: var(--step-1);
   color: var(--plum);
+}
+
+.letter-paper__body p {
+  white-space: pre-line; /* respeta los saltos de línea de quien escribe */
 }
 
 .letter-paper__body {

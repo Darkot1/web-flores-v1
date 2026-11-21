@@ -71,11 +71,22 @@ export const buildLetterPaper = (letter, authors, { preview = false } = {}) => {
   return { paper, headingId };
 };
 
-const petalRain = (host, seed) => {
+/** Pétalos que caen al abrir una carta: se eligen al escribirla. */
+export const RAIN_STYLES = {
+  morados: { label: "Morados", colors: ["#7B4FBF", "#9A73D8", "#5B2E7E"] },
+  lavanda: { label: "Lavanda", colors: ["#C9B6F2", "#B79CEB", "#E8DDF7"] },
+  dorados: { label: "Dorados", colors: ["#F2C14E", "#F8D987", "#E8A25C"] },
+  blancos: { label: "Blancos", colors: ["#FFFFFF", "#FAF6FC", "#F3ECFF"] },
+  mezcla: { label: "Mezcla", colors: ["#7B4FBF", "#C9B6F2", "#F2C14E", "#FAF6FC", "#F4C6D8"] },
+  ninguno: { label: "Sin pétalos", colors: [] },
+};
+
+export const petalRain = (host, seed, style = "mezcla", { delay = 900 } = {}) => {
   if (prefersReducedMotion()) return;
+  const colors = (RAIN_STYLES[style] ?? RAIN_STYLES.mezcla).colors;
+  if (!colors.length) return;
   const rng = createRng(seed);
-  const colors = [PETAL_PALETTES.morada.petal, PETAL_PALETTES.lavanda.petal, PETAL_PALETTES.blanca.petal, PETAL_PALETTES.morada.inner];
-  for (let i = 0; i < 14; i += 1) {
+  for (let i = 0; i < 16; i += 1) {
     const petal = h("span", "falling-petal");
     petal.style.left = `${rng.range(4, 96)}%`;
     petal.style.background = rng.pick(colors);
@@ -88,7 +99,7 @@ const petalRain = (host, seed) => {
         { opacity: 1, offset: 0.1 },
         { transform: `translate(${drift}px, 95vh) rotate(${spin}deg)`, opacity: 0 },
       ],
-      { duration: rng.range(3200, 5200), delay: 900 + rng.range(0, 1400), easing: "cubic-bezier(.3,.1,.6,1)", fill: "both" },
+      { duration: rng.range(3200, 5200), delay: delay + rng.range(0, 1400), easing: "cubic-bezier(.3,.1,.6,1)", fill: "both" },
     );
     anim.finished.then(() => petal.remove()).catch(() => {});
   }
@@ -156,15 +167,19 @@ export const createLetters = (root, { store, onCompose }) => {
       btn.type = "button";
       btn.dataset.letterId = letter.id;
       btn.setAttribute("aria-label", `${letter.title}, ${authors[letter.from] ?? ""} · ${formatShort(letter.date)}${unread ? ", sin leer" : ", leída"} (carta)`);
+      // Flor + papel + sobre en un mismo envoltorio con capas fijas: al pasar el
+      // ratón se mueve el envoltorio entero y la flor sigue detrás del sobre.
+      const art = h("span", "envelope__art");
       const body = h("span", "envelope__body");
       // La flor de la carta asoma detrás del sobre: es la misma que crece en el jardín.
       const flower = createDaisy({ size: 40, stage: "full", color: letter.flower?.color ?? "morada", petals: letter.flower?.petals ?? 21, seed: letter.id, className: "envelope__flower" });
-      body.append(flower, h("span", "envelope__paper"), h("span", "envelope__flap"), createSeal(letter.sealColor, 34));
+      body.append(h("span", "envelope__flap"), createSeal(letter.sealColor, 34));
       body.querySelector(".seal").classList.add("envelope__seal");
+      art.append(flower, h("span", "envelope__paper"), body);
       const label = h("span", "envelope__label");
       label.append(h("span", "envelope__title", letter.title), h("span", "envelope__meta", `${authors[letter.from] ?? ""} · ${formatShort(letter.date)}`));
       if (unread) label.append(h("span", "envelope__unread", "Sin leer"));
-      btn.append(h("span", "envelope__string", ""), body, label);
+      btn.append(h("span", "envelope__string", ""), art, label);
       btn.addEventListener("click", () => openLetter(letter, btn));
       li.append(btn);
       li.style.setProperty("--i", index);
@@ -258,7 +273,7 @@ export const createLetters = (root, { store, onCompose }) => {
       ],
       { duration: 900, delay: 850, fill: "backwards", easing: "cubic-bezier(.22,.8,.3,1)" },
     );
-    petalRain(rain, letter.id);
+    petalRain(rain, letter.id, letter.flower?.rain ?? "mezcla");
     setTimeout(() => envelope.remove(), 1700);
   };
 

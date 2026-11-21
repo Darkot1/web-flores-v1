@@ -3,7 +3,7 @@
  * elección de flor (color y pétalos) y lacre. Al enviarla, su flor se planta.
  */
 import { createDialog } from "./modal.js";
-import { buildLetterPaper, createSeal, SEAL_COLORS } from "./letters.js";
+import { buildLetterPaper, createSeal, petalRain, RAIN_STYLES, SEAL_COLORS } from "./letters.js";
 import { PETAL_PALETTES } from "./daisy.js";
 import { todayKey } from "../lib/dates.js";
 import { config } from "../config.js";
@@ -22,7 +22,7 @@ const radioGroup = (legend, name, options, checked) => {
   for (const opt of options) {
     const label = h("label", "choice");
     const input = document.createElement("input");
-    Object.assign(input, { type: "radio", name, value: opt.value, checked: opt.value === checked });
+    Object.assign(input, { type: "radio", name, value: opt.value, checked: opt.value === checked, defaultChecked: opt.value === checked });
     const span = h("span");
     if (opt.swatch) {
       const sw = h("i", "swatch");
@@ -55,7 +55,7 @@ export const createLetterComposer = ({ store, onSent }) => {
   };
   const titleInput = Object.assign(h("input", "field__input"), { type: "text", maxLength: 120, required: true, placeholder: "Ej. Para cuando me extrañes", autocomplete: "off" });
   const introInput = Object.assign(h("input", "field__input"), { type: "text", maxLength: 200, placeholder: "Ej. Y esto era para decirte…", autocomplete: "off" });
-  const bodyInput = Object.assign(h("textarea", "field__input composer__body"), { rows: 8, maxLength: 6000, required: true, placeholder: "Escribe tu carta. Deja una línea en blanco para separar párrafos." });
+  const bodyInput = Object.assign(h("textarea", "field__input composer__body"), { rows: 2, maxLength: 6000, required: true, placeholder: "Escribe tu carta…" });
   const signInput = Object.assign(h("input", "field__input"), { type: "text", maxLength: 80, value: config.signature, autocomplete: "off" });
 
   const flowerColor = radioGroup(
@@ -64,16 +64,15 @@ export const createLetterComposer = ({ store, onSent }) => {
     ["morada", "lavanda", "blanca", "dorada", "ciruela"].map((c) => ({ value: c, label: PETAL_PALETTES[c].label, swatch: PETAL_PALETTES[c].petal })),
     "morada",
   );
-  const petals = radioGroup(
-    "Pétalos",
-    "letter-petals",
-    [
-      { value: "13", label: "Sencilla" },
-      { value: "16", label: "Clásica" },
-      { value: "21", label: "Plena" },
-    ],
-    "21",
+  // Los pétalos que caen cuando se abre la carta.
+  const rain = radioGroup(
+    "Pétalos que caen al abrirla",
+    "letter-rain",
+    Object.entries(RAIN_STYLES).map(([value, r]) => ({ value, label: r.label, swatch: r.colors.length ? `linear-gradient(135deg, ${r.colors.slice(0, 3).join(", ")})` : "transparent" })),
+    "mezcla",
   );
+  const rainTry = Object.assign(h("button", "btn btn--quiet composer__rain-try", "Ver cómo caen"), { type: "button" });
+  rain.set.append(rainTry);
   const seal = radioGroup(
     "Lacre",
     "letter-seal",
@@ -89,7 +88,7 @@ export const createLetterComposer = ({ store, onSent }) => {
   const submit = Object.assign(h("button", "btn btn--primary", "Enviar y plantar su flor"), { type: "submit" });
   actions.append(cancel, submit);
 
-  form.append(fromSlot, field("Título", titleInput), field("Primera línea (opcional)", introInput), field("Carta", bodyInput), field("Firma", signInput), flowerColor.set, petals.set, seal.set, error, actions);
+  form.append(fromSlot, field("Título", titleInput), field("Primera línea (opcional)", introInput), field("Carta", bodyInput), field("Firma", signInput), flowerColor.set, rain.set, seal.set, error, actions);
 
   const previewWrap = h("div", "composer__preview");
   previewWrap.setAttribute("aria-label", "Vista previa de la carta");
@@ -108,7 +107,7 @@ export const createLetterComposer = ({ store, onSent }) => {
   const paragraphs = () =>
     bodyInput.value
       .split(/\n\s*\n/)
-      .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
+      .map((p) => p.replace(/[ \t]*\n[ \t]*/g, "\n").trim())
       .filter(Boolean);
 
   const draft = () => ({
@@ -120,7 +119,7 @@ export const createLetterComposer = ({ store, onSent }) => {
     from: fromGroup?.value() ?? "el",
     to: fromGroup?.value() === "ella" ? "el" : "ella",
     date: todayKey(),
-    flower: { color: flowerColor.value(), petals: Number(petals.value()) },
+    flower: { color: flowerColor.value(), petals: 21, rain: rain.value() },
     sealColor: seal.value(),
   });
 
@@ -141,6 +140,22 @@ export const createLetterComposer = ({ store, onSent }) => {
     updatePreview();
   });
   form.addEventListener("change", updatePreview);
+
+  // El campo de la carta empieza pequeño y crece mientras se escribe.
+  const autoGrow = () => {
+    bodyInput.style.height = "auto";
+    bodyInput.style.height = `${Math.min(bodyInput.scrollHeight + 2, 320)}px`;
+  };
+  bodyInput.addEventListener("input", autoGrow);
+
+  const rainHost = h("div", "petal-rain");
+  rainHost.setAttribute("aria-hidden", "true");
+  dialog.panel.append(rainHost);
+  let rainRun = 0;
+  rainTry.addEventListener("click", () => {
+    rainRun += 1;
+    petalRain(rainHost, `prueba-${rainRun}`, rain.value(), { delay: 0 });
+  });
   cancel.addEventListener("click", () => dialog.requestClose());
 
   dialog.setBeforeClose(() => {
@@ -191,6 +206,7 @@ export const createLetterComposer = ({ store, onSent }) => {
     reset() {
       form.reset();
       signInput.value = config.signature;
+      bodyInput.style.height = "";
       dirty = false;
     },
   };
