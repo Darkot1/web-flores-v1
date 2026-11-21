@@ -185,16 +185,19 @@ const tree = (stage) => {
     const x = rng.range(-64, 64);
     g.append(el("ellipse", { cx: x.toFixed(1), cy: rng.range(-2, 6).toFixed(1), rx: 2.2, ry: 1.2, transform: `rotate(${rng.int(0, 180)} ${x.toFixed(1)} 2)`, fill: rng.pick(["#B79CEB", "#9A73D8", "#E8DDF7"]), opacity: 0.85 }));
   }
-  g.append(el("path", { d: "M-12 0 C-20 2 -28 4 -36 3 M12 0 C20 2 30 5 38 3 M-4 1 C-8 5 -12 7 -18 8 M5 1 C9 5 14 7 20 8", fill: "none", stroke: "#6b4f39", "stroke-width": 3, "stroke-linecap": "round" }));
+  g.append(el("path", { d: "M-14 0 C-22 2 -32 4 -42 3 M14 0 C22 2 34 5 44 3 M-5 1 C-10 5 -14 7 -22 9 M6 1 C11 5 17 7 24 9", fill: "none", stroke: "#6b4f39", "stroke-width": 5, "stroke-linecap": "round" }));
 
   // dos troncos que se abrazan
   const trunkA = "M-13 2 C-14 -22 10 -32 5 -56 C0 -80 -17 -90 -10 -116";
   const trunkB = "M13 2 C14 -22 -10 -32 -5 -56 C0 -80 17 -90 11 -116";
   g.append(
-    el("path", { d: trunkA, fill: "none", stroke: "#6e5139", "stroke-width": 11, "stroke-linecap": "round" }),
-    el("path", { d: trunkB, fill: "none", stroke: "#8a6a4f", "stroke-width": 10, "stroke-linecap": "round" }),
-    el("path", { d: trunkA, fill: "none", stroke: "#a9865f", "stroke-width": 2.2, "stroke-linecap": "round", opacity: 0.55, transform: "translate(-2 0)" }),
-    el("path", { d: trunkB, fill: "none", stroke: "#c4a27a", "stroke-width": 2, "stroke-linecap": "round", opacity: 0.5, transform: "translate(2 0)" }),
+    // troncos gruesos con contorno oscuro y una luz lateral (corteza)
+    el("path", { d: trunkA, fill: "none", stroke: "#4e3828", "stroke-width": 19, "stroke-linecap": "round" }),
+    el("path", { d: trunkA, fill: "none", stroke: "#6e5139", "stroke-width": 16, "stroke-linecap": "round" }),
+    el("path", { d: trunkB, fill: "none", stroke: "#5b4330", "stroke-width": 18, "stroke-linecap": "round" }),
+    el("path", { d: trunkB, fill: "none", stroke: "#8a6a4f", "stroke-width": 15, "stroke-linecap": "round" }),
+    el("path", { d: trunkA, fill: "none", stroke: "#a9865f", "stroke-width": 3, "stroke-linecap": "round", opacity: 0.55, transform: "translate(-3.5 0)" }),
+    el("path", { d: trunkB, fill: "none", stroke: "#c4a27a", "stroke-width": 2.6, "stroke-linecap": "round", opacity: 0.5, transform: "translate(3.5 0)" }),
   );
   // ramas
   g.append(
@@ -202,7 +205,7 @@ const tree = (stage) => {
       d: "M-10 -112 Q-34 -118 -56 -132 M-9 -110 Q-20 -136 -34 -156 M11 -112 Q36 -116 58 -128 M10 -110 Q22 -138 30 -158 M0 -100 Q2 -130 -2 -164",
       fill: "none",
       stroke: "#6e5139",
-      "stroke-width": 4,
+      "stroke-width": 6.5,
       "stroke-linecap": "round",
     }),
   );
@@ -273,7 +276,7 @@ const cluster = () => {
 
 /** Solo la cabeza de una margarita (para matas). */
 const daisyHead = () => {
-  const full = buildDaisy({ stage: "full", petals: 16, seed: "sym-head", useVars: true });
+  const full = buildDaisy({ stage: "full", petals: 13, seed: "sym-head", useVars: true, lite: true });
   const head = full.querySelector(".daisy__head");
   head.setAttribute("transform", "");
   return head;
@@ -294,7 +297,7 @@ const built = new Set();
 
 const scale = () => `scale(${DAISY_SCALE})`;
 const daisyBuilder = (stage, petals, ribbon) => () =>
-  wrap(daisySymbolId(stage, petals, ribbon), [buildDaisy({ stage, petals, seed: symbolSeed(stage, petals), ribbon, useVars: true })], scale());
+  wrap(daisySymbolId(stage, petals, ribbon), [buildDaisy({ stage, petals, seed: symbolSeed(stage, petals), ribbon, useVars: true, lite: true })], scale());
 
 /** Constructores de cada símbolo: solo se crean cuando alguien los usa. */
 const builder = (id) => {

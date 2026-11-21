@@ -50,7 +50,8 @@ test("los arcos abrazan el camino: más anchos que él", () => {
   const model = buildGardenModel({ ...base, start: "2024-01-01" });
   const laid = layoutItems(model.items, DIMENSIONS.wide);
   const arches = laid.filter((i) => i.kind === "arch" || i.kind === "grand");
-  assert.equal(arches.length, 11); // 34 meses → un gran arco cada 3
+  // 34 meses: los aniversarios (12 y 24) + los grandes arcos de los últimos 12 meses (27, 30, 33).
+  assert.equal(arches.length, 5);
   for (const a of arches) {
     const half = (a.kind === "grand" ? 72 : 60) * a.scale;
     assert.ok(half > pathAt(a.depth, DIMENSIONS.wide).halfWidth, `${a.id} más estrecho que el camino`);
@@ -101,4 +102,17 @@ test("un recuerdo sembrado a mano nunca se agrupa en una mata", () => {
   const many = Array.from({ length: 300 }, (_, i) => ({ id: `m${i}`, date: "2026-02-01", title: "x" }));
   const model = buildGardenModel({ ...base, memories: [...many, { id: "aqui", date: "2026-02-01", title: "Aquí", spot: { x: 0.5, y: 0.5 } }], caps: { flowers: 50, wild: 10 } });
   assert.ok(model.items.some((i) => i.id === "aqui" && i.kind === "memory"));
+});
+
+test("6 años: el camino no se cubre de arcos y las guirnaldas caben en el cielo", () => {
+  const model = buildGardenModel({ today: "2026-11-21", start: "2020-11-14", memories });
+  const arches = model.items.filter((i) => i.kind === "grand");
+  // 6 aniversarios dorados + los grandes arcos trimestrales de los últimos 2 años
+  assert.ok(arches.length <= 10, `demasiados arcos: ${arches.length}`);
+  assert.equal(arches.filter((a) => a.anniversary).length, 6);
+  for (const dims of Object.values(DIMENSIONS)) {
+    const { strands, lights } = layoutGarland(model.lights, dims);
+    assert.equal(strands.length, 6);
+    for (const l of lights) assert.ok(l.y + l.drop + 20 < dims.horizon, `${l.id} se sale del cielo`);
+  }
 });

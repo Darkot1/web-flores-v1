@@ -287,8 +287,9 @@ export const buildGardenModel = ({
     ref: m,
   }));
 
-  // Los recuerdos sembrados a mano en un sitio del jardín nunca se agrupan en matas.
-  const flowers = [...clusterOldest(memoryItems.filter((m) => !m.spot), caps.flowers), ...memoryItems.filter((m) => m.spot)];
+  // Los recuerdos sembrados a mano y los días especiales nunca se agrupan en matas.
+  const keepAlone = (m) => m.spot || m.isMilestone;
+  const flowers = [...clusterOldest(memoryItems.filter((m) => !keepAlone(m)), caps.flowers), ...memoryItems.filter(keepAlone)];
 
   const letterItems = letters.map((l) => ({
     id: l.id,
@@ -302,8 +303,12 @@ export const buildGardenModel = ({
     ref: l,
   }));
 
+  // En el suelo: todos los aniversarios (arco dorado) y los grandes arcos de los
+  // últimos 12 meses; los trimestrales más antiguos quedan en el calendario y el Camino.
+  const monthsTogether = monthiversaries(start, today).length;
   const milestones = computeMilestones(start, today)
     .filter((ms) => ms.kind !== "lantern")
+    .filter((ms) => ms.kind !== "grand" || ms.anniversary || ms.n > monthsTogether - 12)
     .map((ms) => ({
       ...ms,
       title: ms.label,

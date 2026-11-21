@@ -177,7 +177,9 @@ export const createLetters = (root, { store, onCompose }) => {
       body.querySelector(".seal").classList.add("envelope__seal");
       art.append(flower, h("span", "envelope__paper"), body);
       const label = h("span", "envelope__label");
-      label.append(h("span", "envelope__title", letter.title), h("span", "envelope__meta", `${authors[letter.from] ?? ""} · ${formatShort(letter.date)}`));
+      const titleEl = h("span", "envelope__title", letter.title);
+      titleEl.title = letter.title;
+      label.append(titleEl, h("span", "envelope__meta", `${authors[letter.from] ?? ""} · ${formatShort(letter.date)}`));
       if (unread) label.append(h("span", "envelope__unread", "Sin leer"));
       btn.append(h("span", "envelope__string", ""), art, label);
       btn.addEventListener("click", () => openLetter(letter, btn));

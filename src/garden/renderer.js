@@ -103,7 +103,7 @@ const fishShape = (fish) =>
     el("circle", { cx: -1.4, cy: -1.5, r: 1, fill: fish.spots, opacity: 0.7 }),
   ]);
 
-const buildPond = (pond, fish, variant) => {
+const buildPond = (pond, fish, variant, maxSwimming = 18) => {
   const night = variant === "night";
   const { cx, cy, rx, ry } = pond;
   const g = el("g", { class: "g-item g-item--pond", "data-id": "pond", "data-tip": "", "aria-hidden": "true" });
@@ -122,7 +122,11 @@ const buildPond = (pond, fish, variant) => {
   fish.forEach((f, i) => {
     const r = rx * (0.28 + ((i * 0.37) % 1) * 0.45);
     const reverse = i % 3 === 1;
-    const orbit = el("g", { class: `pond-fish${reverse ? " is-reverse" : ""}`, style: `animation-duration:${(16 + ((i * 7) % 12)).toFixed(0)}s;animation-delay:${(-i * 2.3).toFixed(1)}s` });
+    const swims = i < maxSwimming && !prefersReducedMotion();
+    const orbit = el("g", {
+      class: `pond-fish${reverse ? " is-reverse" : ""}${swims ? "" : " is-still"}`,
+      style: swims ? `animation-duration:${(16 + ((i * 7) % 12)).toFixed(0)}s;animation-delay:${(-i * 2.3).toFixed(1)}s` : `transform:rotate(${(i * 47) % 360}deg)`,
+    });
     const body = fishShape(f);
     body.setAttribute("transform", `translate(${r.toFixed(1)} 0) scale(${f.kind === "koi" ? 1.35 : 1.05}) rotate(${reverse ? 180 : 0})`);
     orbit.append(body);
@@ -404,9 +408,11 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
           "data-id": light.id,
           "data-tip": "",
           "aria-hidden": "true",
+          opacity: light.opacity,
           style: variant === "night" ? "--lantern-fill:#ffe9a8" : `--lantern-fill:${LANTERN_COLORS[light.season] ?? "#F2C14E"}`,
         });
-        const sway = el("g", { class: "g-lantern", style: `animation-delay:${(-light.slot * 0.37).toFixed(2)}s` });
+        const swings = light.year === garland.strands.length;
+        const sway = el("g", { class: swings ? "g-lantern" : "g-lantern is-still", style: swings ? `animation-delay:${(-light.slot * 0.37).toFixed(2)}s` : undefined });
         sway.append(el("path", { d: `M0 0 L0 ${light.drop}`, stroke: "#6b5a70", "stroke-width": 0.8 }));
         sway.append(el("use", { href: symbolHref("lantern"), transform: `translate(0 ${light.drop - 2}) rotate(${light.rotate}) scale(${light.scale})` }));
         g.append(el("rect", { x: -10, y: 0, width: 20, height: light.drop + 26, fill: "transparent" }), sway);
@@ -446,7 +452,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     frag.append(grass);
 
     // El estanque, con un pez por carta y un koi dorado por aniversario.
-    const pondEl = buildPond(pondPlacement(dims), model.fish, variant);
+    const pondEl = buildPond(pondPlacement(dims), model.fish, variant, compact ? 8 : 18);
     frag.append(pondEl);
     nodesById.set("pond", { g: pondEl, body: pondEl, item: { id: "pond", kind: "pond", count: model.fish.length, date: today } });
 
@@ -761,9 +767,29 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     if (currentPhase() !== variant) render();
   }, 60_000);
 
+  // El jardín se dibuja cuando está cerca de la pantalla (o cuando el navegador
+  // está libre): así no compite con la portada al cargar.
+  let armed = false;
+  let pending = null;
+  const arm = () => {
+    if (armed) return;
+    armed = true;
+    if (pending) {
+      const ev = pending;
+      pending = null;
+      render(ev === true ? undefined : ev);
+    }
+  };
+  watchVisibility(host, (visible) => visible && arm(), { rootMargin: "900px 0px" });
+  (window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1200)))(arm, { timeout: 4000 });
+
   store.subscribe((event) => {
     if (["load", "memories", "letters", "settings"].includes(event.type)) {
       if (event.type === "letters" && event.read) return;
+      if (!armed) {
+        pending = event.freshId ? true : event;
+        return;
+      }
       render(event);
     }
   });
@@ -776,6 +802,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     },
     /** Lleva el foco a una flor y la resalta. */
     reveal(id) {
+      arm();
       const entry = nodesById.get(id) ?? [...nodesById.values()].find((e) => e.item.members?.some((m) => m.id === id));
       if (!entry) return;
       zoom.ensureVisible(entry.item.x, entry.item.y - 30 * entry.item.scale);

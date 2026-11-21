@@ -138,3 +138,9 @@ test("el jardín sigue la hora, no el tema", () => {
   assert.equal(phaseAt(at(23, 30)), "night");
   assert.equal(phaseAt(at(19, 0), { sunrise: 6, sunset: 19.5 }), "day");
 });
+
+test("los días especiales nunca se agrupan en matas", () => {
+  const many = Array.from({ length: 200 }, (_, i) => ({ id: `m${i}`, date: "2024-02-01", title: "x", isMilestone: i === 5 }));
+  const model = buildGardenModel({ today, start: "2023-01-01", memories: many, caps: { flowers: 30, wild: 10 } });
+  assert.ok(model.items.some((i) => i.id === "m5" && i.kind === "memory" && i.isMilestone));
+});

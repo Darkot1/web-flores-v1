@@ -77,13 +77,19 @@ const paint = (palette, useVars) =>
 
 const fill = (color) => ({ style: `fill:${color}` });
 
-const buildCenter = (radius, colors, rng) => {
+const buildCenter = (radius, colors, rng, lite = false) => {
   const dots = [];
-  const n = Math.round(radius * 2.6);
+  const n = lite ? 6 : Math.round(radius * 2.6);
   for (let i = 1; i < n; i += 1) {
     const rr = Math.sqrt(i / n) * radius * 0.82;
     const a = i * 2.39996;
     dots.push(el("circle", { cx: r1(Math.cos(a) * rr), cy: r1(Math.sin(a) * rr), r: r1(0.55 + rng.float() * 0.35), ...fill(colors.centerDark), opacity: 0.55 }));
+  }
+  if (lite) {
+    return el("g", { class: "daisy__center" }, [
+      el("circle", { r: radius, ...fill(colors.center), style: `fill:${colors.center};stroke:${colors.centerDark}`, "stroke-width": 0.8, "stroke-opacity": 0.5 }),
+      ...dots,
+    ]);
   }
   return el("g", { class: "daisy__center" }, [
     el("circle", { r: radius, ...fill(colors.center) }),
@@ -93,7 +99,7 @@ const buildCenter = (radius, colors, rng) => {
   ]);
 };
 
-const buildPetals = ({ count, length, width, colors, rng, inner = false, open = 1 }) => {
+const buildPetals = ({ count, length, width, colors, rng, inner = false, open = 1, lite = false }) => {
   const group = el("g", { class: inner ? "daisy__petals daisy__petals--inner" : "daisy__petals" });
   const offset = inner ? 180 / count : 0;
   for (let i = 0; i < count; i += 1) {
@@ -107,6 +113,12 @@ const buildPetals = ({ count, length, width, colors, rng, inner = false, open = 
       "stroke-width": inner ? 0 : 0.5,
       "stroke-opacity": 0.45,
     });
+    if (lite) {
+      // Versión ligera (flores pequeñas del jardín): el pétalo girado directamente, sin nervio.
+      petal.setAttribute("transform", `rotate(${r1(angle)})`);
+      group.append(petal);
+      continue;
+    }
     const rib = el("path", { d: `M0 -3 L0 ${r1(-L * 0.82)}`, stroke: "#fff", "stroke-opacity": inner ? 0 : 0.28, "stroke-width": 0.7, fill: "none", "stroke-linecap": "round" });
     const wrap = el("g", { transform: `rotate(${r1(angle)})` }, [el("g", { class: "daisy__petal-wrap", "data-i": i }, [petal, rib])]);
     group.append(wrap);
@@ -144,6 +156,7 @@ export const buildDaisy = ({
   ribbonColor,
   stemHeight = STEM_HEIGHT,
   useVars = false,
+  lite = false,
 } = {}) => {
   const rng = createRng(seed);
   const palette = { ...(PETAL_PALETTES[color] ?? PETAL_PALETTES.morada) };
@@ -230,11 +243,11 @@ export const buildDaisy = ({
   const cup = el("g", { transform: stage === "open" ? "scale(1 0.84)" : undefined });
   head.append(cup);
   const length = 27;
-  cup.append(buildPetals({ count: petals, length, width: 9.2 * (13 / Math.max(petals, 13)) ** 0.6 + 1.2, colors, rng, open }));
+  cup.append(buildPetals({ count: petals, length, width: 9.2 * (13 / Math.max(petals, 13)) ** 0.6 + 1.2, colors, rng, open, lite }));
   if (stage === "full") {
-    cup.append(buildPetals({ count: Math.round(petals * 0.6), length: length * 0.62, width: 4.6, colors, rng, inner: true }));
+    cup.append(buildPetals({ count: Math.round(petals * (lite ? 0.45 : 0.6)), length: length * 0.62, width: 4.6, colors, rng, inner: true, lite }));
   }
-  cup.append(buildCenter(stage === "full" ? 7.5 : 6.2, colors, rng));
+  cup.append(buildCenter(stage === "full" ? 7.5 : 6.2, colors, rng, lite));
   return root;
 };
 

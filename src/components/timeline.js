@@ -28,26 +28,43 @@ const icon = (href, style, viewBox = "-34 -110 68 116") => {
 export const createTimeline = (host, { store, onOpenMemory, onOpenLetter }) => {
   ensureGardenSprite();
 
-  const render = () => {
-    const today = store.today();
-    const { start, authors } = store.settings();
-    const entries = [
-      ...store.memories().map((m) => ({ kind: "memory", date: m.date, ref: m })),
-      ...store.letters().map((l) => ({ kind: "letter", date: l.date, ref: l })),
-      ...computeMilestones(start, today).map((ms) => ({ kind: ms.kind, date: ms.date, ref: ms })),
-    ].sort((a, b) => a.date.localeCompare(b.date) || (a.kind === "tree" ? -1 : 0));
-
-    const root = h("ol", "timeline");
-    if (!entries.length) {
-      const li = h("li", "timeline__empty", "El camino empieza con el primer recuerdo que plantes.");
-      root.append(li);
-      host.replaceChildren(root);
-      return;
+  /** Un elemento de la línea de tiempo (recuerdo, carta o hito). */
+  const renderEntry = (entry, today, authors) => {
+    const li = h("li", `timeline__item timeline__item--${entry.kind}`);
+    if (entry.kind === "memory" || entry.kind === "letter") {
+      const m = entry.ref;
+      const stage = stageFor(m.date, today, config.growth);
+      const btn = h("button", "timeline__btn");
+      btn.type = "button";
+      const color = entry.kind === "letter" ? m.flower?.color ?? "morada" : flowerColorFor(m.id);
+      btn.append(icon(daisySymbolId(stage, 16, entry.kind === "letter"), paletteVars(color)));
+      const text = h("span", "timeline__text");
+      text.append(h("span", "timeline__kicker", entry.kind === "letter" ? `Carta de ${authors[m.from] ?? "—"}` : m.isMilestone ? "Día especial" : "Recuerdo"));
+      text.append(h("span", "timeline__title", m.title));
+      text.append(h("span", "timeline__date", `${formatLong(m.date)} · ${STAGE_LABELS[stage]}`));
+      btn.append(text);
+      btn.addEventListener("click", () => (entry.kind === "letter" ? onOpenLetter(m, btn) : onOpenMemory(m, btn)));
+      li.append(btn);
+    } else {
+      const row = h("div", "timeline__milestone");
+      const style = entry.ref.anniversary ? "--g1:#F2C14E;--g2:#FFF1BF;--g3:#E8A25C;--g4:#C98A1E" : undefined;
+      row.append(icon(ICONS[entry.kind], style, ICON_BOX[entry.kind]));
+      const text = h("span", "timeline__text");
+      text.append(h("span", "timeline__kicker", entry.ref.anniversary ? "Aniversario · el gran arco dorado" : KICKER[entry.kind]));
+      text.append(h("span", "timeline__title", entry.ref.label));
+      text.append(h("span", "timeline__date", formatLong(entry.date)));
+      row.append(text);
+      li.append(row);
     }
+    return li;
+  };
 
+  /** Meses de un año, del más reciente al más antiguo. */
+  const renderYear = (yearEntries, today, authors) => {
+    const list = h("ol", "timeline__months");
     let currentMonth = null;
     let monthList = null;
-    for (const entry of entries) {
+    for (const entry of yearEntries) {
       const mk = monthKey(entry.date);
       if (mk !== currentMonth) {
         currentMonth = mk;
@@ -56,39 +73,67 @@ export const createTimeline = (host, { store, onOpenMemory, onOpenLetter }) => {
         head.append(h("span", "", formatMonth(`${mk}-01`)), h("small", "", seasonFor(`${mk}-01`, config.climate).label));
         monthList = h("ol", "timeline__items");
         monthLi.append(head, monthList);
-        root.append(monthLi);
+        list.append(monthLi);
       }
-      const li = h("li", `timeline__item timeline__item--${entry.kind}`);
-      if (entry.kind === "memory" || entry.kind === "letter") {
-        const m = entry.ref;
-        const stage = stageFor(m.date, today, config.growth);
-        const btn = h("button", "timeline__btn");
-        btn.type = "button";
-        const color = entry.kind === "letter" ? m.flower?.color ?? "morada" : flowerColorFor(m.id);
-        btn.append(icon(daisySymbolId(stage, 16, entry.kind === "letter"), paletteVars(color)));
-        const text = h("span", "timeline__text");
-        text.append(h("span", "timeline__kicker", entry.kind === "letter" ? `Carta de ${authors[m.from] ?? "—"}` : m.isMilestone ? "Día especial" : "Recuerdo"));
-        text.append(h("span", "timeline__title", m.title));
-        text.append(h("span", "timeline__date", `${formatLong(m.date)} · ${STAGE_LABELS[stage]}`));
-        btn.append(text);
-        btn.addEventListener("click", () => (entry.kind === "letter" ? onOpenLetter(m, btn) : onOpenMemory(m, btn)));
-        li.append(btn);
-      } else {
-        const row = h("div", "timeline__milestone");
-        const style = entry.ref.anniversary ? "--g1:#F2C14E;--g2:#FFF1BF;--g3:#E8A25C;--g4:#C98A1E" : entry.kind === "lantern" ? "--lantern-fill:#F2C14E" : entry.kind === "lamp" ? "--lamp-light:#F2C14E" : undefined;
-        row.append(icon(ICONS[entry.kind], style, ICON_BOX[entry.kind]));
-        const text = h("span", "timeline__text");
-        text.append(h("span", "timeline__kicker", entry.ref.anniversary ? "Aniversario · el gran arco dorado" : KICKER[entry.kind]));
-        text.append(h("span", "timeline__title", entry.ref.label));
-        text.append(h("span", "timeline__date", formatLong(entry.date)));
-        row.append(text);
-        li.append(row);
-      }
-      monthList.append(li);
+      monthList.append(renderEntry(entry, today, authors));
     }
-    const todayLi = h("li", "timeline__today");
-    todayLi.append(h("span", "timeline__kicker", "Hoy"), h("span", "timeline__title", formatLong(today)), h("span", "timeline__date", "…y el camino sigue."));
-    root.append(todayLi);
+    return list;
+  };
+
+  const render = () => {
+    const today = store.today();
+    const { start, authors } = store.settings();
+    // Los farolillos de cada mes se ven en el cielo del jardín; aquí solo los hitos con forma.
+    const entries = [
+      ...store.memories().map((m) => ({ kind: "memory", date: m.date, ref: m })),
+      ...store.letters().map((l) => ({ kind: "letter", date: l.date, ref: l })),
+      ...computeMilestones(start, today)
+        .filter((ms) => ms.kind !== "lantern")
+        .map((ms) => ({ kind: ms.kind, date: ms.date, ref: ms })),
+    ].sort((a, b) => b.date.localeCompare(a.date) || (a.kind === "tree" ? 1 : b.kind === "tree" ? -1 : 0));
+
+    const root = h("div", "timeline");
+    if (!entries.length) {
+      root.append(h("p", "timeline__empty", "El camino empieza con el primer recuerdo que plantes."));
+      host.replaceChildren(root);
+      return;
+    }
+
+    const todayBox = h("div", "timeline__today");
+    todayBox.append(h("span", "timeline__kicker", "Hoy"), h("span", "timeline__title", formatLong(today)), h("span", "timeline__date", "…y el camino sigue."));
+    root.append(todayBox);
+
+    // Agrupado por año: el más reciente abierto; los demás se dibujan al abrirlos.
+    const byYear = new Map();
+    for (const e of entries) {
+      const y = e.date.slice(0, 4);
+      if (!byYear.has(y)) byYear.set(y, []);
+      byYear.get(y).push(e);
+    }
+    let first = true;
+    for (const [year, yearEntries] of byYear) {
+      const details = h("details", "timeline__year");
+      const summary = h("summary", "timeline__year-title");
+      const memoriesCount = yearEntries.filter((e) => e.kind === "memory").length;
+      const lettersCount = yearEntries.filter((e) => e.kind === "letter").length;
+      summary.append(
+        h("span", "", year),
+        h("small", "", [memoriesCount && `${memoriesCount} ${memoriesCount === 1 ? "recuerdo" : "recuerdos"}`, lettersCount && `${lettersCount} ${lettersCount === 1 ? "carta" : "cartas"}`].filter(Boolean).join(" · ") || "hitos"),
+      );
+      details.append(summary);
+      const fill = () => {
+        if (details.dataset.filled) return;
+        details.dataset.filled = "1";
+        details.append(renderYear(yearEntries, today, authors));
+      };
+      if (first) {
+        details.open = true;
+        fill();
+        first = false;
+      }
+      details.addEventListener("toggle", () => details.open && fill());
+      root.append(details);
+    }
     host.replaceChildren(root);
   };
 

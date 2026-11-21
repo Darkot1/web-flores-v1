@@ -250,26 +250,38 @@ export const layoutGarland = (lights, dims) => {
   if (!lights.length) return { strands: [], lights: [] };
   const years = Math.max(...lights.map((l) => l.year));
   const sag = dims.width * 0.028;
-  const top = dims.horizon * 0.12;
+  const top = dims.horizon * 0.1;
   const bottom = dims.horizon - sag - 40; // cuerda + cordel + farolillo caben sobre el horizonte
   const gap = years > 1 ? Math.min(30, (bottom - top) / (years - 1)) : 0;
   const x0 = -20;
   const span = dims.width + 40;
   const strands = Array.from({ length: years }, (_, i) => {
     const y0 = top + i * gap;
-    return { year: i + 1, y0, d: `M${x0} ${y0.toFixed(1)} Q${(dims.width / 2).toFixed(1)} ${(y0 + 2 * sag).toFixed(1)} ${dims.width + 20} ${y0.toFixed(1)}` };
+    // Las guirnaldas más antiguas quedan arriba, más pequeñas y tenues (más lejos).
+    const age = years - 1 - i;
+    return {
+      year: i + 1,
+      y0,
+      fade: Math.max(0.55, 1 - age * 0.09),
+      size: Math.max(0.62, 1 - age * 0.08),
+      // Cada año se corre media posición: los farolillos no forman columnas.
+      shift: i % 2 === 0 ? 0 : 0.5,
+      d: `M${x0} ${y0.toFixed(1)} Q${(dims.width / 2).toFixed(1)} ${(y0 + 2 * sag).toFixed(1)} ${dims.width + 20} ${y0.toFixed(1)}`,
+    };
   });
   const laid = lights.map((light) => {
     const strand = strands[light.year - 1];
-    const t = (light.slot - 0.5) / 12;
+    const t = (light.slot - 1 + 0.25 + strand.shift * 0.5) / 12;
     const rng = createRng(light.id);
+    const dropMax = Math.max(6, Math.min(14, gap * 0.55));
     return {
       ...light,
       x: Math.round((x0 + t * span) * 10) / 10,
       y: Math.round((strand.y0 + 4 * sag * t * (1 - t)) * 10) / 10,
-      drop: Math.round(rng.range(6, 14) * 10) / 10,
+      drop: Math.round(rng.range(4, dropMax) * 10) / 10,
       rotate: Math.round(rng.range(-6, 6) * 10) / 10,
-      scale: Math.round(rng.range(0.9, 1.08) * 100) / 100,
+      scale: Math.round(strand.size * rng.range(0.9, 1.06) * 100) / 100,
+      opacity: strand.fade,
     };
   });
   return { strands, lights: laid };
