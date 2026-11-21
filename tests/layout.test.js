@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildGardenModel } from "../src/garden/growth.js";
-import { DIMENSIONS, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass } from "../src/garden/layout.js";
+import { DIMENSIONS, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass, pondPlacement } from "../src/garden/layout.js";
 import { monthLights } from "../src/garden/growth.js";
 
 const memories = Array.from({ length: 60 }, (_, i) => ({
@@ -50,7 +50,11 @@ test("los arcos abrazan el camino: más anchos que él", () => {
   const model = buildGardenModel({ ...base, start: "2024-01-01" });
   const laid = layoutItems(model.items, DIMENSIONS.wide);
   const arches = laid.filter((i) => i.kind === "arch" || i.kind === "grand");
-  assert.ok(arches.length >= 8);
+  assert.ok(arches.length >= 20);
+  const grand = arches.filter((a) => a.kind === "grand");
+  const small = arches.filter((a) => a.kind === "arch");
+  const avg = (l) => l.reduce((t, a) => t + (a.kind === "grand" ? 72 : 60) * a.scale / pathAt(a.depth, DIMENSIONS.wide).halfWidth, 0) / l.length;
+  assert.ok(avg(grand) > avg(small) * 1.25, "el gran arco debe ser mucho mayor");
   for (const a of arches) {
     const half = (a.kind === "grand" ? 72 : 60) * a.scale;
     assert.ok(half > pathAt(a.depth, DIMENSIONS.wide).halfWidth, `${a.id} más estrecho que el camino`);
@@ -69,5 +73,17 @@ test("la guirnalda cuelga en el cielo, por encima del horizonte", () => {
     const { strands, lights } = layoutGarland(monthLights("2022-06-01", "2026-11-20"), dims);
     assert.equal(strands.length, 5);
     for (const l of lights) assert.ok(l.y + l.drop + 20 < dims.horizon, `${l.id} y=${l.y}`);
+  }
+});
+
+test("nada se planta dentro del estanque", () => {
+  for (const dims of Object.values(DIMENSIONS)) {
+    const pond = pondPlacement(dims);
+    const laid = layoutItems(buildGardenModel({ ...base, start: "2024-01-01" }).items, dims);
+    for (const i of laid.filter((x) => ["memory", "wild", "letter", "cluster"].includes(x.kind))) {
+      const inside = ((i.x - pond.cx) / pond.rx) ** 2 + ((i.y - pond.cy) / pond.ry) ** 2 < 1;
+      assert.ok(!inside, `${i.id} en el estanque`);
+    }
+    assert.ok(pond.cx - pond.rx > 0 && pond.cx + pond.rx < dims.width);
   }
 });

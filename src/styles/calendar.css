@@ -295,6 +295,15 @@
   background: linear-gradient(90deg, var(--gold), var(--daisy));
 }
 
+.cal__mark--bloom {
+  background: var(--sage);
+}
+
+.cal__mark--grand.cal__mark--anniversary {
+  background: var(--gold);
+  box-shadow: 0 0 0 2px var(--card), 0 0 6px var(--gold);
+}
+
 .cal__mark--tree {
   background: var(--sage-deep);
 }

@@ -149,7 +149,7 @@ export const createCalendar = (root, { store, onSelectDay }) => {
       }
       if (ms) {
         const mark = document.createElement("span");
-        mark.className = `cal__mark cal__mark--${ms.kind}`;
+        mark.className = `cal__mark cal__mark--${ms.kind}${ms.anniversary ? " cal__mark--anniversary" : ""}`;
         mark.setAttribute("aria-hidden", "true");
         button.append(mark);
       }

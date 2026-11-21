@@ -15,9 +15,10 @@ const h = (tag, className, text) => {
   return node;
 };
 
-const ICONS = { tree: "tree-sapling", light: "lantern", arch: "arch", grand: "grand" };
-const ICON_BOX = { tree: "-50 -160 100 166", light: "-12 -2 24 28", arch: "-70 -100 140 104", grand: "-86 -126 172 130" };
-const KICKER = { tree: "El primer día", light: "Una luz más en la guirnalda", arch: "Arco de flores", grand: "Aniversario · el gran arco" };
+const ICONS = { tree: "tree-sapling", arch: "arch", bloom: "bloom", grand: "grand" };
+const ICON_BOX = { tree: "-50 -160 100 166", arch: "-70 -100 140 104", bloom: "-34 -126 68 130", grand: "-86 -126 172 130" };
+const KICKER = { tree: "El primer día", arch: "Arco de flores", bloom: "Un árbol en flor", grand: "Gran arco · tres meses más" };
+const LIGHT_NAME = { lamp: "un farol junto al camino", lantern: "una luz en la guirnalda" };
 
 const icon = (href, style, viewBox = "-34 -110 68 116") => {
   const svg = el("svg", { class: "timeline__icon", viewBox, "aria-hidden": "true", focusable: "false", style });
@@ -75,11 +76,12 @@ export const createTimeline = (host, { store, onOpenMemory, onOpenLetter }) => {
         li.append(btn);
       } else {
         const row = h("div", "timeline__milestone");
-        row.append(icon(ICONS[entry.kind], entry.kind === "light" ? "--lantern-fill:#F2C14E" : undefined, ICON_BOX[entry.kind]));
+        const style = entry.ref.anniversary ? "--g1:#F2C14E;--g2:#FFF1BF;--g3:#E8A25C;--g4:#C98A1E" : undefined;
+        row.append(icon(ICONS[entry.kind], style, ICON_BOX[entry.kind]));
         const text = h("span", "timeline__text");
-        text.append(h("span", "timeline__kicker", KICKER[entry.kind]));
+        text.append(h("span", "timeline__kicker", entry.ref.anniversary ? "Aniversario · el gran arco dorado" : KICKER[entry.kind]));
         text.append(h("span", "timeline__title", entry.ref.label));
-        text.append(h("span", "timeline__date", formatLong(entry.date)));
+        text.append(h("span", "timeline__date", entry.ref.light ? `${formatLong(entry.date)} · y ${LIGHT_NAME[entry.ref.light]}` : formatLong(entry.date)));
         row.append(text);
         li.append(row);
       }

@@ -126,7 +126,7 @@ const grandArch = () => {
     el("path", { d: `M${-W + 8} 0 L${-W + 8} ${-H + 2} Q0 ${-H - 2 * R + 14} ${W - 8} ${-H + 2} L${W - 8} 0`, fill: "none", stroke: "#6e5139", "stroke-width": 2.4, "stroke-linecap": "round" }),
     el("path", { d: crown(W, H, R), fill: "none", stroke: "#5f8259", "stroke-width": 13, "stroke-linecap": "round", opacity: 0.92 }),
   );
-  const fills = ["#7B4FBF", "#F2C14E", "#B79CEB", "#7B4FBF", "#FAF6FC", "#5B2E7E"];
+  const fills = ["var(--g1,#7B4FBF)", "var(--g2,#F2C14E)", "var(--g3,#B79CEB)", "var(--g1,#7B4FBF)", "#FAF6FC", "var(--g4,#5B2E7E)"];
   for (let i = 0; i <= 18; i += 1) {
     const t = i / 18;
     g.append(archFlower((t * 2 - 1) * W, -H - R * 4 * t * (1 - t) + (i % 2 ? 3 : -3), fills[i % fills.length], i % 3 === 0 ? 1.25 : 1));
@@ -143,6 +143,27 @@ const grandArch = () => {
     // un farolillo colgando a cada lado
     g.append(paperLantern(side * 40, -96, 1.2));
   }
+  return g;
+};
+
+/** Árbol en flor (algunos meses): copa redonda teñida por la temporada. ~110 de alto. */
+const bloomTree = () => {
+  const g = el("g", { class: "bloom-tree" });
+  g.append(
+    el("ellipse", { cx: 0, cy: 2, rx: 30, ry: 5, fill: "#3e1f4f", opacity: 0.12 }),
+    el("path", { d: "M-4 0 C-3 -24 -6 -44 -2 -62 L3 -62 C6 -44 4 -24 5 0Z", fill: "#7a5b41" }),
+    el("path", { d: "M0 -46 Q-12 -54 -18 -62 M1 -52 Q12 -60 17 -70", fill: "none", stroke: "#7a5b41", "stroke-width": 2.6, "stroke-linecap": "round" }),
+  );
+  const blobs = [
+    [-18, -78, 21, "var(--bloom-a,#B79CEB)"],
+    [18, -82, 22, "var(--bloom-b,#9A73D8)"],
+    [0, -98, 24, "var(--bloom-a,#B79CEB)"],
+    [-6, -70, 17, "var(--bloom-c,#86A77F)"],
+    [12, -66, 15, "var(--bloom-b,#9A73D8)"],
+  ];
+  for (const [cx, cy, r, fill] of blobs) g.append(el("circle", { cx, cy, r, style: `fill:${fill}` }));
+  const dots = [[-22, -86], [-8, -104], [10, -96], [22, -78], [-14, -66], [4, -80], [16, -90], [-26, -74]];
+  for (const [x, y] of dots) g.append(archFlower(x, y, "#FAF6FC", 0.55));
   return g;
 };
 
@@ -237,6 +258,7 @@ const builder = (id) => {
     lamp: () => wrap("lamp", [lamp()]),
     arch: () => wrap("arch", [arch()]),
     grand: () => wrap("grand", [grandArch()]),
+    bloom: () => wrap("bloom", [bloomTree()]),
     lantern: () => wrap("lantern", [paperLantern(0, 10, 1)]),
     bench: () => wrap("bench", [bench()]),
     cluster: () => {

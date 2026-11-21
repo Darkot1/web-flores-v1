@@ -42,9 +42,12 @@ Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`)
 
 **Hitos** (salen solos de la fecha de inicio):
 - **El primer día:** el arbolito al principio del camino, que crece con los años.
-- **Cada mes:** un farolillo de papel en la guirnalda del cielo. Hay una guirnalda por año, con 12 luces, del color de la temporada, y de noche se encienden.
-- **Cada 3 meses:** un arco de flores sobre el camino, teñido según la temporada en que creció (seca, lluvias, veranillo…).
-- **Cada aniversario:** el gran arco, con doble corona morada y dorada y dos farolillos.
+- **Cada mes:**
+  - Una luz: un farol junto al camino o un farolillo de papel en la guirnalda del cielo (una guirnalda por año). De noche se encienden.
+  - Una estructura: un arco de flores sobre el camino o un árbol en flor a su orilla, con los colores de la temporada.
+  - Lo que toca cada mes sale de una semilla, así que el jardín es siempre el mismo.
+- **Cada 3 meses:** un gran arco, mucho más grande. En cada aniversario es dorado.
+- **El estanque:** un pez por cada carta, del color de su flor, y un koi dorado por cada aniversario.
 - **Marcados a mano:** al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
 
 Los recuerdos y las flores silvestres se reparten por todo el prado, desde el camino hasta los bordes.

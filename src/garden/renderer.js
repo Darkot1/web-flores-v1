@@ -7,7 +7,7 @@
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
 import { ARCH_PALETTES, buildGardenModel, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
-import { DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, seasonBands } from "./layout.js";
+import { DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
@@ -33,11 +33,23 @@ export const describeItem = (item) => {
     case "tree":
       return { label: `Aquí empezó todo, ${date}`, title: "Aquí empezó todo", meta: date, kicker: "El primer día" };
     case "light":
-      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Una luz más en la guirnalda" };
+    case "lantern":
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Una luz en la guirnalda" };
+    case "lamp":
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Un farol junto al camino" };
     case "arch":
       return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Arco de flores" };
+    case "bloom":
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Un árbol en flor" };
     case "grand":
-      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "El gran arco · aniversario" };
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: item.anniversary ? "Aniversario · el gran arco dorado" : "Gran arco · tres meses más" };
+    case "pond":
+      return {
+        label: "El estanque",
+        title: "El estanque",
+        meta: item.count ? `${item.count} ${item.count === 1 ? "pez" : "peces"}: uno por cada carta y un koi dorado por cada aniversario` : "Cada carta traerá un pez; cada aniversario, un koi dorado",
+        kicker: "El estanque",
+      };
     default:
       return { label: "", title: "", meta: "" };
   }
@@ -46,7 +58,7 @@ export const describeItem = (item) => {
 /** Se pueden abrir (botones, recorridos con flechas). */
 const INTERACTIVE = new Set(["memory", "letter", "cluster", "bench"]);
 /** Solo informan (tooltip al pasar el ratón); para lectores, la vista Camino los lista. */
-const DECOR_WITH_TIP = new Set(["tree", "arch", "grand", "light"]);
+const DECOR_WITH_TIP = new Set(["tree", "arch", "grand", "light", "lantern", "lamp", "bloom", "pond"]);
 
 const itemContent = (item) => {
   switch (item.kind) {
@@ -70,7 +82,69 @@ const itemStyle = (item) => {
     const [a, b, c] = ARCH_PALETTES[item.season] ?? ARCH_PALETTES.rain;
     return `--arch-a:${a};--arch-b:${b};--arch-c:${c}`;
   }
+  if (item.kind === "grand") {
+    if (item.anniversary) return "--g1:#F2C14E;--g2:#FFF1BF;--g3:#E8A25C;--g4:#C98A1E";
+    const [a, b, c] = ARCH_PALETTES[item.season] ?? ARCH_PALETTES.rain;
+    return `--g1:${a};--g2:${b};--g3:${c};--g4:#5B2E7E`;
+  }
+  if (item.kind === "bloom") {
+    const [a, b] = ARCH_PALETTES[item.season] ?? ARCH_PALETTES.rain;
+    return `--bloom-a:${a};--bloom-b:${b === "#FAF6FC" ? "#C9B6F2" : b};--bloom-c:#86A77F`;
+  }
   return undefined;
+};
+
+/** Un pez de perfil, mirando hacia +y (la dirección en que nada en su órbita). */
+const fishShape = (fish) =>
+  el("g", {}, [
+    el("path", { d: "M0 -7 C4 -6 4.5 2 0 7 C-4.5 2 -4 -6 0 -7Z", fill: fish.color, stroke: "rgb(0 0 0 / 0.15)", "stroke-width": 0.4 }),
+    el("path", { d: "M0 -6 L-4 -11 L0 -9.2 L4 -11Z", fill: fish.color, opacity: 0.9 }),
+    el("circle", { cx: 1.2, cy: 2, r: 1.3, fill: fish.spots, opacity: 0.85 }),
+    el("circle", { cx: -1.4, cy: -1.5, r: 1, fill: fish.spots, opacity: 0.7 }),
+  ]);
+
+const buildPond = (pond, fish, variant) => {
+  const night = variant === "night";
+  const { cx, cy, rx, ry } = pond;
+  const g = el("g", { class: "g-item g-item--pond", "data-id": "pond", "data-tip": "", "aria-hidden": "true" });
+  g.append(
+    el("ellipse", { cx, cy: cy + 3, rx: rx + 10, ry: ry + 6, fill: night ? "#3a3346" : "#b9a587", opacity: 0.9 }),
+    el("ellipse", { cx, cy, rx, ry, fill: night ? "#2a3550" : "#8fb9c9" }),
+    el("ellipse", { cx, cy: cy + ry * 0.15, rx: rx * 0.92, ry: ry * 0.8, fill: night ? "#223049" : "#7aa9bd" }),
+  );
+  // piedras del borde
+  for (let i = 0; i < 14; i += 1) {
+    const a = (i / 14) * Math.PI * 2 + 0.2;
+    g.append(el("ellipse", { cx: (cx + Math.cos(a) * (rx + 5)).toFixed(1), cy: (cy + Math.sin(a) * (ry + 3)).toFixed(1), rx: 6 + (i % 3), ry: 3.2, fill: night ? "#5d566a" : i % 2 ? "#cdbfa8" : "#b7a68c" }));
+  }
+  // peces nadando en órbitas elípticas
+  const water = el("g", { class: "pond-water", transform: `translate(${cx} ${cy}) scale(1 ${(ry / rx).toFixed(3)})` });
+  fish.forEach((f, i) => {
+    const r = rx * (0.28 + ((i * 0.37) % 1) * 0.45);
+    const reverse = i % 3 === 1;
+    const orbit = el("g", { class: `pond-fish${reverse ? " is-reverse" : ""}`, style: `animation-duration:${(16 + ((i * 7) % 12)).toFixed(0)}s;animation-delay:${(-i * 2.3).toFixed(1)}s` });
+    const body = fishShape(f);
+    body.setAttribute("transform", `translate(${r.toFixed(1)} 0) scale(${f.kind === "koi" ? 1.35 : 1.05}) rotate(${reverse ? 180 : 0})`);
+    orbit.append(body);
+    water.append(orbit);
+  });
+  g.append(water);
+  // nenúfares y un brillo de luz (o la luna reflejada)
+  for (const [dx, dy, s] of [[-0.55, -0.2, 1], [0.48, 0.25, 0.8], [0.15, -0.45, 0.7]]) {
+    const lx = cx + dx * rx;
+    const ly = cy + dy * ry;
+    g.append(el("path", { d: `M${lx} ${ly} m${-9 * s} 0 a${9 * s} ${4 * s} 0 1 0 ${18 * s} 0 a${9 * s} ${4 * s} 0 1 0 ${-18 * s} 0 M${lx} ${ly} l${7 * s} ${-2 * s}`, fill: night ? "#4f6b55" : "#7fa476", stroke: night ? "#4f6b55" : "#6b9163", "stroke-width": 0.6 }));
+  }
+  g.append(archLilyFlower(cx - rx * 0.55, cy - ry * 0.2 - 3));
+  g.append(el("ellipse", { cx: cx + rx * 0.2, cy: cy - ry * 0.35, rx: rx * 0.22, ry: ry * 0.12, fill: night ? "#e8ddf7" : "#ffffff", opacity: night ? 0.35 : 0.3 }));
+  return g;
+};
+
+const archLilyFlower = (x, y) => {
+  const head = el("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` });
+  for (let i = 0; i < 6; i += 1) head.append(el("ellipse", { cx: 0, cy: -2.6, rx: 1.4, ry: 2.8, transform: `rotate(${i * 60})`, fill: "#F4C6D8" }));
+  head.append(el("circle", { r: 1.2, fill: "#F2C14E" }));
+  return head;
 };
 
 /**
@@ -328,6 +402,11 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     }
     frag.append(grass);
 
+    // El estanque, con un pez por carta y un koi dorado por aniversario.
+    const pondEl = buildPond(pondPlacement(dims), model.fish, variant);
+    frag.append(pondEl);
+    nodesById.set("pond", { g: pondEl, body: pondEl, item: { id: "pond", kind: "pond", count: model.fish.length, date: today } });
+
     // Semilla de espera si no hay nada plantado.
     if (model.counts.memories + model.counts.letters === 0) {
       const front = laid.length ? null : { x: width / 2, y: height - dims.pad - 40 };
@@ -382,6 +461,9 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       const glows = el("g", { class: "garden-lamp-glows", "pointer-events": "none", "aria-hidden": "true" });
       for (const light of garland.lights) {
         glows.append(el("circle", { cx: light.x, cy: light.y + light.drop + 10, r: 20, fill: "url(#lamp-glow)" }));
+      }
+      for (const item of laid.filter((i) => i.kind === "lamp")) {
+        glows.append(el("circle", { cx: item.x, cy: item.y - 63 * item.scale, r: 36 * item.scale + 6, fill: "url(#lamp-glow)" }));
       }
       for (const item of laid.filter((i) => i.kind === "grand")) {
         for (const side of [-1, 1]) {

@@ -7,7 +7,9 @@ import {
   grassDensity,
   nextMilestone,
   monthLights,
+  monthPlan,
   phaseAt,
+  pondFish,
   seasonFor,
   stageFor,
   treeStage,
@@ -24,20 +26,32 @@ test("las etapas maduran con la antigüedad del recuerdo", () => {
   assert.equal(stageFor("2025-01-01", today), "full");
 });
 
-test("hitos: árbol al inicio, luz cada mes, arco cada 3 meses, gran arco cada año", () => {
+test("cada mes: una luz (farol o farolillo) y un arco o un árbol; cada 3 meses, un gran arco", () => {
   const ms = computeMilestones("2025-10-31", today);
   assert.equal(ms[0].kind, "tree");
-  const count = (k) => ms.filter((m) => m.kind === k).length;
-  assert.equal(count("light"), 8);
-  assert.equal(count("arch"), 3);
-  assert.equal(count("grand"), 1);
+  const months = ms.slice(1);
+  assert.equal(months.length, 12);
+  for (const m of months) {
+    assert.ok(["lamp", "lantern"].includes(m.light), `mes ${m.n} sin luz`);
+    if (m.n % 3 === 0) assert.equal(m.kind, "grand");
+    else assert.ok(["arch", "bloom"].includes(m.kind));
+  }
+  assert.equal(months.filter((m) => m.kind === "grand").length, 4);
+  assert.equal(months.find((m) => m.n === 12).anniversary, true);
   assert.equal(ms.find((m) => m.n === 4).date, "2026-02-28");
-  assert.equal(ms.find((m) => m.n === 12).label, "1 año juntos");
+  // hay mezcla: no todo es igual
+  const lights = new Set(months.map((m) => m.light));
+  assert.equal(lights.size, 2);
   assert.deepEqual(computeMilestones(null, today), []);
   assert.deepEqual(computeMilestones("2027-01-01", today), []);
 });
 
-test("la guirnalda tiene una luz por cada mes, agrupadas por año", () => {
+test("el plan de cada mes es estable (mismo jardín en cada visita)", () => {
+  assert.deepEqual(monthPlan("2025-01-01", 5), monthPlan("2025-01-01", 5));
+  assert.equal(monthPlan("2025-01-01", 6).structure, "grand");
+});
+
+test("las luces de cada mes se agrupan por año", () => {
   const lights = monthLights("2024-11-20", today);
   assert.equal(lights.length, 24);
   assert.deepEqual([lights[0].year, lights[0].slot], [1, 1]);
@@ -49,9 +63,17 @@ test("próximo hito", () => {
   const next = nextMilestone("2025-10-31", today);
   assert.equal(next.date, "2026-11-30");
   assert.equal(next.inDays, 10);
-  assert.equal(next.kind, "light");
-  assert.match(next.text, /luz/);
-  assert.equal(nextMilestone("2025-11-25", today).kind, "grand");
+  assert.match(next.text, /(farol|guirnalda)/);
+  const yearly = nextMilestone("2025-11-25", today);
+  assert.equal(yearly.kind, "grand");
+  assert.match(yearly.text, /dorado/);
+});
+
+test("estanque: un pez por carta y un koi dorado por aniversario", () => {
+  const fish = pondFish({ letters: [{ id: "a", flower: { color: "lavanda" } }, { id: "b" }], start: "2023-11-01", today });
+  assert.equal(fish.filter((f) => f.kind === "koi").length, 3);
+  assert.equal(fish.filter((f) => f.kind === "fish").length, 2);
+  assert.equal(pondFish({ letters: [], start: null, today }).length, 0);
 });
 
 test("el tiempo solo hace crecer pasto y silvestres", () => {

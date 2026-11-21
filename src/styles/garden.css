@@ -374,7 +374,7 @@
   color: var(--accent-ink);
 }
 
-.timeline__item--light .timeline__kicker,
+.timeline__item--bloom .timeline__kicker,
 .timeline__item--grand .timeline__kicker,
 .timeline__item--arch .timeline__kicker,
 .timeline__item--tree .timeline__kicker {
@@ -496,4 +496,25 @@
 @keyframes lantern-sway {
   from { transform: rotate(-4deg); }
   to { transform: rotate(4deg); }
+}
+
+/* Estanque: los peces nadan en órbitas lentas. */
+.pond-fish {
+  animation: pond-swim 20s linear infinite;
+}
+
+.pond-fish.is-reverse {
+  animation-direction: reverse;
+}
+
+.garden-view.is-paused .pond-fish {
+  animation-play-state: paused;
+}
+
+.g-item--pond {
+  cursor: help;
+}
+
+@keyframes pond-swim {
+  to { transform: rotate(360deg); }
 }

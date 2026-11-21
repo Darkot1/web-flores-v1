@@ -45,7 +45,7 @@ export const pathOutline = (dims, steps = 40) => {
   return [...left, [last.x - last.halfWidth * 1.3, dims.height], [last.x + last.halfWidth * 1.3, dims.height], ...right.reverse()];
 };
 
-const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, tree: 1.2 };
+const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, tree: 1.2, bloom: 0.9, lamp: 0.95 };
 /** Medio ancho de los símbolos de arco (unidades del sprite). */
 const ARCH_HALF = { arch: 60, grand: 72 };
 
@@ -53,7 +53,26 @@ const ARCH_HALF = { arch: 60, grand: 72 };
  * Coloca cada elemento del modelo. `items` debe venir ordenado (lo hace
  * buildGardenModel) para que la resolución de choques sea determinista.
  */
+/**
+ * El estanque: siempre en el mismo sitio, a media distancia, del lado del
+ * camino con más prado libre. Es un elemento fijo del jardín.
+ */
+export const pondPlacement = (dims) => {
+  const d = 0.6;
+  const p = pathAt(d, dims);
+  const rx = dims.width * (dims.width < 800 ? 0.17 : 0.11);
+  const ry = rx * 0.34;
+  const roomRight = dims.width - (p.x + p.halfWidth);
+  const roomLeft = p.x - p.halfWidth;
+  const side = roomRight >= roomLeft ? 1 : -1;
+  const gap = p.halfWidth + rx + 24 * p.scale;
+  const cx = clamp(p.x + side * Math.min(gap + 20, (side > 0 ? roomRight : roomLeft) * 0.55 + p.halfWidth), rx + 12, dims.width - rx - 12);
+  return { cx: Math.round(cx), cy: Math.round(p.y), rx: Math.round(rx), ry: Math.round(ry), depth: d, scale: p.scale };
+};
+
 export const layoutItems = (items, dims) => {
+  const pond = pondPlacement(dims);
+  const inPond = (x, y) => ((x - pond.cx) / (pond.rx + 22)) ** 2 + ((y - pond.cy) / (pond.ry + 26)) ** 2 < 1;
   const cell = 30;
   const occupied = new Map();
   const keyOf = (x, y) => `${Math.round(x / cell)}:${Math.round(y / (cell * 0.6))}`;
@@ -71,7 +90,7 @@ export const layoutItems = (items, dims) => {
     .map((item) => {
       const rng = createRng(item.id);
       const isArch = item.kind === "arch" || item.kind === "grand";
-      const isStatic = isArch || item.kind === "tree";
+      const isStatic = isArch || item.kind === "tree" || item.kind === "lamp" || item.kind === "bloom";
       let d = clamp(depthFor(item.t) + (isStatic ? 0 : rng.range(-0.015, 0.015)), 0.02, 0.995);
       let p = pathAt(d, dims);
       let x = p.x;
@@ -84,6 +103,17 @@ export const layoutItems = (items, dims) => {
         x = p.x - p.halfWidth - 34 * p.scale;
       } else if (item.kind === "bench") {
         x = p.x + side * (p.halfWidth + 26 * p.scale);
+      } else if (item.kind === "lamp") {
+        // Faroles a la orilla del camino, alternando de lado.
+        side = item.n % 2 === 0 ? 1 : -1;
+        x = p.x + side * (p.halfWidth + 9 * p.scale);
+      } else if (item.kind === "bloom") {
+        // Árboles en flor: una alameda a los lados del camino.
+        x = p.x + side * (p.halfWidth + (60 + rng.float() * 90) * p.scale);
+        if (inPond(x, p.y) || x < margin || x > dims.width - margin) {
+          side = -side;
+          x = p.x + side * (p.halfWidth + (46 + rng.float() * 40) * p.scale);
+        }
       } else {
         // Todo el prado: desde el borde del camino hasta el borde del jardín.
         const r = item.kind === "wild" ? 0 : 1;
@@ -95,7 +125,7 @@ export const layoutItems = (items, dims) => {
           const room = s > 0 ? dims.width - margin - (p.x + gap) : p.x - gap - margin;
           if (room < 20) continue;
           const candidate = p.x + s * (gap + u * room);
-          if (candidate > margin && candidate < dims.width - margin && (item.kind === "wild" || isFree(candidate, p.y, r))) {
+          if (candidate > margin && candidate < dims.width - margin && !inPond(candidate, p.y) && (item.kind === "wild" || isFree(candidate, p.y, r))) {
             x = candidate;
             side = s;
             found = true;
@@ -115,9 +145,9 @@ export const layoutItems = (items, dims) => {
         y: Math.round(p.y * 10) / 10,
         depth: d,
         side,
-        // Los arcos abrazan el camino: su escala sale del ancho del camino.
+        // Los arcos abrazan el camino; el gran arco (cada 3 meses) es mucho mayor.
         scale: isArch
-          ? Math.round(((p.halfWidth * 1.12 + 6) / ARCH_HALF[item.kind]) * 1000) / 1000
+          ? Math.round(Math.min(item.kind === "grand" ? 2.05 : 1.75, (p.halfWidth * (item.kind === "grand" ? 1.38 : 1.04) + (item.kind === "grand" ? 12 : 6)) / ARCH_HALF[item.kind]) * 1000) / 1000
           : Math.round(p.scale * (KIND_SCALE[item.kind] ?? 1) * (isStatic ? 1 : rng.range(0.86, 1.14)) * 1000) / 1000,
         rotate: isStatic ? 0 : Math.round(rng.range(-8, 8) * 10) / 10,
         swayDelay: Math.round(rng.range(-6, 0) * 100) / 100,
