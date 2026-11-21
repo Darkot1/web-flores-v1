@@ -75,9 +75,9 @@ export const pondPlacement = (dims) => {
  * todo el jardín. Crece con los años (retoño → joven → árbol).
  */
 export const firstTreePlacement = (dims, stage = "tree") => {
-  const p = pathAt(0.06, dims);
+  const p = pathAt(0.11, dims);
   // El símbolo ya crece por etapa (retoño 0.45 · joven 0.72 · árbol 1); aquí solo su tamaño de protagonista.
-  const scale = dims.width < 800 ? 1.0 : 1.15;
+  const scale = dims.width < 800 ? 0.92 : 1.0;
   const grow = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
   const x = clamp(p.x - p.halfWidth - 78 * scale * 0.55, 60 * scale, dims.width - 60 * scale);
   return { x: Math.round(x), y: Math.round(p.y + 6), scale: Math.round(scale * 100) / 100, radius: 30 + 60 * scale * grow };

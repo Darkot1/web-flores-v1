@@ -26,23 +26,13 @@ test("las etapas maduran con la antigüedad del recuerdo", () => {
   assert.equal(stageFor("2025-01-01", today), "full");
 });
 
-test("cada mes crece una sola cosa (farol, farolillo, arco o árbol); cada 3 meses, un gran arco", () => {
+test("cada mes un farolillo; cada 3 meses un gran arco (dorado en el aniversario)", () => {
   const ms = computeMilestones("2023-10-31", today);
   assert.equal(ms[0].kind, "tree");
   const months = ms.slice(1);
   assert.equal(months.length, 36);
-  for (const m of months) {
-    if (m.n % 3 === 0) assert.equal(m.kind, "grand");
-    else assert.ok(["lamp", "lantern", "arch", "bloom"].includes(m.kind), `mes ${m.n}: ${m.kind}`);
-  }
-  const count = (k) => months.filter((m) => m.kind === k).length;
-  assert.equal(count("grand"), 12);
-  // Los faroles son lo más común; los arcos pequeños no saturan.
-  assert.ok(count("lamp") + count("lantern") > count("arch"));
-  assert.equal(count("lamp") + count("lantern"), 12);
-  assert.equal(count("arch") + count("bloom"), 12);
-  assert.equal(count("arch"), 6);
-  assert.equal(months.find((m) => m.n === 12).anniversary, true);
+  for (const m of months) assert.equal(m.kind, m.n % 3 === 0 ? "grand" : "lantern");
+  assert.equal(months.filter((m) => m.anniversary).length, 3);
   assert.equal(ms.find((m) => m.n === 4).date, "2024-02-29");
   assert.deepEqual(computeMilestones(null, today), []);
   assert.deepEqual(computeMilestones("2027-01-01", today), []);
@@ -53,20 +43,19 @@ test("el plan de cada mes es estable (mismo jardín en cada visita)", () => {
   assert.equal(monthPlan("2025-01-01", 6).kind, "grand");
 });
 
-test("la guirnalda solo lleva los meses que tocó farolillo", () => {
+test("la guirnalda lleva un farolillo por cada mes, agrupados por año", () => {
   const lights = monthLights("2024-11-20", today);
-  assert.ok(lights.length > 0 && lights.length < 24);
-  for (const l of lights) {
-    assert.equal(l.kind, "lantern");
-    assert.ok(l.year >= 1 && l.slot >= 1 && l.slot <= 12);
-  }
+  assert.equal(lights.length, 24);
+  assert.deepEqual([lights[0].year, lights[0].slot], [1, 1]);
+  assert.deepEqual([lights[23].year, lights[23].slot], [2, 12]);
+  assert.equal(lights[14].label, "1 año y 3 meses juntos");
 });
 
 test("próximo hito", () => {
   const next = nextMilestone("2025-10-31", today);
   assert.equal(next.date, "2026-11-30");
   assert.equal(next.inDays, 10);
-  assert.match(next.text, /(farol|guirnalda|arco|árbol)/);
+  assert.match(next.text, /farolillo/);
   const yearly = nextMilestone("2025-11-25", today);
   assert.equal(yearly.kind, "grand");
   assert.match(yearly.text, /dorado/);

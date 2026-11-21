@@ -4,6 +4,7 @@
  * Los colores llegan por custom properties: --petal, --center, etc.
  */
 import { buildDaisy, el, PETAL_PALETTES, GREENS } from "../components/daisy.js";
+import { createRng } from "../lib/seed.js";
 
 export const DAISY_SCALE = 0.8;
 const PETAL_VARIANTS = [13, 16, 21];
@@ -167,28 +168,80 @@ const bloomTree = () => {
   return g;
 };
 
+/**
+ * El árbol del primer día: dos troncos que se entrelazan y crecen hasta
+ * formar una sola copa de flores moradas (como un jacarandá). Crece por etapas:
+ * retoño (dos brotes enroscados) → joven → árbol pleno con un columpio.
+ * Base en (0,0); el árbol pleno mide ~170 de alto y ~170 de ancho.
+ */
 const tree = (stage) => {
-  const s = { sapling: 0.45, young: 0.72, tree: 1 }[stage] ?? 1;
-  const g = el("g", { transform: `scale(${s})` });
+  const conf = { sapling: { s: 0.46, n: 10, swing: false }, young: { s: 0.74, n: 26, swing: false }, tree: { s: 1, n: 54, swing: true } }[stage] ?? { s: 1, n: 54, swing: true };
+  const rng = createRng(`primer-dia-${stage}`);
+  const g = el("g", { class: "first-tree", transform: `scale(${conf.s})` });
+
+  // sombra, pétalos caídos y raíces
+  g.append(el("ellipse", { cx: 0, cy: 2, rx: 74, ry: 9, fill: "#3e1f4f", opacity: 0.13 }));
+  for (let i = 0; i < 14; i += 1) {
+    const x = rng.range(-64, 64);
+    g.append(el("ellipse", { cx: x.toFixed(1), cy: rng.range(-2, 6).toFixed(1), rx: 2.2, ry: 1.2, transform: `rotate(${rng.int(0, 180)} ${x.toFixed(1)} 2)`, fill: rng.pick(["#B79CEB", "#9A73D8", "#E8DDF7"]), opacity: 0.85 }));
+  }
+  g.append(el("path", { d: "M-12 0 C-20 2 -28 4 -36 3 M12 0 C20 2 30 5 38 3 M-4 1 C-8 5 -12 7 -18 8 M5 1 C9 5 14 7 20 8", fill: "none", stroke: "#6b4f39", "stroke-width": 3, "stroke-linecap": "round" }));
+
+  // dos troncos que se abrazan
+  const trunkA = "M-13 2 C-14 -22 10 -32 5 -56 C0 -80 -17 -90 -10 -116";
+  const trunkB = "M13 2 C14 -22 -10 -32 -5 -56 C0 -80 17 -90 11 -116";
   g.append(
-    el("ellipse", { cx: 0, cy: 2, rx: 40, ry: 6, fill: "#3e1f4f", opacity: 0.12 }),
-    el("path", { d: "M-5 0 C-4 -30 -7 -55 -2 -80 L3 -80 C6 -55 5 -30 6 0Z", fill: "#7a5b41" }),
-    el("path", { d: "M0 -55 Q-14 -66 -22 -74 M1 -64 Q14 -72 20 -84", fill: "none", stroke: "#7a5b41", "stroke-width": 3, "stroke-linecap": "round" }),
+    el("path", { d: trunkA, fill: "none", stroke: "#6e5139", "stroke-width": 11, "stroke-linecap": "round" }),
+    el("path", { d: trunkB, fill: "none", stroke: "#8a6a4f", "stroke-width": 10, "stroke-linecap": "round" }),
+    el("path", { d: trunkA, fill: "none", stroke: "#a9865f", "stroke-width": 2.2, "stroke-linecap": "round", opacity: 0.55, transform: "translate(-2 0)" }),
+    el("path", { d: trunkB, fill: "none", stroke: "#c4a27a", "stroke-width": 2, "stroke-linecap": "round", opacity: 0.5, transform: "translate(2 0)" }),
   );
-  const blobs = [
-    [-24, -92, 26, "#86A77F"],
-    [22, -98, 28, "#7E9F78"],
-    [0, -118, 30, "#93B28C"],
-    [-8, -84, 22, "#9DB59A"],
-    [16, -80, 20, "#86A77F"],
-  ];
-  for (const [cx, cy, r, fillColor] of blobs) g.append(el("circle", { cx, cy, r, fill: fillColor }));
-  const flowers = [[-26, -100], [18, -112], [2, -128], [28, -88], [-12, -80], [6, -96]];
-  for (const [x, y] of flowers) {
-    const head = el("g", { transform: `translate(${x} ${y})` });
-    for (let p = 0; p < 8; p += 1) head.append(el("ellipse", { cx: 0, cy: -3.2, rx: 1.7, ry: 3.4, transform: `rotate(${p * 45})`, fill: "#7B4FBF" }));
-    head.append(el("circle", { r: 1.6, fill: "#F2C14E" }));
-    g.append(head);
+  // ramas
+  g.append(
+    el("path", {
+      d: "M-10 -112 Q-34 -118 -56 -132 M-9 -110 Q-20 -136 -34 -156 M11 -112 Q36 -116 58 -128 M10 -110 Q22 -138 30 -158 M0 -100 Q2 -130 -2 -164",
+      fill: "none",
+      stroke: "#6e5139",
+      "stroke-width": 4,
+      "stroke-linecap": "round",
+    }),
+  );
+
+  // copa: racimos de flores, del fondo (oscuro) al frente (claro)
+  const back = ["#5B2E7E", "#6A3FB0", "#7B4FBF"];
+  const front = ["#7B4FBF", "#9A73D8", "#B79CEB", "#C9B6F2"];
+  const clusters = [];
+  for (let i = 0; i < conf.n; i += 1) {
+    const a = rng.range(Math.PI * 1.02, Math.PI * 1.98);
+    const rr = Math.sqrt(rng.float());
+    clusters.push({ x: Math.cos(a) * 80 * rr, y: -128 + Math.sin(a) * 46 * rr + rng.range(-4, 10), r: rng.range(10, 17), layer: rng.float() });
+  }
+  clusters.sort((p, q) => p.layer - q.layer);
+  for (const c of clusters) {
+    const fill = c.layer < 0.4 ? rng.pick(back) : rng.pick(front);
+    g.append(el("circle", { cx: c.x.toFixed(1), cy: c.y.toFixed(1), r: c.r.toFixed(1), fill }));
+  }
+  // hojas que asoman y destellos de flor
+  for (let i = 0; i < conf.n * 0.45; i += 1) {
+    // hojas sueltas en el borde de la copa, giradas
+    const a = rng.range(Math.PI * 0.05, Math.PI * 0.95) + Math.PI * (rng.chance(0.75) ? 0 : 1);
+    const lx = Math.cos(a) * rng.range(50, 82);
+    const ly = -128 + Math.abs(Math.sin(a)) * rng.range(8, 30) * (a < Math.PI ? 1 : -1.2);
+    g.append(el("ellipse", { cx: 0, cy: 0, rx: 5.5, ry: 2.4, transform: `translate(${lx.toFixed(1)} ${ly.toFixed(1)}) rotate(${rng.int(-50, 50)})`, fill: rng.pick(["#86A77F", "#9DB59A", "#7E9F78"]), opacity: 0.95 }));
+  }
+  for (let i = 0; i < conf.n * 1.4; i += 1) {
+    const a = rng.range(Math.PI * 1.05, Math.PI * 1.95);
+    const rr = Math.sqrt(rng.float());
+    g.append(el("circle", { cx: (Math.cos(a) * 78 * rr).toFixed(1), cy: (-128 + Math.sin(a) * 44 * rr).toFixed(1), r: rng.range(1.2, 2.4).toFixed(1), fill: rng.pick(["#F3ECFF", "#E8DDF7", "#F2C14E"]), opacity: 0.9 }));
+  }
+
+  // el columpio, cuando el árbol ya es grande
+  if (conf.swing) {
+    g.append(
+      el("path", { d: "M34 -118 L36 -40 M50 -122 L52 -40", stroke: "#cbb79a", "stroke-width": 1.4 }),
+      el("rect", { x: 31, y: -42, width: 26, height: 5, rx: 2, fill: "#8a6a4f" }),
+      el("path", { d: "M34 -42 h20", stroke: "#a9865f", "stroke-width": 1 }),
+    );
   }
   return g;
 };

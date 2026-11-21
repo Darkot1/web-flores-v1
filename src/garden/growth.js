@@ -73,25 +73,11 @@ const monthLabel = (n) => {
 };
 
 /**
- * Plan de cada mes juntos (determinista: depende de la fecha de inicio y del mes).
- * Cada mes crece UNA sola cosa. En cada trimestre:
- *   - un mes: un farol junto al camino ("lamp") o un farolillo en la guirnalda ("lantern")
- *   - otro mes: un arco de flores ("arch") o un árbol en flor ("bloom"), alternando por trimestre
- *   - el tercer mes: un gran arco ("grand"); en el aniversario, dorado
- * Al año: 4 faroles, 2 arcos, 2 árboles y 4 grandes arcos.
+ * Plan de cada mes juntos:
+ *   - cada mes: un farolillo colgado en la guirnalda del cielo (una guirnalda por año)
+ *   - cada 3 meses: además, un gran arco de flores sobre el camino; en el aniversario, dorado
  */
-export const monthPlan = (start, n) => {
-  const anniversary = n % 12 === 0;
-  if (n % 3 === 0) return { kind: "grand", anniversary };
-  // Equilibrado por trimestre: un farol y (alternando) un arco o un árbol.
-  const q = Math.floor((n - 1) / 3);
-  const rngQ = createRng(`${start}#trimestre-${q}`);
-  const farolFirst = rngQ.chance(0.5);
-  const offset = createRng(`${start}#jardin`).int(0, 1);
-  const isFarol = ((n - 1) % 3 === 0) === farolFirst;
-  if (isFarol) return { kind: createRng(`${start}#mes-${n}`).chance(0.5) ? "lamp" : "lantern", anniversary };
-  return { kind: (q + offset) % 2 === 0 ? "arch" : "bloom", anniversary };
-};
+export const monthPlan = (start, n) => ({ kind: n % 3 === 0 ? "grand" : "lantern", anniversary: n % 12 === 0 });
 
 /** Cada mesiversario hasta hoy, con lo que creció ese mes. */
 export const monthiversaries = (start, today, { maxMonths = 600 } = {}) => {
@@ -115,18 +101,13 @@ export const computeMilestones = (start, today, options) => {
   ];
 };
 
-/** Los farolillos de la guirnalda (solo los meses que tocó farolillo). */
+/** Los farolillos de la guirnalda: uno por cada mes juntos. */
 export const monthLights = (start, today, climate = "tropical") =>
-  monthiversaries(start, today)
-    .filter((m) => m.kind === "lantern")
-    .map((m) => ({ ...m, id: `ms-${m.n}`, season: seasonFor(m.date, climate).id }));
+  monthiversaries(start, today).map((m) => ({ ...m, kind: "lantern", id: `light-${m.n}`, season: seasonFor(m.date, climate).id }));
 
 const GROWS_TEXT = {
-  lamp: "se enciende un farol junto al camino",
-  lantern: "se cuelga una luz en la guirnalda",
-  arch: "crece un arco de flores",
-  bloom: "florece un árbol nuevo",
-  grand: "crece un gran arco",
+  lantern: "se cuelga un farolillo más en la guirnalda",
+  grand: "se cuelga un farolillo y crece un gran arco de flores",
 };
 
 /** El próximo hito: para un "faltan X días" discreto. */
@@ -140,7 +121,7 @@ export const nextMilestone = (start, today) => {
     if (inDays > 0) {
       const plan = monthPlan(start, n);
       const label = monthLabel(n);
-      const grows = plan.anniversary ? "crece el gran arco dorado del aniversario" : GROWS_TEXT[plan.kind];
+      const grows = plan.anniversary ? "se cuelga un farolillo y crece el gran arco dorado del aniversario" : GROWS_TEXT[plan.kind];
       return { date, n, ...plan, inDays, label, text: `${grows}: ${label}` };
     }
   }
