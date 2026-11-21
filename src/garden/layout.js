@@ -60,7 +60,7 @@ const ARCH_HALF = { arch: 60, grand: 72 };
 export const pondPlacement = (dims) => {
   const d = 0.34;
   const p = pathAt(d, dims);
-  const rx = dims.width * (dims.width < 800 ? 0.13 : 0.085) * (0.55 + p.scale);
+  const rx = dims.width * (dims.width < 800 ? 0.2 : 0.135) * (0.55 + p.scale);
   const ry = rx * 0.3;
   const roomRight = dims.width - (p.x + p.halfWidth);
   const roomLeft = p.x - p.halfWidth;

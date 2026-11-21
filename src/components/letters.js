@@ -97,25 +97,69 @@ const petalRain = (host, seed) => {
 export const createLetters = (root, { store, onCompose }) => {
   const shelf = root.querySelector("[data-letters-list]");
   const composeBtn = root.querySelector("[data-letters-compose]");
+  const filterBar = root.querySelector("[data-letters-filter]");
+  const status = root.querySelector("[data-letters-status]");
+  const prevBtn = root.querySelector("[data-letters-prev]");
+  const nextBtn = root.querySelector("[data-letters-next]");
   const reader = createDialog({ className: "letter-dialog on-dark" });
+  let filter = "all";
+
+  const FILTERS = (authors) => [
+    { id: "all", label: "Todas", test: () => true },
+    { id: "unread", label: "Sin leer", test: (l) => !store.isRead(l.id) },
+    { id: "el", label: `De ${authors.el}`, test: (l) => l.from === "el" },
+    { id: "ella", label: `De ${authors.ella}`, test: (l) => l.from === "ella" },
+  ];
+
+  const updateNav = () => {
+    const max = shelf.scrollWidth - shelf.clientWidth;
+    prevBtn.disabled = shelf.scrollLeft <= 4;
+    nextBtn.disabled = shelf.scrollLeft >= max - 4;
+    root.querySelector(".pergola").classList.toggle("is-scrollable", max > 4);
+  };
+
+  const scrollByPage = (dir) => {
+    shelf.scrollBy({ left: dir * shelf.clientWidth * 0.8, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  };
 
   const render = () => {
     const { authors } = store.settings();
-    const letters = store.letters();
+    const filters = FILTERS(authors);
+    const all = store.letters();
+    // Filtros (con contador)
+    filterBar.replaceChildren(
+      ...filters.map((f) => {
+        const count = all.filter(f.test).length;
+        const b = h("button", "letters-filter__btn");
+        b.type = "button";
+        b.setAttribute("aria-pressed", String(filter === f.id));
+        b.append(h("span", "", f.label), h("span", "letters-filter__count", String(count)));
+        b.addEventListener("click", () => {
+          filter = f.id;
+          render();
+          shelf.scrollTo({ left: 0 });
+        });
+        return b;
+      }),
+    );
+    const active = filters.find((f) => f.id === filter) ?? filters[0];
+    // Las más nuevas primero.
+    const letters = all.filter(active.test).sort((a, b) => b.date.localeCompare(a.date) || String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
     shelf.replaceChildren();
     letters.forEach((letter, index) => {
       const li = h("li", "pergola__item");
       const rng = createRng(letter.id);
       li.style.setProperty("--swing", `${rng.range(-3, 3).toFixed(1)}deg`);
-      li.style.setProperty("--string", `${Math.round(rng.range(14, 54))}px`);
-      li.style.setProperty("--delay", `${(-rng.range(0, 6)).toFixed(2)}s`);
+      li.style.setProperty("--string", `${Math.round(rng.range(14, 40))}px`);
       const unread = !store.isRead(letter.id);
       const btn = h("button", `envelope${unread ? " is-unread" : ""}`);
       btn.type = "button";
       btn.dataset.letterId = letter.id;
       btn.setAttribute("aria-label", `${letter.title}, ${authors[letter.from] ?? ""} · ${formatShort(letter.date)}${unread ? ", sin leer" : ", leída"} (carta)`);
       const body = h("span", "envelope__body");
-      body.append(h("span", "envelope__flap"), createSeal(letter.sealColor, 34));
+      // La flor de la carta asoma detrás del sobre: es la misma que crece en el jardín.
+      const flower = createDaisy({ size: 40, stage: "full", color: letter.flower?.color ?? "morada", petals: letter.flower?.petals ?? 21, seed: letter.id, className: "envelope__flower" });
+      body.append(flower, h("span", "envelope__paper"), h("span", "envelope__flap"), createSeal(letter.sealColor, 34));
       body.querySelector(".seal").classList.add("envelope__seal");
       const label = h("span", "envelope__label");
       label.append(h("span", "envelope__title", letter.title), h("span", "envelope__meta", `${authors[letter.from] ?? ""} · ${formatShort(letter.date)}`));
@@ -126,7 +170,37 @@ export const createLetters = (root, { store, onCompose }) => {
       li.style.setProperty("--i", index);
       shelf.append(li);
     });
+    if (!letters.length) {
+      const li = h("li", "pergola__empty", filter === "unread" ? "Ya leíste todas las cartas ✿" : "Aún no hay cartas aquí.");
+      shelf.append(li);
+    }
+    status.textContent = `${letters.length} ${letters.length === 1 ? "carta" : "cartas"}${filter === "all" ? "" : ` · ${filter === "unread" ? "sin leer" : active.label}`}`;
+    requestAnimationFrame(updateNav);
   };
+
+  // Si la carta abierta ya no está en la lista (p. ej. filtro "Sin leer"), el foco vuelve al estante.
+  reader.onClose(() =>
+    setTimeout(() => {
+      if (document.activeElement === document.body) (shelf.querySelector(".envelope") ?? filterBar.querySelector("button"))?.focus({ preventScroll: true });
+    }, 30),
+  );
+
+  prevBtn.addEventListener("click", () => scrollByPage(-1));
+  nextBtn.addEventListener("click", () => scrollByPage(1));
+  shelf.addEventListener("scroll", updateNav, { passive: true });
+  window.addEventListener("resize", updateNav);
+  // Rueda vertical → desplazamiento horizontal sobre el estante (en escritorio).
+  shelf.addEventListener(
+    "wheel",
+    (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || shelf.scrollWidth <= shelf.clientWidth) return;
+      const max = shelf.scrollWidth - shelf.clientWidth;
+      if ((e.deltaY < 0 && shelf.scrollLeft <= 0) || (e.deltaY > 0 && shelf.scrollLeft >= max)) return;
+      e.preventDefault();
+      shelf.scrollLeft += e.deltaY;
+    },
+    { passive: false },
+  );
 
   const openLetter = (letter, opener) => {
     const { authors } = store.settings();

@@ -155,19 +155,28 @@
           <p class="act__lead" data-letters-body></p>
         </header>
 
-        <div class="pergola">
-          <svg class="pergola__frame" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path d="M0 40 Q500 0 1000 40" fill="none" stroke="#8a6a4f" stroke-width="10" vector-effect="non-scaling-stroke" stroke-linecap="round" />
-            <path d="M0 40 Q140 70 250 34 T520 30 T780 38 T1000 44" fill="none" stroke="#5f8259" stroke-width="4" vector-effect="non-scaling-stroke" opacity=".9" />
-          </svg>
-          <ul class="pergola__envelopes" role="list" data-letters-list></ul>
-        </div>
-        <div class="letters-actions">
+        <div class="letters-toolbar">
+          <div class="letters-filter" role="group" aria-label="Filtrar cartas" data-letters-filter></div>
           <button class="btn btn--primary" type="button" data-letters-compose>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19l4-1 10-10-3-3L5 15l-1 4zM13 7l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
             Escribir una carta
           </button>
         </div>
+
+        <div class="pergola">
+          <svg class="pergola__frame" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path d="M0 40 Q500 0 1000 40" fill="none" stroke="#8a6a4f" stroke-width="10" vector-effect="non-scaling-stroke" stroke-linecap="round" />
+            <path d="M0 40 Q140 70 250 34 T520 30 T780 38 T1000 44" fill="none" stroke="#5f8259" stroke-width="4" vector-effect="non-scaling-stroke" opacity=".9" />
+          </svg>
+          <button class="pergola__nav pergola__nav--prev" type="button" aria-label="Cartas anteriores" data-letters-prev>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <ul class="pergola__envelopes" role="list" aria-label="Cartas" data-letters-list></ul>
+          <button class="pergola__nav pergola__nav--next" type="button" aria-label="Más cartas" data-letters-next>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+        <p class="letters-status" aria-live="polite" data-letters-status></p>
 
         <section class="closing" aria-labelledby="closing-title">
           <div class="closing__scene" data-closing-scene aria-hidden="true"></div>

@@ -489,3 +489,33 @@ html.has-modal {
     bottom: 24px;
   }
 }
+
+/* Cartas: sin barra de desplazamiento visible (se sigue pudiendo desplazar). */
+.letter-dialog .dialog__panel,
+.composer .dialog__panel {
+  scrollbar-width: none;
+}
+
+.letter-dialog .dialog__panel::-webkit-scrollbar,
+.composer .dialog__panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* El botón de enviar siempre a la vista, al pie del compositor. */
+.composer .composer__actions {
+  position: sticky;
+  bottom: calc(clamp(1.25rem, 4vw, 2.25rem) * -1);
+  z-index: 3;
+  margin: 0 calc(clamp(1.25rem, 4vw, 2.25rem) * -1) calc(clamp(1.25rem, 4vw, 2.25rem) * -1);
+  padding: var(--space-3) clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 3vw, 1.5rem);
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 -10px 24px -16px rgb(62 31 79 / 0.4);
+}
+
+@media (min-width: 900px) {
+  .composer .composer__actions {
+    margin-right: 0;
+    padding-right: 0;
+  }
+}
