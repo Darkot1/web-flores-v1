@@ -69,28 +69,79 @@ const lamp = () =>
     el("path", { d: "M-7 -70 L0 -76 L7 -70Z", fill: "#3e1f4f" }),
   ]);
 
+/** Cabecita de flor para arcos (colores por variable para teñir por temporada). */
+const archFlower = (x, y, fill, size = 1) => {
+  const head = el("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${size})` });
+  for (let p = 0; p < 8; p += 1) head.append(el("ellipse", { cx: 0, cy: -3.6, rx: 1.9, ry: 3.8, transform: `rotate(${p * 45})`, style: `fill:${fill}` }));
+  head.append(el("circle", { r: 1.7, fill: "#F2C14E" }));
+  return head;
+};
+
+const ARCH_FILLS = ["var(--arch-a,#7B4FBF)", "var(--arch-b,#C9B6F2)", "var(--arch-c,#FAF6FC)"];
+
+/** Arco de flores (cada 3 meses). Mide ±46 de ancho y ~120 de alto. */
 const arch = () => {
   const g = el("g", { class: "arch" });
   g.append(
-    el("path", { d: "M-46 0 L-46 -70 Q0 -120 46 -70 L46 0", fill: "none", stroke: "#6e5139", "stroke-width": 3.2, "stroke-linecap": "round" }),
-    el("path", { d: "M-46 -70 Q0 -120 46 -70", fill: "none", stroke: "#5f8259", "stroke-width": 9, "stroke-linecap": "round", opacity: 0.85 }),
+    el("ellipse", { cx: -46, cy: 1, rx: 7, ry: 2, fill: "#3e1f4f", opacity: 0.15 }),
+    el("ellipse", { cx: 46, cy: 1, rx: 7, ry: 2, fill: "#3e1f4f", opacity: 0.15 }),
+    el("path", { d: "M-46 0 L-46 -70 Q0 -122 46 -70 L46 0", fill: "none", stroke: "#6e5139", "stroke-width": 3.4, "stroke-linecap": "round" }),
+    el("path", { d: "M-46 -70 Q0 -122 46 -70", fill: "none", stroke: "#5f8259", "stroke-width": 10, "stroke-linecap": "round", opacity: 0.9 }),
   );
-  const colors = ["#7B4FBF", "#C9B6F2", "#FAF6FC", "#7B4FBF", "#F2C14E", "#7B4FBF", "#B79CEB"];
-  for (let i = 0; i <= 12; i += 1) {
-    const t = i / 12;
-    const a = Math.PI * (1 - t);
-    const x = Math.cos(a) * 46;
-    const y = -70 - Math.sin(a) * 28 - (1 - Math.abs(0.5 - t) * 2) * 6;
-    const fillColor = colors[i % colors.length];
-    const head = el("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` });
-    for (let p = 0; p < 7; p += 1) head.append(el("ellipse", { cx: 0, cy: -3.6, rx: 1.9, ry: 3.8, transform: `rotate(${p * 51})`, fill: fillColor }));
-    head.append(el("circle", { r: 1.7, fill: "#F2C14E" }));
-    g.append(head);
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 5; i += 1) {
+      g.append(el("path", { d: `M${side * 46} ${-8 - i * 13} q${side * 8} -5 ${side * 10} 2 q${side * -6} 4 ${side * -10} -2z`, fill: i % 2 ? "#86A77F" : "#9DB59A" }));
+      if (i % 2 === 0) g.append(archFlower(side * (46 + 5), -14 - i * 13, ARCH_FILLS[(i / 2) % 3], 0.75));
+    }
+  }
+  for (let i = 0; i <= 14; i += 1) {
+    const t = i / 14;
+    const x = (t * 2 - 1) * 46;
+    const y = -70 - 52 * 2 * t * (1 - t) * 1.0 + (i % 2 ? 3 : -2);
+    g.append(archFlower(x, y, ARCH_FILLS[i % 3], i % 4 === 0 ? 1.15 : 1));
+  }
+  return g;
+};
+
+/** Farolillo de papel colgante (se enciende de noche con --lamp-light). */
+const paperLantern = (x, y, size = 1) =>
+  el("g", { transform: `translate(${x} ${y}) scale(${size})` }, [
+    el("path", { d: "M0 -10 L0 -4", stroke: "#4a3a52", "stroke-width": 0.9 }),
+    el("ellipse", { cx: 0, cy: 2, rx: 5.2, ry: 6.4, style: "fill:var(--lantern-fill,var(--lamp-light,#f3e3b8))" }),
+    el("path", { d: "M-5 2 h10 M-4.4 -1.5 h8.8 M-4.4 5.5 h8.8", stroke: "#c9a050", "stroke-width": 0.5, opacity: 0.6 }),
+    el("rect", { x: -2.6, y: -5.2, width: 5.2, height: 1.6, rx: 0.6, fill: "#4a3a52" }),
+    el("rect", { x: -2.6, y: 8, width: 5.2, height: 1.4, rx: 0.6, fill: "#4a3a52" }),
+  ]);
+
+/** El gran arco de cada aniversario: doble corona morada y dorada, con farolillos. ±72 de ancho, ~118 de alto. */
+const grandArch = () => {
+  const W = 72;
+  const H = 64;
+  const R = 52;
+  const g = el("g", { class: "arch arch--grand" });
+  const crown = (w, h, r) => `M${-w} ${-h} Q0 ${-h - 2 * r} ${w} ${-h}`;
+  g.append(
+    el("ellipse", { cx: 0, cy: 2, rx: 84, ry: 6, fill: "#3e1f4f", opacity: 0.12 }),
+    el("path", { d: `M${-W} 0 L${-W} ${-H} Q0 ${-H - 2 * R} ${W} ${-H} L${W} 0`, fill: "none", stroke: "#5b4636", "stroke-width": 4.4, "stroke-linecap": "round" }),
+    el("path", { d: `M${-W + 8} 0 L${-W + 8} ${-H + 2} Q0 ${-H - 2 * R + 14} ${W - 8} ${-H + 2} L${W - 8} 0`, fill: "none", stroke: "#6e5139", "stroke-width": 2.4, "stroke-linecap": "round" }),
+    el("path", { d: crown(W, H, R), fill: "none", stroke: "#5f8259", "stroke-width": 13, "stroke-linecap": "round", opacity: 0.92 }),
+  );
+  const fills = ["#7B4FBF", "#F2C14E", "#B79CEB", "#7B4FBF", "#FAF6FC", "#5B2E7E"];
+  for (let i = 0; i <= 18; i += 1) {
+    const t = i / 18;
+    g.append(archFlower((t * 2 - 1) * W, -H - R * 4 * t * (1 - t) + (i % 2 ? 3 : -3), fills[i % fills.length], i % 3 === 0 ? 1.25 : 1));
+  }
+  for (let i = 0; i <= 10; i += 1) {
+    const t = i / 10;
+    g.append(archFlower((t * 2 - 1) * (W - 4), -H - 10 - (R - 2) * 4 * t * (1 - t), fills[(i + 2) % fills.length], 0.75));
   }
   for (const side of [-1, 1]) {
-    for (let i = 0; i < 4; i += 1) {
-      g.append(el("path", { d: `M${side * 46} ${-12 - i * 15} q${side * 7} -4 ${side * 9} 2 q${side * -5} 3 ${side * -9} -2z`, fill: "#86A77F" }));
+    for (let i = 0; i < 5; i += 1) {
+      g.append(el("path", { d: `M${side * W} ${-8 - i * 12} q${side * 9} -5 ${side * 11} 2 q${side * -6} 4 ${side * -11} -2z`, fill: i % 2 ? "#86A77F" : "#9DB59A" }));
+      if (i % 2 === 0) g.append(archFlower(side * (W + 6), -14 - i * 12, fills[(i + 1) % fills.length], 0.85));
     }
+    // un farolillo colgando a cada lado
+    g.append(paperLantern(side * 40, -96, 1.2));
   }
   return g;
 };
@@ -185,6 +236,8 @@ const builder = (id) => {
     "w-open": () => wrap("w-open", [wildflower("open")]),
     lamp: () => wrap("lamp", [lamp()]),
     arch: () => wrap("arch", [arch()]),
+    grand: () => wrap("grand", [grandArch()]),
+    lantern: () => wrap("lantern", [paperLantern(0, 10, 1)]),
     bench: () => wrap("bench", [bench()]),
     cluster: () => {
       symbolHref("d-head");

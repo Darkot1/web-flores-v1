@@ -374,7 +374,8 @@
   color: var(--accent-ink);
 }
 
-.timeline__item--lamp .timeline__kicker,
+.timeline__item--light .timeline__kicker,
+.timeline__item--grand .timeline__kicker,
 .timeline__item--arch .timeline__kicker,
 .timeline__item--tree .timeline__kicker {
   color: var(--earth-ink);
@@ -475,4 +476,24 @@
 /* Con zoom, el aviso de jardín vacío no tapa el recorrido. */
 .garden-view.is-zoomed .garden-empty {
   display: none;
+}
+
+/* Farolillos de la guirnalda: se mecen desde su cordel. */
+.g-lantern {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: lantern-sway 5.5s ease-in-out infinite alternate;
+}
+
+.garden-view.is-paused .g-lantern {
+  animation-play-state: paused;
+}
+
+.g-item--light {
+  cursor: help;
+}
+
+@keyframes lantern-sway {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(4deg); }
 }

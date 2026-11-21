@@ -15,7 +15,9 @@ const h = (tag, className, text) => {
   return node;
 };
 
-const ICONS = { tree: "tree-sapling", lamp: "lamp", arch: "arch" };
+const ICONS = { tree: "tree-sapling", light: "lantern", arch: "arch", grand: "grand" };
+const ICON_BOX = { tree: "-50 -160 100 166", light: "-12 -2 24 28", arch: "-70 -100 140 104", grand: "-86 -126 172 130" };
+const KICKER = { tree: "El primer día", light: "Una luz más en la guirnalda", arch: "Arco de flores", grand: "Aniversario · el gran arco" };
 
 const icon = (href, style, viewBox = "-34 -110 68 116") => {
   const svg = el("svg", { class: "timeline__icon", viewBox, "aria-hidden": "true", focusable: "false", style });
@@ -73,9 +75,9 @@ export const createTimeline = (host, { store, onOpenMemory, onOpenLetter }) => {
         li.append(btn);
       } else {
         const row = h("div", "timeline__milestone");
-        row.append(icon(ICONS[entry.kind], undefined, entry.kind === "arch" ? "-56 -126 112 130" : entry.kind === "tree" ? "-50 -160 100 166" : "-20 -80 40 84"));
+        row.append(icon(ICONS[entry.kind], entry.kind === "light" ? "--lantern-fill:#F2C14E" : undefined, ICON_BOX[entry.kind]));
         const text = h("span", "timeline__text");
-        text.append(h("span", "timeline__kicker", entry.kind === "tree" ? "El primer día" : entry.kind === "arch" ? "Aniversario" : "Mesiversario"));
+        text.append(h("span", "timeline__kicker", KICKER[entry.kind]));
         text.append(h("span", "timeline__title", entry.ref.label));
         text.append(h("span", "timeline__date", formatLong(entry.date)));
         row.append(text);

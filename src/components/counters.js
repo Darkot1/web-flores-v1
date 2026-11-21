@@ -64,10 +64,7 @@ export const renderGardenCounters = (node, store) => {
   if (next && start <= today) {
     const p = document.createElement("p");
     p.className = "soul-counters__next";
-    p.textContent =
-      next.kind === "arch"
-        ? `En ${plural(next.inDays, "día", "días")} crece un arco de flores: ${next.label}.`
-        : `En ${plural(next.inDays, "día", "días")} se enciende un nuevo farol: ${next.label}.`;
+    p.textContent = `En ${plural(next.inDays, "día", "días")} ${next.text}.`;
     node.append(p);
   }
 };

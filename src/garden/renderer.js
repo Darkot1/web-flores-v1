@@ -6,8 +6,8 @@
  * Accesibilidad: el jardín es un único tab stop (roving tabindex); las flechas
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
-import { buildGardenModel, phaseAt, STAGE_LABELS } from "./growth.js";
-import { DIMENSIONS, layoutGrass, layoutItems, pathOutline, seasonBands } from "./layout.js";
+import { ARCH_PALETTES, buildGardenModel, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
+import { DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
@@ -32,9 +32,12 @@ export const describeItem = (item) => {
       return { label: `Día especial: ${item.title}, ${date}`, title: item.title, meta: date, kicker: "Día especial" };
     case "tree":
       return { label: `Aquí empezó todo, ${date}`, title: "Aquí empezó todo", meta: date, kicker: "El primer día" };
-    case "lamp":
+    case "light":
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Una luz más en la guirnalda" };
     case "arch":
-      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: item.kind === "arch" ? "Aniversario" : "Mesiversario" };
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "Arco de flores" };
+    case "grand":
+      return { label: `${item.label}, ${date}`, title: item.label, meta: date, kicker: "El gran arco · aniversario" };
     default:
       return { label: "", title: "", meta: "" };
   }
@@ -43,7 +46,7 @@ export const describeItem = (item) => {
 /** Se pueden abrir (botones, recorridos con flechas). */
 const INTERACTIVE = new Set(["memory", "letter", "cluster", "bench"]);
 /** Solo informan (tooltip al pasar el ratón); para lectores, la vista Camino los lista. */
-const DECOR_WITH_TIP = new Set(["tree", "lamp", "arch"]);
+const DECOR_WITH_TIP = new Set(["tree", "arch", "grand", "light"]);
 
 const itemContent = (item) => {
   switch (item.kind) {
@@ -63,6 +66,10 @@ const itemContent = (item) => {
 const itemStyle = (item) => {
   if (item.kind === "memory" || item.kind === "cluster" || item.kind === "wild") return paletteVars(item.color ?? "morada");
   if (item.kind === "letter") return paletteVars(item.color, { "--ribbon": SEAL_RIBBON[item.sealColor] ?? "#C24D7A" });
+  if (item.kind === "arch") {
+    const [a, b, c] = ARCH_PALETTES[item.season] ?? ARCH_PALETTES.rain;
+    return `--arch-a:${a};--arch-b:${b};--arch-c:${c}`;
+  }
   return undefined;
 };
 
@@ -242,6 +249,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       today,
       caps,
       thresholds: config.growth,
+      climate: config.climate,
     });
 
     laid = layoutItems(model.items, dims);
@@ -264,6 +272,31 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
         flies.append(el("circle", { cx: fx.toFixed(1), cy: fy.toFixed(1), r: 1.8, fill: "#ffe9a8", opacity: 0.85 }));
       }
       frag.append(flies);
+    }
+    // Guirnaldas del cielo: una luz por cada mes juntos.
+    const garland = layoutGarland(model.lights, dims);
+    if (garland.strands.length) {
+      const sky = el("g", { class: "garden-garland" });
+      for (const strand of garland.strands) {
+        sky.append(el("path", { d: strand.d, fill: "none", stroke: variant === "night" ? "#8c7a96" : "#a08a74", "stroke-width": 1.1, opacity: 0.8 }));
+      }
+      for (const light of garland.lights) {
+        const g = el("g", {
+          class: "g-item g-item--light",
+          transform: `translate(${light.x} ${light.y})`,
+          "data-id": light.id,
+          "data-tip": "",
+          "aria-hidden": "true",
+          style: variant === "night" ? "--lantern-fill:#ffe9a8" : `--lantern-fill:${LANTERN_COLORS[light.season] ?? "#F2C14E"}`,
+        });
+        const sway = el("g", { class: "g-lantern", style: `animation-delay:${(-light.slot * 0.37).toFixed(2)}s` });
+        sway.append(el("path", { d: `M0 0 L0 ${light.drop}`, stroke: "#6b5a70", "stroke-width": 0.8 }));
+        sway.append(el("use", { href: symbolHref("lantern"), transform: `translate(0 ${light.drop - 2}) rotate(${light.rotate}) scale(${light.scale})` }));
+        g.append(el("rect", { x: -10, y: 0, width: 20, height: light.drop + 26, fill: "transparent" }), sway);
+        nodesById.set(light.id, { g, body: sway, item: light });
+        sky.append(g);
+      }
+      frag.append(sky);
     }
     // Colinas lejanas
     frag.append(
@@ -347,8 +380,13 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     if (variant === "night") {
       frag.append(el("rect", { class: "garden-night-veil", width, height, fill: "#1d0f28", opacity: 0.14, "pointer-events": "none" }));
       const glows = el("g", { class: "garden-lamp-glows", "pointer-events": "none", "aria-hidden": "true" });
-      for (const item of laid.filter((i) => i.kind === "lamp")) {
-        glows.append(el("circle", { class: "lamp-halo", cx: item.x, cy: item.y - 56 * item.scale, r: 40 * item.scale + 6, fill: "url(#lamp-glow)" }));
+      for (const light of garland.lights) {
+        glows.append(el("circle", { cx: light.x, cy: light.y + light.drop + 10, r: 20, fill: "url(#lamp-glow)" }));
+      }
+      for (const item of laid.filter((i) => i.kind === "grand")) {
+        for (const side of [-1, 1]) {
+          glows.append(el("circle", { cx: item.x + side * 40 * item.scale, cy: item.y - 83 * item.scale, r: 20 * item.scale + 6, fill: "url(#lamp-glow)" }));
+        }
       }
       frag.append(glows);
     }

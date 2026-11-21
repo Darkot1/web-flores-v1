@@ -40,9 +40,14 @@ Todo lo editable está en `src/config.js`:
 **Cartas iniciales:** `src/data/letters.js`. La carta de las margaritas moradas es la primera.
 Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`).
 
-**Hitos:**
-- Automáticos desde la fecha de inicio: el arbolito del primer día, un farol cada mesiversario y un arco de flores cada aniversario.
-- Marcados a mano: al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
+**Hitos** (salen solos de la fecha de inicio):
+- **El primer día:** el arbolito al principio del camino, que crece con los años.
+- **Cada mes:** un farolillo de papel en la guirnalda del cielo. Hay una guirnalda por año, con 12 luces, del color de la temporada, y de noche se encienden.
+- **Cada 3 meses:** un arco de flores sobre el camino, teñido según la temporada en que creció (seca, lluvias, veranillo…).
+- **Cada aniversario:** el gran arco, con doble corona morada y dorada y dos farolillos.
+- **Marcados a mano:** al crear o editar un recuerdo, activa **"Es un día especial"**. Crece una banca con lavanda junto al camino y el día se marca en dorado en el calendario.
+
+Los recuerdos y las flores silvestres se reparten por todo el prado, desde el camino hasta los bordes.
 
 ## Guardado: modo local y modo compartido
 

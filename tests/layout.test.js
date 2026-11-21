@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildGardenModel } from "../src/garden/growth.js";
-import { DIMENSIONS, layoutItems, layoutSignature, pathAt, layoutGrass } from "../src/garden/layout.js";
+import { DIMENSIONS, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass } from "../src/garden/layout.js";
+import { monthLights } from "../src/garden/growth.js";
 
 const memories = Array.from({ length: 60 }, (_, i) => ({
   id: `mem-${i}`,
@@ -43,4 +44,30 @@ test("el pasto solo se densifica: las primeras matas no cambian", () => {
   const key = (t) => `${t.x},${t.y}`;
   const manySet = new Set(many.map(key));
   assert.ok(few.every((t) => manySet.has(key(t))));
+});
+
+test("los arcos abrazan el camino: más anchos que él", () => {
+  const model = buildGardenModel({ ...base, start: "2024-01-01" });
+  const laid = layoutItems(model.items, DIMENSIONS.wide);
+  const arches = laid.filter((i) => i.kind === "arch" || i.kind === "grand");
+  assert.ok(arches.length >= 8);
+  for (const a of arches) {
+    const half = (a.kind === "grand" ? 72 : 60) * a.scale;
+    assert.ok(half > pathAt(a.depth, DIMENSIONS.wide).halfWidth, `${a.id} más estrecho que el camino`);
+  }
+});
+
+test("las flores usan todo el prado, no solo la orilla del camino", () => {
+  const laid = layoutItems(buildGardenModel(base).items, DIMENSIONS.wide).filter((i) => i.kind === "memory");
+  const xs = laid.map((i) => i.x);
+  assert.ok(Math.min(...xs) < DIMENSIONS.wide.width * 0.2);
+  assert.ok(Math.max(...xs) > DIMENSIONS.wide.width * 0.8);
+});
+
+test("la guirnalda cuelga en el cielo, por encima del horizonte", () => {
+  for (const dims of Object.values(DIMENSIONS)) {
+    const { strands, lights } = layoutGarland(monthLights("2022-06-01", "2026-11-20"), dims);
+    assert.equal(strands.length, 5);
+    for (const l of lights) assert.ok(l.y + l.drop + 20 < dims.horizon, `${l.id} y=${l.y}`);
+  }
 });

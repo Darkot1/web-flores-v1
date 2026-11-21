@@ -282,10 +282,17 @@
 }
 
 .cal__mark--arch {
-  width: 10px;
-  height: 7px;
+  width: 11px;
+  height: 8px;
   border-radius: 8px 8px 0 0;
   background: var(--daisy);
+}
+
+.cal__mark--grand {
+  width: 14px;
+  height: 10px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(90deg, var(--gold), var(--daisy));
 }
 
 .cal__mark--tree {

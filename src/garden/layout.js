@@ -9,8 +9,8 @@ import { daysBetween, monthKey } from "../lib/dates.js";
 import { seasonFor } from "./growth.js";
 
 export const DIMENSIONS = {
-  wide: { width: 1000, height: 620, horizon: 150, pad: 26 },
-  tall: { width: 600, height: 780, horizon: 150, pad: 22 },
+  wide: { width: 1000, height: 640, horizon: 172, pad: 26 },
+  tall: { width: 600, height: 800, horizon: 172, pad: 22 },
 };
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -45,7 +45,9 @@ export const pathOutline = (dims, steps = 40) => {
   return [...left, [last.x - last.halfWidth * 1.3, dims.height], [last.x + last.halfWidth * 1.3, dims.height], ...right.reverse()];
 };
 
-const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, lamp: 0.85, arch: 1, tree: 1.2 };
+const KIND_SCALE = { memory: 1.1, letter: 1.4, wild: 0.6, cluster: 1.3, bench: 1, tree: 1.2 };
+/** Medio ancho de los símbolos de arco (unidades del sprite). */
+const ARCH_HALF = { arch: 60, grand: 72 };
 
 /**
  * Coloca cada elemento del modelo. `items` debe venir ordenado (lo hace
@@ -64,22 +66,18 @@ export const layoutItems = (items, dims) => {
     return true;
   };
   const margin = dims.width * 0.04;
-  let lampIndex = 0;
 
   return items
     .map((item) => {
       const rng = createRng(item.id);
-      const isStatic = item.kind === "lamp" || item.kind === "arch" || item.kind === "tree";
+      const isArch = item.kind === "arch" || item.kind === "grand";
+      const isStatic = isArch || item.kind === "tree";
       let d = clamp(depthFor(item.t) + (isStatic ? 0 : rng.range(-0.015, 0.015)), 0.02, 0.995);
       let p = pathAt(d, dims);
       let x = p.x;
       let side = rng.sign();
 
-      if (item.kind === "lamp") {
-        side = lampIndex % 2 === 0 ? 1 : -1;
-        lampIndex += 1;
-        x = p.x + side * (p.halfWidth + 10 * p.scale);
-      } else if (item.kind === "arch") {
+      if (isArch) {
         x = p.x;
       } else if (item.kind === "tree") {
         side = -1;
@@ -87,13 +85,16 @@ export const layoutItems = (items, dims) => {
       } else if (item.kind === "bench") {
         x = p.x + side * (p.halfWidth + 26 * p.scale);
       } else {
-        const spread = item.kind === "wild" ? dims.width * 0.5 : dims.width * 0.36;
+        // Todo el prado: desde el borde del camino hasta el borde del jardín.
         const r = item.kind === "wild" ? 0 : 1;
         let found = false;
         for (let attempt = 0; attempt < 10 && !found; attempt += 1) {
-          const u = rng.float() ** 1.25;
+          const u = rng.float() ** 0.9;
           const s = attempt % 2 === 0 ? side : -side;
-          const candidate = p.x + s * (p.halfWidth + 12 * p.scale + u * spread * (0.45 + 0.55 * d));
+          const gap = p.halfWidth + 12 * p.scale;
+          const room = s > 0 ? dims.width - margin - (p.x + gap) : p.x - gap - margin;
+          if (room < 20) continue;
+          const candidate = p.x + s * (gap + u * room);
           if (candidate > margin && candidate < dims.width - margin && (item.kind === "wild" || isFree(candidate, p.y, r))) {
             x = candidate;
             side = s;
@@ -114,7 +115,10 @@ export const layoutItems = (items, dims) => {
         y: Math.round(p.y * 10) / 10,
         depth: d,
         side,
-        scale: Math.round(p.scale * (KIND_SCALE[item.kind] ?? 1) * (isStatic ? 1 : rng.range(0.86, 1.14)) * 1000) / 1000,
+        // Los arcos abrazan el camino: su escala sale del ancho del camino.
+        scale: isArch
+          ? Math.round(((p.halfWidth * 1.12 + 6) / ARCH_HALF[item.kind]) * 1000) / 1000
+          : Math.round(p.scale * (KIND_SCALE[item.kind] ?? 1) * (isStatic ? 1 : rng.range(0.86, 1.14)) * 1000) / 1000,
         rotate: isStatic ? 0 : Math.round(rng.range(-8, 8) * 10) / 10,
         swayDelay: Math.round(rng.range(-6, 0) * 100) / 100,
         swayDuration: Math.round(rng.range(4.5, 7.5) * 100) / 100,
@@ -161,3 +165,36 @@ export const seasonBands = ({ start, span, today, climate, dims }) => {
 /** Para tests: dos layouts idénticos para los mismos datos. */
 export const layoutSignature = (laid) => laid.map((i) => `${i.id}@${i.x},${i.y},${i.rotate}`).join("|");
 
+
+/**
+ * Guirnaldas del cielo: una por año, 12 farolillos (uno por mes). La más
+ * antigua arriba; cada año nuevo cuelga un poco más cerca del horizonte.
+ */
+export const layoutGarland = (lights, dims) => {
+  if (!lights.length) return { strands: [], lights: [] };
+  const years = Math.max(...lights.map((l) => l.year));
+  const sag = dims.width * 0.028;
+  const top = dims.horizon * 0.12;
+  const bottom = dims.horizon - sag - 40; // cuerda + cordel + farolillo caben sobre el horizonte
+  const gap = years > 1 ? Math.min(30, (bottom - top) / (years - 1)) : 0;
+  const x0 = -20;
+  const span = dims.width + 40;
+  const strands = Array.from({ length: years }, (_, i) => {
+    const y0 = top + i * gap;
+    return { year: i + 1, y0, d: `M${x0} ${y0.toFixed(1)} Q${(dims.width / 2).toFixed(1)} ${(y0 + 2 * sag).toFixed(1)} ${dims.width + 20} ${y0.toFixed(1)}` };
+  });
+  const laid = lights.map((light) => {
+    const strand = strands[light.year - 1];
+    const t = (light.slot - 0.5) / 12;
+    const rng = createRng(light.id);
+    return {
+      ...light,
+      x: Math.round((x0 + t * span) * 10) / 10,
+      y: Math.round((strand.y0 + 4 * sag * t * (1 - t)) * 10) / 10,
+      drop: Math.round(rng.range(6, 14) * 10) / 10,
+      rotate: Math.round(rng.range(-6, 6) * 10) / 10,
+      scale: Math.round(rng.range(0.9, 1.08) * 100) / 100,
+    };
+  });
+  return { strands, lights: laid };
+};

@@ -6,6 +6,7 @@ import {
   computeMilestones,
   grassDensity,
   nextMilestone,
+  monthLights,
   phaseAt,
   seasonFor,
   stageFor,
@@ -23,20 +24,34 @@ test("las etapas maduran con la antigüedad del recuerdo", () => {
   assert.equal(stageFor("2025-01-01", today), "full");
 });
 
-test("hitos: arbolito al inicio, farol cada mes, arco cada año", () => {
+test("hitos: árbol al inicio, luz cada mes, arco cada 3 meses, gran arco cada año", () => {
   const ms = computeMilestones("2025-10-31", today);
   assert.equal(ms[0].kind, "tree");
-  assert.equal(ms.filter((m) => m.kind === "lamp").length, 11);
-  assert.equal(ms.filter((m) => m.kind === "arch").length, 1);
+  const count = (k) => ms.filter((m) => m.kind === k).length;
+  assert.equal(count("light"), 8);
+  assert.equal(count("arch"), 3);
+  assert.equal(count("grand"), 1);
   assert.equal(ms.find((m) => m.n === 4).date, "2026-02-28");
+  assert.equal(ms.find((m) => m.n === 12).label, "1 año juntos");
   assert.deepEqual(computeMilestones(null, today), []);
   assert.deepEqual(computeMilestones("2027-01-01", today), []);
+});
+
+test("la guirnalda tiene una luz por cada mes, agrupadas por año", () => {
+  const lights = monthLights("2024-11-20", today);
+  assert.equal(lights.length, 24);
+  assert.deepEqual([lights[0].year, lights[0].slot], [1, 1]);
+  assert.deepEqual([lights[23].year, lights[23].slot], [2, 12]);
+  assert.equal(lights[14].label, "1 año y 3 meses juntos");
 });
 
 test("próximo hito", () => {
   const next = nextMilestone("2025-10-31", today);
   assert.equal(next.date, "2026-11-30");
   assert.equal(next.inDays, 10);
+  assert.equal(next.kind, "light");
+  assert.match(next.text, /luz/);
+  assert.equal(nextMilestone("2025-11-25", today).kind, "grand");
 });
 
 test("el tiempo solo hace crecer pasto y silvestres", () => {

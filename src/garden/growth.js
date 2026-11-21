@@ -58,45 +58,105 @@ const plural = (n, one, many) => (n === 1 ? one : many);
 
 /**
  * Hitos que se calculan solos a partir de la fecha de inicio:
- * inicio → arbolito, cada mesiversario → farol, cada aniversario → arco de flores.
+ *   - el primer día        → el arbolito del inicio del camino
+ *   - cada mes             → una luz en la guirnalda del cielo (ver monthLights)
+ *   - cada 3 meses         → un arco de flores sobre el camino, del color de la temporada
+ *   - cada año             → el gran arco (doble corona, morado y dorado, con farolillos)
+ * En el suelo solo hay arcos y el árbol: el camino respira y los arcos lucen.
  */
-export const computeMilestones = (start, today, { maxMonths = 600 } = {}) => {
+const monthLabel = (n) => {
+  const years = Math.floor(n / 12);
+  const months = n % 12;
+  const y = years ? `${years} ${plural(years, "año", "años")}` : "";
+  const m = months ? `${months} ${plural(months, "mes", "meses")}` : "";
+  return `${[y, m].filter(Boolean).join(" y ")} juntos`;
+};
+
+export const milestoneKindFor = (n) => (n === 0 ? "tree" : n % 12 === 0 ? "grand" : n % 3 === 0 ? "arch" : "light");
+
+/** Cada mesiversario hasta hoy (incluidos los que coinciden con arcos). */
+export const monthiversaries = (start, today, { maxMonths = 600 } = {}) => {
   if (!start || daysBetween(start, today) < 0) return [];
   const anchorDay = Number(start.slice(8, 10));
-  const list = [{ id: "ms-start", kind: "tree", date: start, label: "Aquí empezó todo", n: 0 }];
+  const list = [];
   for (let n = 1; n <= maxMonths; n += 1) {
     const date = addMonthsClamped(start, n, anchorDay);
     if (daysBetween(date, today) < 0) break;
-    if (n % 12 === 0) {
-      const years = n / 12;
-      list.push({ id: `ms-year-${years}`, kind: "arch", date, n, label: `${years} ${plural(years, "año", "años")} juntos` });
-    } else {
-      list.push({ id: `ms-month-${n}`, kind: "lamp", date, n, label: `${n} ${plural(n, "mes", "meses")} juntos` });
-    }
+    list.push({ n, date, label: monthLabel(n) });
   }
   return list;
+};
+
+/** Hitos del suelo, de la línea de tiempo y del calendario: uno por fecha. */
+export const computeMilestones = (start, today, options) => {
+  if (!start || daysBetween(start, today) < 0) return [];
+  return [
+    { id: "ms-start", kind: "tree", date: start, label: "Aquí empezó todo", n: 0 },
+    ...monthiversaries(start, today, options).map(({ n, date, label }) => {
+      const kind = milestoneKindFor(n);
+      return { id: `ms-${kind}-${n}`, kind, date, n, label };
+    }),
+  ];
+};
+
+/** Las luces de la guirnalda: una por mes; cada año, una guirnalda nueva. */
+export const monthLights = (start, today, climate = "tropical") =>
+  monthiversaries(start, today).map(({ n, date, label }) => ({
+    id: `light-${n}`,
+    kind: "light",
+    n,
+    date,
+    label,
+    year: Math.ceil(n / 12),
+    slot: ((n - 1) % 12) + 1,
+    season: seasonFor(date, climate).id,
+  }));
+
+const NEXT_TEXT = {
+  light: (label) => `se cuelga una luz más en la guirnalda: ${label}`,
+  arch: (label) => `crece un arco de flores: ${label}`,
+  grand: (label) => `crece el gran arco: ${label}`,
 };
 
 /** El próximo hito: para un "faltan X días" discreto. */
 export const nextMilestone = (start, today) => {
   if (!start) return null;
   const anchorDay = Number(start.slice(8, 10));
-  if (daysBetween(start, today) < 0) return { date: start, n: 0, kind: "tree", inDays: daysBetween(today, start), label: "El primer día" };
+  if (daysBetween(start, today) < 0) return { date: start, n: 0, kind: "tree", inDays: daysBetween(today, start), label: "El primer día", text: "se planta la semilla" };
   for (let n = 1; n < 1200; n += 1) {
     const date = addMonthsClamped(start, n, anchorDay);
     const inDays = daysBetween(today, date);
     if (inDays > 0) {
-      const isYear = n % 12 === 0;
-      return {
-        date,
-        n,
-        kind: isYear ? "arch" : "lamp",
-        inDays,
-        label: isYear ? `${n / 12} ${plural(n / 12, "año", "años")} juntos` : `${n} ${plural(n, "mes", "meses")} juntos`,
-      };
+      const kind = milestoneKindFor(n);
+      const label = monthLabel(n);
+      return { date, n, kind, inDays, label, text: NEXT_TEXT[kind](label) };
     }
   }
   return null;
+};
+
+/** Colores del arco según la temporada en que creció. */
+export const ARCH_PALETTES = {
+  dry: ["#F2C14E", "#FAF6FC", "#B79CEB"],
+  veranillo: ["#F6CF8F", "#F2C14E", "#FAF6FC"],
+  "rains-start": ["#C9B6F2", "#FAF6FC", "#7B4FBF"],
+  rain: ["#7B4FBF", "#B79CEB", "#FAF6FC"],
+  winter: ["#FAF6FC", "#C9B6F2", "#7B4FBF"],
+  spring: ["#B79CEB", "#F4C6D8", "#FAF6FC"],
+  summer: ["#F2C14E", "#7B4FBF", "#FAF6FC"],
+  autumn: ["#E8A25C", "#7B4FBF", "#F2C14E"],
+};
+
+/** Colores de los farolillos de papel según la temporada. */
+export const LANTERN_COLORS = {
+  dry: "#F2C14E",
+  veranillo: "#F6B27A",
+  "rains-start": "#C9B6F2",
+  rain: "#B79CEB",
+  winter: "#C9D6F2",
+  spring: "#F4C6D8",
+  summer: "#F2C14E",
+  autumn: "#E8A25C",
 };
 
 /**
@@ -200,6 +260,7 @@ export const buildGardenModel = ({
   today,
   caps = { flowers: 250, wild: 90 },
   thresholds = DEFAULT_THRESHOLDS,
+  climate = "tropical",
 }) => {
   const from = effectiveStart({ start, memories, letters, today });
   const ageDays = gardenAgeDays(start, today);
@@ -240,11 +301,15 @@ export const buildGardenModel = ({
     .filter((m) => m.isMilestone)
     .map((m) => ({ id: `bench-${m.id}`, kind: "bench", date: m.date, title: m.title, memoryId: m.id, label: `Día especial: ${m.title}` }));
 
-  const milestones = computeMilestones(start, today).map((ms) => ({
-    ...ms,
-    title: ms.label,
-    stage: ms.kind === "tree" ? treeStage(ageDays) : undefined,
-  }));
+  const milestones = computeMilestones(start, today)
+    .filter((ms) => ms.kind !== "light")
+    .map((ms) => ({
+      ...ms,
+      title: ms.label,
+      stage: ms.kind === "tree" ? treeStage(ageDays) : undefined,
+      season: seasonFor(ms.date, climate).id,
+    }));
+  const lights = start ? monthLights(start, today, climate) : [];
 
   const wildCount = start ? wildflowerCount(ageDays, caps.wild) : 0;
   const wild = Array.from({ length: wildCount }, (_, n) => {
@@ -258,6 +323,7 @@ export const buildGardenModel = ({
 
   return {
     items,
+    lights,
     start: from,
     hasStart: Boolean(start),
     ageDays,
