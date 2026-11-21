@@ -49,6 +49,8 @@ Añade objetos al array con el mismo formato (`from`/`to` son `"el"` o `"ella"`)
 
 Los recuerdos y las flores silvestres se reparten por todo el prado, desde el camino hasta los bordes.
 
+**Sembrar en un sitio del jardín:** toca la tierra y elige "Sembrar un recuerdo aquí". El recuerdo crece justo en ese punto, que queda guardado. Lo que se siembra desde el calendario se coloca solo a lo largo del camino según su fecha.
+
 ## Guardado: modo local y modo compartido
 
 | | Modo local (por defecto) | Modo compartido (Supabase) |

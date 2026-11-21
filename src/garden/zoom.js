@@ -170,6 +170,8 @@ export const createZoom = (svg, { onChange = () => {} } = {}) => {
     get scale() {
       return scale;
     },
+    /** Punto de pantalla → coordenadas del jardín. */
+    toGarden,
     /** Llamar tras cada render: nuevas dimensiones base, conservando el zoom. */
     setBase(dims) {
       const changed = dims.width !== base.width || dims.height !== base.height;

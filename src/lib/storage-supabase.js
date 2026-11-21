@@ -14,8 +14,8 @@ import { createClient } from "@supabase/supabase-js";
 const CACHE_KEY = "jardin:shared-cache";
 const QUEUE_KEY = "jardin:shared-queue";
 
-const toMemoryRow = (m) => ({ id: m.id, date: m.date, title: m.title, notes: m.notes ?? "", author: m.author, is_milestone: Boolean(m.isMilestone), created_at: m.createdAt });
-const fromMemoryRow = (r) => ({ id: r.id, date: r.date, title: r.title, notes: r.notes ?? "", author: r.author, isMilestone: r.is_milestone, createdAt: r.created_at });
+const toMemoryRow = (m) => ({ id: m.id, date: m.date, title: m.title, notes: m.notes ?? "", author: m.author, is_milestone: Boolean(m.isMilestone), spot: m.spot ?? null, created_at: m.createdAt });
+const fromMemoryRow = (r) => ({ id: r.id, date: r.date, title: r.title, notes: r.notes ?? "", author: r.author, isMilestone: r.is_milestone, spot: r.spot ?? null, createdAt: r.created_at });
 const toLetterRow = (l) => ({
   id: l.id, date: l.date, title: l.title, from_author: l.from, to_author: l.to, intro: l.intro ?? "",
   body: l.body, signature: l.signature, flower: l.flower, seal_color: l.sealColor, created_at: l.createdAt,

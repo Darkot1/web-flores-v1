@@ -84,6 +84,24 @@ export const firstTreePlacement = (dims, stage = "tree") => {
   return { x: Math.round(x), y: Math.round(p.y + 6), scale: Math.round(scale * 100) / 100, radius: 30 + 60 * scale * grow };
 };
 
+/**
+ * Sitio elegido a mano en el jardín. Se guarda en fracciones del terreno
+ * (x: 0–1 a lo ancho; y: 0 en el horizonte, 1 abajo del todo) para que el
+ * mismo sitio sirva en pantallas anchas y en móvil.
+ */
+export const canvasToGround = (x, y, dims) => ({
+  x: Math.round(clamp(x / dims.width, 0.02, 0.98) * 1000) / 1000,
+  y: Math.round(clamp((y - dims.horizon) / (dims.height - dims.horizon), 0.04, 0.98) * 1000) / 1000,
+});
+
+export const groundToCanvas = (spot, dims) => {
+  const y = dims.horizon + spot.y * (dims.height - dims.horizon);
+  const top = dims.horizon + 8;
+  const bottom = dims.height - dims.pad;
+  const e = clamp((y - top) / (bottom - top), 0, 1);
+  return { x: spot.x * dims.width, y, depth: e ** (1 / 1.45) };
+};
+
 export const layoutItems = (items, dims) => {
   const pond = pondPlacement(dims);
   const firstTree = firstTreePlacement(dims, items.find((i) => i.kind === "tree")?.stage);
@@ -114,7 +132,15 @@ export const layoutItems = (items, dims) => {
       let x = p.x;
       let side = rng.sign();
 
-      if (isArch) {
+      let fixedY = null;
+      if (item.spot) {
+        // Sembrado a mano: va exactamente donde se tocó el jardín.
+        const c = groundToCanvas(item.spot, dims);
+        d = clamp(c.depth, 0.02, 0.995);
+        p = pathAt(d, dims);
+        x = c.x;
+        fixedY = c.y;
+      } else if (isArch) {
         x = p.x;
       } else if (item.kind === "tree") {
         side = -1;
@@ -160,7 +186,7 @@ export const layoutItems = (items, dims) => {
       return {
         ...item,
         x: Math.round(x * 10) / 10,
-        y: item.kind === "tree" ? firstTree.y : Math.round(p.y * 10) / 10,
+        y: item.kind === "tree" ? firstTree.y : Math.round((fixedY ?? p.y) * 10) / 10,
         depth: d,
         side,
         // Los arcos abrazan el camino; el gran arco (cada 3 meses) es mucho mayor.

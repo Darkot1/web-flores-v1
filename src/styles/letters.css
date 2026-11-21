@@ -102,14 +102,14 @@
   isolation: isolate;
 }
 
-.pergola__item:hover,
-.pergola__item:focus-within {
-  animation: envelope-swing 1.6s ease-in-out 2 alternate;
+/* Al pasar el ratón el sobre se mece con suavidad desde su cordel (cordel incluido). */
+.pergola__item {
+  transition: transform 900ms cubic-bezier(.3, 1.4, .5, 1);
 }
 
-@keyframes envelope-swing {
-  from { transform: rotate(calc(var(--swing, 2deg) * -1)); }
-  to { transform: rotate(var(--swing, 2deg)); }
+.pergola__item:hover,
+.pergola__item:focus-within {
+  transform: rotate(calc(var(--swing, 2deg) * -0.8));
 }
 
 /* Barra de filtros y botón de escribir, arriba del estante */
@@ -183,6 +183,7 @@
 .envelope__art {
   position: relative;
   display: block;
+  transform-origin: 50% 0; /* crece desde el cordel: no se despega */
   width: 150px;
   height: 100px;
   transition: transform var(--dur-base) var(--ease-organic);
@@ -190,7 +191,7 @@
 
 .envelope:hover .envelope__art,
 .envelope:focus-visible .envelope__art {
-  transform: translateY(-4px) rotate(-1deg);
+  transform: scale(1.03);
 }
 
 .envelope__flower {

@@ -113,6 +113,7 @@ export const createStore = (storage) => {
         notes: (input.notes ?? "").trim().slice(0, 2000),
         author: input.author === "el" || input.author === "ella" ? input.author : null,
         isMilestone: Boolean(input.isMilestone),
+        spot: input.spot ?? existing?.spot ?? null,
         createdAt: existing?.createdAt ?? new Date().toISOString(),
       };
       await guard(() => storage.saveMemory(memory));

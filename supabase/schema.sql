@@ -24,9 +24,13 @@ create table if not exists public.memories (
   notes text not null default '' check (char_length(notes) <= 2000),
   author text check (author in ('el', 'ella')),
   is_milestone boolean not null default false,
+  spot jsonb, -- sitio elegido a mano en el jardín ({x, y} en fracciones), opcional
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Si ya tenías la tabla creada de una versión anterior:
+alter table public.memories add column if not exists spot jsonb;
 
 create table if not exists public.letters (
   id text primary key,
@@ -79,16 +83,17 @@ create or replace function public.save_memory(p_code text, p_memory jsonb)
 returns void language plpgsql security definer set search_path = public as $$
 declare gid uuid := public._garden_id(p_code);
 begin
-  insert into public.memories (id, garden_id, date, title, notes, author, is_milestone, created_at)
+  insert into public.memories (id, garden_id, date, title, notes, author, is_milestone, spot, created_at)
   values (
     p_memory->>'id', gid, (p_memory->>'date')::date, p_memory->>'title',
     coalesce(p_memory->>'notes', ''), nullif(p_memory->>'author', ''),
     coalesce((p_memory->>'is_milestone')::boolean, false),
+    case when jsonb_typeof(p_memory->'spot') = 'object' then p_memory->'spot' else null end,
     coalesce((p_memory->>'created_at')::timestamptz, now())
   )
   on conflict (id) do update set
     date = excluded.date, title = excluded.title, notes = excluded.notes,
-    author = excluded.author, is_milestone = excluded.is_milestone, updated_at = now()
+    author = excluded.author, is_milestone = excluded.is_milestone, spot = excluded.spot, updated_at = now()
   where public.memories.garden_id = gid;
 end $$;
 

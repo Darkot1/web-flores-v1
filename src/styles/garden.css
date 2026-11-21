@@ -520,3 +520,22 @@
 @keyframes pond-swim {
   to { transform: rotate(360deg); }
 }
+
+/* Sembrar tocando la tierra */
+.garden-plant {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--z-garden-tip);
+  white-space: nowrap;
+  box-shadow: var(--shadow-lift);
+  animation: pop-in var(--dur-base) var(--ease-organic);
+}
+
+.garden-svg {
+  cursor: cell;
+}
+
+.garden-svg.is-zoomed {
+  cursor: grab;
+}

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildGardenModel } from "../src/garden/growth.js";
-import { DIMENSIONS, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass, pondPlacement } from "../src/garden/layout.js";
+import { canvasToGround, DIMENSIONS, groundToCanvas, layoutGarland, layoutItems, layoutSignature, pathAt, layoutGrass, pondPlacement } from "../src/garden/layout.js";
 import { monthLights } from "../src/garden/growth.js";
 
 const memories = Array.from({ length: 60 }, (_, i) => ({
@@ -82,4 +82,23 @@ test("nada se planta dentro del estanque", () => {
     }
     assert.ok(pond.cx - pond.rx > 0 && pond.cx + pond.rx < dims.width);
   }
+});
+
+test("sembrar a mano: el recuerdo crece exactamente donde se tocó", () => {
+  for (const dims of Object.values(DIMENSIONS)) {
+    const x = dims.width * 0.7;
+    const y = dims.horizon + (dims.height - dims.horizon) * 0.6;
+    const spot = canvasToGround(x, y, dims);
+    const back = groundToCanvas(spot, dims);
+    assert.ok(Math.abs(back.x - x) < 2 && Math.abs(back.y - y) < 2);
+    const model = buildGardenModel({ ...base, memories: [...memories, { id: "aqui", date: "2026-11-01", title: "Aquí", spot }] });
+    const laid = layoutItems(model.items, dims).find((i) => i.id === "aqui");
+    assert.ok(Math.abs(laid.x - x) < 2 && Math.abs(laid.y - y) < 2, `${laid.x},${laid.y} vs ${x},${y}`);
+  }
+});
+
+test("un recuerdo sembrado a mano nunca se agrupa en una mata", () => {
+  const many = Array.from({ length: 300 }, (_, i) => ({ id: `m${i}`, date: "2026-02-01", title: "x" }));
+  const model = buildGardenModel({ ...base, memories: [...many, { id: "aqui", date: "2026-02-01", title: "Aquí", spot: { x: 0.5, y: 0.5 } }], caps: { flowers: 50, wild: 10 } });
+  assert.ok(model.items.some((i) => i.id === "aqui" && i.kind === "memory"));
 });

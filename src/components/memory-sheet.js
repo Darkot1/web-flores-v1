@@ -19,7 +19,7 @@ const h = (tag, className, text) => {
 
 let uid = 0;
 
-export const createMemorySheet = ({ store, onPlanted }) => {
+export const createMemorySheet = ({ store, onPlanted, onClosed }) => {
   const titleId = "sheet-title";
   const sheet = createDialog({ className: "sheet", labelledBy: titleId });
   let date = null;
@@ -44,6 +44,15 @@ export const createMemorySheet = ({ store, onPlanted }) => {
   form.noValidate = true;
   const formTitle = h("h3", "sheet__form-title");
   const n = ++uid;
+  // Fecha del recuerdo (editable: al sembrar desde el jardín no viene del calendario).
+  const dateField = h("label", "field");
+  dateField.append(h("span", "field__label", "Fecha"));
+  const dateInput = Object.assign(h("input", "field__input"), { type: "date", required: true });
+  dateField.append(dateInput);
+  const spotNote = h("p", "sheet__spot-note", "Se sembrará justo en el lugar que tocaste del jardín.");
+  spotNote.hidden = true;
+  let pendingSpot = null;
+
   const titleField = h("label", "field");
   titleField.append(h("span", "field__label", "Título"));
   const titleInput = h("input", "field__input");
@@ -89,7 +98,7 @@ export const createMemorySheet = ({ store, onPlanted }) => {
   const submit = h("button", "btn btn--primary", "Plantar recuerdo");
   submit.type = "submit";
   actions.append(cancelEdit, submit);
-  form.append(formTitle, titleField, notesField, authorSet, milestoneLabel, error, actions);
+  form.append(formTitle, spotNote, titleField, dateField, notesField, authorSet, milestoneLabel, error, actions);
 
   const discardBar = h("div", "discard-bar");
   discardBar.hidden = true;
@@ -116,6 +125,7 @@ export const createMemorySheet = ({ store, onPlanted }) => {
     formTitle.textContent = memory ? "Editar recuerdo" : "Sembrar un recuerdo";
     submit.textContent = memory ? "Guardar cambios" : "Plantar recuerdo";
     titleInput.value = memory?.title ?? "";
+    dateInput.value = memory?.date ?? date;
     notesInput.value = memory?.notes ?? "";
     (authorInputs[memory?.author ?? ""] ?? authorInputs[""]).checked = true;
     milestoneInput.checked = Boolean(memory?.isMilestone);
@@ -207,8 +217,10 @@ export const createMemorySheet = ({ store, onPlanted }) => {
     addButton.hidden = formVisible || !memories.length;
   };
 
-  const open = (dateKey, opener, { editId } = {}) => {
+  const open = (dateKey, opener, { editId, spot = null } = {}) => {
     date = dateKey;
+    pendingSpot = spot;
+    spotNote.hidden = !spot;
     title.textContent = formatWeekday(dateKey);
     const season = seasonFor(dateKey, config.climate);
     const stage = stageFor(dateKey, store.today(), config.growth);
@@ -220,8 +232,9 @@ export const createMemorySheet = ({ store, onPlanted }) => {
     resetForm(editing);
     discardBar.hidden = true;
     sheet.open(opener);
-    showForm(!store.memoriesOn(dateKey).length || Boolean(editing), { focus: true });
-    if (store.memoriesOn(dateKey).length && !editing) setTimeout(() => (list.querySelector("button") ?? addButton).focus(), 30);
+    // Si se siembra en un sitio del jardín, se va directo al formulario.
+    showForm(!store.memoriesOn(dateKey).length || Boolean(editing) || Boolean(spot), { focus: true });
+    if (store.memoriesOn(dateKey).length && !editing && !spot) setTimeout(() => (list.querySelector("button") ?? addButton).focus(), 30);
   };
 
   const openList = (heading, memories, opener) => {
@@ -283,7 +296,17 @@ export const createMemorySheet = ({ store, onPlanted }) => {
     try {
       const author = Object.entries(authorInputs).find(([, input]) => input.checked)?.[0] || null;
       const wasEditing = Boolean(editingId);
-      const memory = await store.saveMemory({ id: editingId, date, title: titleInput.value, notes: notesInput.value, author, isMilestone: milestoneInput.checked });
+      const chosenDate = /^\d{4}-\d{2}-\d{2}$/.test(dateInput.value) ? dateInput.value : date;
+      const memory = await store.saveMemory({
+        id: editingId,
+        date: chosenDate,
+        title: titleInput.value,
+        notes: notesInput.value,
+        author,
+        isMilestone: milestoneInput.checked,
+        spot: editingId ? undefined : pendingSpot,
+      });
+      pendingSpot = null;
       dirty = false;
       sheet.close();
       if (!wasEditing) {
@@ -322,6 +345,11 @@ export const createMemorySheet = ({ store, onPlanted }) => {
 
   store.subscribe((event) => {
     if (sheet.isOpen && (event.type === "memories" || event.type === "load")) renderList();
+  });
+
+  sheet.onClose(() => {
+    pendingSpot = null;
+    onClosed?.();
   });
 
   return { open, openList };

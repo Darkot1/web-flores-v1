@@ -7,7 +7,7 @@
  * recorren las flores en orden cronológico. Cada flor tiene nombre accesible.
  */
 import { ARCH_PALETTES, buildGardenModel, LANTERN_COLORS, phaseAt, STAGE_LABELS } from "./growth.js";
-import { DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
+import { canvasToGround, DIMENSIONS, layoutGarland, layoutGrass, layoutItems, pathOutline, pondPlacement, seasonBands } from "./layout.js";
 import { daisySymbolId, ensureGardenSprite, paletteVars, symbolHref, symbolSeed, DAISY_SCALE } from "./symbols.js";
 import { buildDaisy, el, growDaisy } from "../components/daisy.js";
 import { formatLong, formatMonth } from "../lib/dates.js";
@@ -147,6 +147,39 @@ const archLilyFlower = (x, y) => {
   return head;
 };
 
+/** Corazón de tierra (en perspectiva) con un borde de florecitas; de él crece la margarita. */
+const heartPoint = (t) => ({
+  x: 16 * Math.sin(t) ** 3,
+  y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)),
+});
+
+const specialHeart = (k, variant) => {
+  const night = variant === "night";
+  const flat = 0.55; // aplastado por la perspectiva, pero se sigue leyendo como corazón
+  const size = 2.4 * k;
+  const pts = [];
+  for (let i = 0; i <= 48; i += 1) {
+    const p = heartPoint((i / 48) * Math.PI * 2);
+    pts.push(`${(p.x * size).toFixed(1)},${(p.y * size * flat).toFixed(1)}`);
+  }
+  // el corazón se apoya delante de la flor: su centro un poco por debajo de la base
+  const g = el("g", { class: "special-heart", transform: `translate(0 ${(6 * k).toFixed(1)})` });
+  if (night) g.append(el("ellipse", { cx: 0, cy: 0, rx: 48 * k, ry: 26 * k, fill: "url(#lamp-glow)", opacity: 0.9 }));
+  g.append(
+    el("polygon", { points: pts.join(" "), fill: night ? "#4a3640" : "#9a7a5c", stroke: night ? "#f2c14e" : "#7a5b41", "stroke-width": night ? 1.6 : 1.2, "stroke-opacity": night ? 0.8 : 0.6 }),
+    el("polygon", { points: pts.join(" "), fill: night ? "#5a4250" : "#b08e6c", transform: "scale(0.8)", opacity: 0.85 }),
+  );
+  // borde de florecitas
+  const N = 20;
+  for (let i = 0; i < N; i += 1) {
+    const p = heartPoint((i / N) * Math.PI * 2);
+    const f = el("g", { transform: `translate(${(p.x * size * 1.06).toFixed(1)} ${(p.y * size * flat * 1.06).toFixed(1)}) scale(${(0.15 * k).toFixed(3)} ${(0.15 * k * 0.8).toFixed(3)})`, style: paletteVars(i % 3 === 0 ? "dorada" : i % 3 === 1 ? "morada" : "blanca") });
+    f.append(el("use", { href: symbolHref("d-head") }));
+    g.append(f);
+  }
+  return g;
+};
+
 /**
  * @param {HTMLElement} host
  * El jardín es uno solo y su luz sigue la hora real del dispositivo (no el
@@ -157,7 +190,7 @@ const archLilyFlower = (x, y) => {
 export { phaseAt };
 const currentPhase = () => phaseAt(new Date(), config.gardenClock);
 
-export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart, label }) => {
+export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart, onPlantAt, label }) => {
   let variant = currentPhase();
   ensureGardenSprite();
 
@@ -211,7 +244,17 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
   zoomHint.className = "garden-zoom__hint";
   zoomHint.setAttribute("aria-hidden", "true");
 
-  host.replaceChildren(svg, tip, empty, zoomBar, zoomHint);
+  // Sembrar tocando la tierra: una burbuja confirma el sitio.
+  const plantBubble = document.createElement("button");
+  plantBubble.type = "button";
+  plantBubble.className = "btn btn--primary garden-plant";
+  plantBubble.hidden = true;
+  plantBubble.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21v-7M12 14c-4 0-6-3-6-6 4 0 6 3 6 6zm0 0c4 0 6-3 6-6-4 0-6 3-6 6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  plantBubble.append(document.createTextNode("Sembrar un recuerdo aquí"));
+  let pendingSpot = null;
+  let plantMarker = null;
+
+  host.replaceChildren(svg, tip, empty, zoomBar, zoomHint, plantBubble);
 
   let hintTimer = 0;
   const zoom = createZoom(svg, {
@@ -435,22 +478,9 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       });
       const body = el("g", { transform: `scale(${item.scale}) rotate(${item.rotate})` }, [itemContent(item)]);
       if (item.kind === "memory" && item.isMilestone) {
-        // Día especial: su margarita crece dentro de un corazón de florecitas.
+        // Día especial: la margarita brota de un corazón dibujado en la tierra.
         g.classList.add("is-special");
-        const k = Math.max(0.55, item.scale);
-        g.append(el("ellipse", { class: "special-glow", cx: 0, cy: -62 * k, rx: 62 * k, ry: 62 * k, fill: "url(#lamp-glow)", opacity: variant === "night" ? 0.9 : 0.55 }));
-        // Corona de flores en forma de corazón, de pie, enmarcando la margarita.
-        const heart = el("g", { class: "special-heart", transform: `translate(0 ${(-66 * k).toFixed(1)}) scale(${k.toFixed(3)})` });
-        const N = 28;
-        for (let i = 0; i < N; i += 1) {
-          const t = (i / N) * Math.PI * 2;
-          const hx = 16 * Math.sin(t) ** 3;
-          const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-          const f = el("g", { transform: `translate(${(hx * 3.1).toFixed(1)} ${(hy * 3.1).toFixed(1)}) scale(0.24)`, style: paletteVars(i % 3 === 0 ? "dorada" : i % 3 === 1 ? "morada" : "lavanda") });
-          f.append(el("use", { href: symbolHref("d-head") }));
-          heart.append(f);
-        }
-        g.append(heart);
+        g.append(specialHeart(Math.max(0.6, item.scale), variant));
       }
       if (item.kind === "tree") {
         // El árbol del primer día brilla un poco: es donde empezó todo.
@@ -519,6 +549,7 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
 
     renderEmpty(model);
     hideTip();
+    hidePlant();
     if (fresh) plant(fresh);
   };
 
@@ -541,6 +572,47 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
       entry.g.classList.remove("is-fresh");
     });
   };
+
+  const hidePlant = ({ keepMarker = false } = {}) => {
+    plantBubble.hidden = true;
+    if (!keepMarker) {
+      plantMarker?.remove();
+      plantMarker = null;
+      pendingSpot = null;
+    }
+  };
+
+  /** Toque en la tierra: muestra dónde se sembraría y la burbuja para confirmarlo. */
+  const offerPlantAt = (clientX, clientY) => {
+    if (!onPlantAt || !dims) return false;
+    const pt = zoom.toGarden(clientX, clientY);
+    if (pt.y < dims.horizon + 14 || pt.y > dims.height - 6) return false;
+    const pond = pondPlacement(dims);
+    if (((pt.x - pond.cx) / (pond.rx + 8)) ** 2 + ((pt.y - pond.cy) / (pond.ry + 8)) ** 2 < 1) return false;
+    hideTip();
+    hidePlant();
+    pendingSpot = canvasToGround(pt.x, pt.y, dims);
+    plantMarker = el("g", { class: "plant-marker", transform: `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`, "pointer-events": "none" }, [
+      el("ellipse", { class: "plant-ripple", cx: 0, cy: 0, rx: 16, ry: 5 }),
+      el("ellipse", { cx: 0, cy: 1, rx: 9, ry: 3, fill: "#6e5139", opacity: 0.5 }),
+      el("ellipse", { cx: 0, cy: -2, rx: 3.4, ry: 2.2, fill: "#6e5139" }),
+    ]);
+    svg.querySelector(".garden-items")?.append(plantMarker);
+    plantBubble.hidden = false;
+    const hostRect = host.getBoundingClientRect();
+    const bw = plantBubble.offsetWidth;
+    const left = Math.min(Math.max(8, clientX - hostRect.left - bw / 2), hostRect.width - bw - 8);
+    const top = clientY - hostRect.top - plantBubble.offsetHeight - 16;
+    plantBubble.style.transform = `translate(${Math.round(left)}px, ${Math.round(top < 6 ? clientY - hostRect.top + 16 : top)}px)`;
+    return true;
+  };
+
+  plantBubble.addEventListener("click", () => {
+    if (!pendingSpot) return;
+    const spot = pendingSpot;
+    hidePlant({ keepMarker: true });
+    onPlantAt?.(spot, plantBubble);
+  });
 
   // Tooltip
   const showTip = (item, { withOpen = false } = {}) => {
@@ -616,8 +688,10 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
     const item = itemFromEvent(e);
     if (!item) {
       hideTip();
+      if (!offerPlantAt(e.clientX, e.clientY)) hidePlant();
       return;
     }
+    hidePlant();
     const index = focusOrder.findIndex((i) => i.id === item.id);
     if (index >= 0) {
       nodesById.get(focusOrder[focusIndex]?.id)?.g.setAttribute("tabindex", "-1");
@@ -696,6 +770,10 @@ export const createGarden = (host, { store, onOpen, onPlantFirst, onChooseStart,
 
   return {
     render,
+    /** Quita la semilla marcada si se cerró la hoja sin sembrar. */
+    clearPendingPlant() {
+      hidePlant();
+    },
     /** Lleva el foco a una flor y la resalta. */
     reveal(id) {
       const entry = nodesById.get(id) ?? [...nodesById.values()].find((e) => e.item.members?.some((m) => m.id === id));

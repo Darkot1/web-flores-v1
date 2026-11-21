@@ -543,3 +543,12 @@ textarea.composer__body {
     padding-right: 0;
   }
 }
+
+.sheet__spot-note {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-s);
+  background: var(--sage-soft);
+  color: var(--tag-stage-fg);
+  font-size: var(--step--1);
+  font-weight: 600;
+}

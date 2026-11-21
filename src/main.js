@@ -170,6 +170,7 @@ const boot = async () => {
   let garden = null;
   const sheet = createMemorySheet({
     store,
+    onClosed: () => garden?.clearPendingPlant(),
     onPlanted: (memory) => {
       showToast("Tu margarita ya está en el jardín.", {
         action: {
@@ -208,6 +209,8 @@ const boot = async () => {
       sheet.open(today, document.activeElement);
     },
     onChooseStart: () => openSettings(),
+    // Tocar la tierra del jardín → sembrar ahí un recuerdo (con fecha de hoy, editable).
+    onPlantAt: (spot, opener) => sheet.open(store.today(), opener, { spot }),
   });
 
   mountClosing({ scene: $("[data-closing-scene]"), tally: $("[data-closing-tally]"), store });

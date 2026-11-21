@@ -283,10 +283,12 @@ export const buildGardenModel = ({
     color: flowerColorFor(m.id),
     petals: petalCountFor(m.id),
     isMilestone: Boolean(m.isMilestone),
+    spot: m.spot ?? null,
     ref: m,
   }));
 
-  const flowers = clusterOldest(memoryItems, caps.flowers);
+  // Los recuerdos sembrados a mano en un sitio del jardín nunca se agrupan en matas.
+  const flowers = [...clusterOldest(memoryItems.filter((m) => !m.spot), caps.flowers), ...memoryItems.filter((m) => m.spot)];
 
   const letterItems = letters.map((l) => ({
     id: l.id,
