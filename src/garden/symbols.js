@@ -210,32 +210,73 @@ const tree = (stage) => {
     }),
   );
 
-  // copa: racimos de flores, del fondo (oscuro) al frente (claro)
-  const back = ["#5B2E7E", "#6A3FB0", "#7B4FBF"];
-  const front = ["#7B4FBF", "#9A73D8", "#B79CEB", "#C9B6F2"];
-  const clusters = [];
-  for (let i = 0; i < conf.n; i += 1) {
-    const a = rng.range(Math.PI * 1.02, Math.PI * 1.98);
+  // copa: primero un follaje de hojas, luego racimos de flores pequeños y de muchos colores
+  const leafGreens = ["#5F8259", "#6F9468", "#7E9F78", "#86A77F", "#93B28C", "#9DB59A"];
+  const leaf = (x, y, size, rot, fill, opacity = 1) =>
+    el("ellipse", { cx: 0, cy: 0, rx: (6.5 * size).toFixed(1), ry: (2.7 * size).toFixed(1), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})`, fill, opacity });
+  // Copa con forma de cúpula: una base de follaje redondo...
+  const CX = 0;
+  const CY = -130;
+  const RX = 80;
+  const RY = 48;
+  const inDome = () => {
+    // punto aleatorio dentro de la cúpula (elipse algo aplanada abajo)
+    const a = rng.range(0, Math.PI * 2);
     const rr = Math.sqrt(rng.float());
-    clusters.push({ x: Math.cos(a) * 80 * rr, y: -128 + Math.sin(a) * 46 * rr + rng.range(-4, 10), r: rng.range(10, 17), layer: rng.float() });
+    const y = Math.sin(a) * RY * rr;
+    return { x: CX + Math.cos(a) * RX * rr, y: CY + (y > 0 ? y * 0.55 : y) };
+  };
+  const domeBlobs = [[-52, -124, 28], [52, -124, 28], [-28, -148, 31], [28, -148, 31], [0, -162, 27], [0, -130, 38], [-66, -110, 19], [66, -110, 19]];
+  for (const [x, y, r] of domeBlobs) g.append(el("circle", { cx: x, cy: y, r, fill: "#5F8259" }));
+  for (const [x, y, r] of domeBlobs) g.append(el("circle", { cx: x - 4, cy: y - 5, r: r * 0.78, fill: "#7E9F78", opacity: 0.8 }));
+  // ...cubierta de hojas
+  for (let i = 0; i < conf.n * 2.4; i += 1) {
+    const p = inDome();
+    g.append(leaf(p.x, p.y, rng.range(0.9, 1.35), rng.int(-80, 80), rng.pick(leafGreens)));
+  }
+  // racimos de flores: más pequeños y variados
+  const palettes = [
+    ["#5B2E7E", "#6A3FB0", "#7B4FBF"], // morados
+    ["#9A73D8", "#B79CEB", "#C9B6F2"], // lavandas
+    ["#C24D7A", "#E58FB0", "#F4C6D8"], // rosas
+    ["#8E6A9C", "#A989B8", "#D7C4E3"], // malvas
+    ["#FAF6FC", "#F3ECFF", "#FFFFFF"], // blancos
+    ["#F2C14E", "#F8D987"], // un toque dorado
+  ];
+  const weights = [30, 24, 16, 14, 11, 5];
+  const pickPalette = () => {
+    let r = rng.float() * 100;
+    for (let k = 0; k < palettes.length; k += 1) {
+      r -= weights[k];
+      if (r <= 0) return palettes[k];
+    }
+    return palettes[0];
+  };
+  const clusters = [];
+  for (let i = 0; i < conf.n * 1.7; i += 1) {
+    const p = inDome();
+    clusters.push({ x: p.x * 0.94, y: p.y, r: rng.range(5.5, 10), layer: rng.float() });
   }
   clusters.sort((p, q) => p.layer - q.layer);
   for (const c of clusters) {
-    const fill = c.layer < 0.4 ? rng.pick(back) : rng.pick(front);
-    g.append(el("circle", { cx: c.x.toFixed(1), cy: c.y.toFixed(1), r: c.r.toFixed(1), fill }));
+    const pal = pickPalette();
+    // racimo = 3 o 4 círculos de tonos vecinos (se lee como flores apiñadas)
+    const n = rng.int(3, 4);
+    for (let k = 0; k < n; k += 1) {
+      const ox = rng.range(-c.r * 0.6, c.r * 0.6);
+      const oy = rng.range(-c.r * 0.5, c.r * 0.4);
+      g.append(el("circle", { cx: (c.x + ox).toFixed(1), cy: (c.y + oy).toFixed(1), r: (c.r * rng.range(0.5, 0.75)).toFixed(1), fill: pal[Math.min(pal.length - 1, Math.floor(rng.float() * pal.length))], opacity: c.layer < 0.35 ? 0.85 : 1 }));
+    }
   }
-  // hojas que asoman y destellos de flor
-  for (let i = 0; i < conf.n * 0.45; i += 1) {
-    // hojas sueltas en el borde de la copa, giradas
-    const a = rng.range(Math.PI * 0.05, Math.PI * 0.95) + Math.PI * (rng.chance(0.75) ? 0 : 1);
-    const lx = Math.cos(a) * rng.range(50, 82);
-    const ly = -128 + Math.abs(Math.sin(a)) * rng.range(8, 30) * (a < Math.PI ? 1 : -1.2);
-    g.append(el("ellipse", { cx: 0, cy: 0, rx: 5.5, ry: 2.4, transform: `translate(${lx.toFixed(1)} ${ly.toFixed(1)}) rotate(${rng.int(-50, 50)})`, fill: rng.pick(["#86A77F", "#9DB59A", "#7E9F78"]), opacity: 0.95 }));
+  // hojas delante, asomando entre las flores y por el borde
+  for (let i = 0; i < conf.n * 0.9; i += 1) {
+    const p = inDome();
+    g.append(leaf(p.x * 0.96, p.y, rng.range(0.75, 1.05), rng.int(-70, 70), rng.pick(leafGreens.slice(2)), 0.95));
   }
+  // destellos: centros de flor
   for (let i = 0; i < conf.n * 1.4; i += 1) {
-    const a = rng.range(Math.PI * 1.05, Math.PI * 1.95);
-    const rr = Math.sqrt(rng.float());
-    g.append(el("circle", { cx: (Math.cos(a) * 78 * rr).toFixed(1), cy: (-128 + Math.sin(a) * 44 * rr).toFixed(1), r: rng.range(1.2, 2.4).toFixed(1), fill: rng.pick(["#F3ECFF", "#E8DDF7", "#F2C14E"]), opacity: 0.9 }));
+    const p = inDome();
+    g.append(el("circle", { cx: (p.x * 0.92).toFixed(1), cy: p.y.toFixed(1), r: rng.range(0.9, 1.8).toFixed(1), fill: rng.pick(["#F3ECFF", "#FFF1BF", "#F2C14E", "#FFFFFF"]), opacity: 0.9 }));
   }
 
   // el columpio, cuando el árbol ya es grande
